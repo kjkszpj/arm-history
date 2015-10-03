@@ -2,10 +2,11 @@ MEMORY
 {
 	RAM (rwx) :
 		ORIGIN = 1M,
-		LENGTH = 256M - 1M
+		LENGTH = 512M - 1M
 }
 
 preload_size = 1M;
+
 
 SECTIONS
 {
