@@ -1,16 +1,16 @@
 MEMORY
 {
 	RAM (rwx) :
-		ORIGIN = 1M,
-		LENGTH = 512M - 1M
+		ORIGIN = 0,
+		LENGTH = 0
 }
 
-preload_size = 1M;
+preload_size = 0;
 
 
 SECTIONS
 {
-	. = ORIGIN(RAM) + LENGTH(RAM) - preload_size;
+	. = 0;
 	.text . : {
 		*(.text)
 	}
