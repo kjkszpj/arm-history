@@ -5,15 +5,16 @@ MEMORY
 		LENGTH = 0
 }
 
-preload_size = 0;
+preload_size = 0x100000;
 
 
 SECTIONS
 {
-	. = 0;
+	. = preload_size;
 	.text . : {
 		*(.text)
 	}
+/*	. = 0x100000;*/
 	.rodata . : {
 		*(.rodata)
 	}

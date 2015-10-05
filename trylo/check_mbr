@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo dd if=/dev/sdb of=nmbr bs=512 count=1 conv=notrunc
