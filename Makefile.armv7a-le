@@ -81,3 +81,7 @@ clean:
 	$(OBJCOPY) -O binary -S $^ $@
 
 .PHONY: clean
+
+foo.o:
+	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c trylo/foo.c -o trylo/foo.o
+

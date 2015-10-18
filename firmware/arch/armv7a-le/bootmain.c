@@ -73,6 +73,8 @@ void firmware_bootmain(void)
 		mbr_entry();
 	} else uart_spin_puts("FW: MBR not valid.\r\n");
 	
+	uart_spin_puts("So good.\r\n");
+	uart_spin_puts("Now over.\r\n");
 spin:
 	while (1);
 }

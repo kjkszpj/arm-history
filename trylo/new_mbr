@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo dd if=temp of=/dev/sdb bs=400 count=1 conv=notrunc
