@@ -1,4 +1,4 @@
-int foo(int x)
+void foo(void)
 {
 	void (*puts)(const char *) = (void *)0x1FF0000C;
 
