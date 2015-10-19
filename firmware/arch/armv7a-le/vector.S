@@ -18,3 +18,6 @@ firmware_vector:
 	b	uart_init
 	b	uart_enable
 	b	uart_spin_puts
+	b	sd_spin_init_mem_card
+	b	sd_dma_spin_read
+	b	sd_dma_spin_write

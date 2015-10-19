@@ -27,4 +27,4 @@ SECTIONS
 	}
 }
 
-ENTRY(main)
+ENTRY(foo)
