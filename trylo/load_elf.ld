@@ -14,7 +14,6 @@ SECTIONS
 	.text . : {
 		*(.text)
 	}
-/*	. = 0x100000;*/
 	.rodata . : {
 		*(.rodata)
 	}
