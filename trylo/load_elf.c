@@ -22,20 +22,22 @@ int main(void)
 	//int (*sd_dma_spin_write)(u32 pa, u16 count, u32 offset) = (void *)0x1ff00014;
 	
 	/* sign the mbr */
-	//puts("MBR!\r\n");
+	puts("MBR!\r\n");
 	
 	/* get second partition */
 	/* TODO sector = page? */
 	/* TODO buffer address, fixed or ...? */
 	/* TODO volatile buffer? */
-	u32 *elf_addr = (u32*) (*((u32 *)0x1001D6));
+	u32 elf_addr = *((u32 *)0x1001D6);
 	volatile u8 *buffer = (void *) 0x120000;
-	sd_dma_spin_read((u32)buffer, 2, *elf_addr);
+	sd_dma_spin_read((u32)buffer, 2, elf_addr);
+	puts("MBR!\r\n");
 	
 	void (*kernel_entry)(void) = (void *)(*(u32 *)(buffer + 0x18)); /* offset 0x18 */
 	u32 *phoff = *((u32 *)(buffer + 0x1C)); /* offset 0x1C */
 	u16 phentsize = *((u16 *)(buffer + 0x2A)); /* offset 0x2A */
 	u16 phnum = *((u16 *)(buffer + 0x2C)); /* offset 0x2E */
+	puts("MBR!\r\n");
 	
 	/* address of current program header entry */
 	phoff += (u32)buffer;
@@ -51,8 +53,12 @@ int main(void)
 		u32 end_id = ((phe_offset + (u32)buffer - 1) >> 9) + 1;
 		sd_dma_spin_read(phe_vaddr - offset, end_id - start_id, phe_offset + buffer);
 		phoff += phentsize >> 2;
-	} 
+	}
+	puts("MBR!\r\n");
+	
 	/*now entering kernel*/
 	kernel_entry();
+	puts("MBR!\r\n");
+	
 	while (1);
 }
