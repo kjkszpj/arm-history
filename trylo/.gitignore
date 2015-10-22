@@ -2,3 +2,5 @@
 *.elf
 #.out
 *.bin
+temp
+nmbr
