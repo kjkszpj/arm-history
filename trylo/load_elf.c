@@ -45,7 +45,7 @@ int main(void)
 		/* TODO load to buffer */
 		u32 start_id = phe_offset >> 9;
 		u32 end_id = ((phe_offset + (u32)phe_filesz - 1) >> 9) + 1;
-		sd_dma_spin_read(phe_vaddr - offset, end_id - start_id, (u32)(phe_offset + buffer));
+		sd_dma_spin_read(phe_vaddr - offset, end_id - start_id, (phe_offset >> 9) + elf_addr);
 		phoff += phentsize >> 2;
 	}
 	

@@ -5,7 +5,7 @@ MEMORY
 		LENGTH = 0
 }
 
-preload_size = 0x100000;
+preload_size = 0x500000;
 
 
 SECTIONS
