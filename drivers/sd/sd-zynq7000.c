@@ -283,6 +283,21 @@ int sd_dma_spin_read(u32 pa, u16 count, u32 offset)
 	return 0;
 }
 
+int sd_dma_big_read(u32 pa, u32 count, u32 offset)
+{
+	/* fix the cross page problem(not tested) --- YPJ */
+
+	while (count > 0)
+	{
+		u16 rest = (512 - (pa & 511)) >> 9;
+		u16 step = rest < count ? rest : count;
+		sd_dma_spin_read(pa, step, offset);
+		pa += step << 9;
+		offset += step;
+		count -= step;
+	}
+}
+
 /*
  * write block to memory card
  * utilize basic DMA (known as SDMA in documents)
