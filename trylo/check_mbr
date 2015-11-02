@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo dd if=/dev/disk1 of=nmbr bs=512 count=1 conv=notrunc
+sudo dd if=/dev/disk2 of=nmbr bs=512 count=1 conv=notrunc

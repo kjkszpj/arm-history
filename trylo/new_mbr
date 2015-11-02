@@ -1,4 +1,4 @@
 #!/bin/bash
 sudo diskutil umount /Volumes/ZEDBOARD/
-sudo dd if=temp of=/dev/disk1 bs=440 count=1 conv=notrunc
+sudo dd if=temp of=/dev/disk2 bs=440 count=1 conv=notrunc
 sync
