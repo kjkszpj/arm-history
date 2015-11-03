@@ -2,3 +2,7 @@
 *.bin
 *.elf
 *.out
+*.temp
+*temp
+temp
+.idea
