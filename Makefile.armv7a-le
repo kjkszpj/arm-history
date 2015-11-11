@@ -46,7 +46,10 @@ FIRMWARE_M4	=  firmware/arch/$(ARCH)/firmware.m4 \
 
 MBR_OBJS	=  boot/arch/$(ARCH)/$(MACH)/bootmain.o
 
-all: firmware.bin mbr.bin
+MMU_OBJS	=  	kern/init/arch/$(ARCH)/$(MACH)/start_mmu.o \
+				kern/init/arch/$(ARCH)/$(MACH)/hardware_mmu.o
+
+all: firmware.bin mbr.bin mmu.bin
 
 $(FIRMWARE_OBJS): EXTRA_CFLAGS = -O2
 
@@ -62,6 +65,9 @@ $(MBR_OBJS): EXTRA_CFLAGS := -Os
 
 mbr.elf: $(MBR_OBJS) boot/arch/$(ARCH)/$(MACH)/mbr.ld
 	$(LD) $(LDFLAGS) -T boot/arch/$(ARCH)/$(MACH)/mbr.ld -o $@ $^
+
+mmu.elf: $(MMU_OBJS)
+	$(LD) $(LDFLAGS) -T kern/init/arch/$(ARCH)/$(MACH)/mmu.ld -o $@ $(MMU_OBJS)
 
 clean:
 	rm -f firmware.ld
@@ -81,7 +87,3 @@ clean:
 	$(OBJCOPY) -O binary -S $^ $@
 
 .PHONY: clean
-
-foo.o:
-	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c trylo/foo.c -o trylo/foo.o
-
