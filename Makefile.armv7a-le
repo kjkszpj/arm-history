@@ -32,13 +32,15 @@ CFLAGS		+= -mlittle-endian $(INCFLAG) -DMACH_$(UPPERMACH)
 
 LDFLAGS		=  -EL -O -N
 
+DRIVERS_OBJS	=	drivers/serial/uart-zynq7000.o \
+                    drivers/serial/uart.o \
+                    drivers/clock/gtc-a9mpcore.o \
+                    drivers/sd/sd-zynq7000.o
+
 FIRMWARE_OBJS	=  firmware/arch/$(ARCH)/vector.o \
 		   firmware/arch/$(ARCH)/bootasm.o \
 		   firmware/arch/$(ARCH)/bootmain.o \
-		   drivers/serial/uart-zynq7000.o \
-		   drivers/serial/uart.o \
-		   drivers/clock/gtc-a9mpcore.o \
-		   drivers/sd/sd-zynq7000.o
+		   $(DRIVERS_OBJS)
 
 FIRMWARE_M4	=  firmware/arch/$(ARCH)/firmware.m4 \
 		   firmware/arch/$(ARCH)/$(MACH)/chip.m4 \
@@ -47,9 +49,10 @@ FIRMWARE_M4	=  firmware/arch/$(ARCH)/firmware.m4 \
 MBR_OBJS	=  boot/arch/$(ARCH)/$(MACH)/bootmain.o
 
 MMU_OBJS	=  	kern/init/arch/$(ARCH)/$(MACH)/start_mmu.o \
-				kern/init/arch/$(ARCH)/$(MACH)/hardware_mmu.o
+				kern/init/arch/$(ARCH)/$(MACH)/asm_mmu.o\
+				$(DRIVERS_OBJS)
 
-all: firmware.bin mbr.bin mmu.bin
+all: firmware.bin mbr.bin
 
 $(FIRMWARE_OBJS): EXTRA_CFLAGS = -O2
 
@@ -67,7 +70,7 @@ mbr.elf: $(MBR_OBJS) boot/arch/$(ARCH)/$(MACH)/mbr.ld
 	$(LD) $(LDFLAGS) -T boot/arch/$(ARCH)/$(MACH)/mbr.ld -o $@ $^
 
 mmu.elf: $(MMU_OBJS)
-	$(LD) $(LDFLAGS) -T kern/init/arch/$(ARCH)/$(MACH)/mmu.ld -o $@ $(MMU_OBJS)
+	$(LD) $(LDFLAGS) -T kern/init/arch/$(ARCH)/$(MACH)/mmu.ld -o bin/$@ $(MMU_OBJS)
 
 clean:
 	rm -f firmware.ld

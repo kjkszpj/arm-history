@@ -47,7 +47,7 @@ void clear_low()
     //TODO clear low memory
 }
 
-int start_mmu()
+int main()
 {
     prepare_page_table();
 //    asm_mmu(PT_BASE);
