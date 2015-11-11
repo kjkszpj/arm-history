@@ -6,14 +6,30 @@
 // 5.	prepare free list
 
 // page table mapping scheme
-// 1.	execution flow, now at xxxxx, need low and high
+// 1.	execution flow, now at 0x200000, need low and high
 // 2.	stack, now at 511M, need low and high
 // 3.	IO related, now at xxxx, need high
 
 #include "start_mmu.h"
 
+void prepare_page_table();
+void asm_mmu(int pt_base);
+void test();
+void clear_low();
+
+int main()
+{
+    prepare_page_table();
+    asm_mmu(PT_BASE);
+    test();
+    clear_low();
+    uart_spin_puts("MMU DONE.");
+    return 0;
+}
+
 void prepare_page_table()
 {
+//    1:1 mapping for now
     u32 i;
     u32 mask;
     u32 *page_table = (u32*)PT_BASE;
@@ -27,7 +43,7 @@ void prepare_page_table()
     treasure[4] = 0;
 
     //  TODO domain?
-    //base address(31:20)|00||nG|S|AP[2]|TEX[2:0]|AP[1:0]|0|domain(8765)|00010
+    //  base address(31:20)|00||nG|S|AP[2]|TEX[2:0]|AP[1:0]|0|domain(8765)|00010
     for (i = 0; i < 0x1000; i++)
     {
         mask = (i << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
@@ -35,7 +51,26 @@ void prepare_page_table()
     }
 }
 
-//extern void asm_mmu(int page_table_base_address);
+//extern void asm_mmu(int pt_base);
+
+void asm_mmu(int pt_base)
+{
+    asm
+    (
+//        load variable pt_base into r0
+        "mov r0, %0\n"
+//        pass r0 to xxxx
+        "mcr p15, 0, r0, c2, c0, 0\n"
+//        activate MMU via SCTLR.M
+        "mrc p15, 0, r0, c1, c0, 0\n"
+        "orr r0, r0, #0b1\n"
+        "mcr p15, 0, r0, c1, c0, 0\n"
+//        TODO invalidate TLB, anything else? cache?
+        :
+        :"r"(pt_base)
+        :"r0"
+    );
+}
 
 void test()
 {
@@ -45,13 +80,4 @@ void test()
 void clear_low()
 {
     //TODO clear low memory
-}
-
-int main()
-{
-    prepare_page_table();
-//    asm_mmu(PT_BASE);
-    test();
-    clear_low();
-    return 0;
 }

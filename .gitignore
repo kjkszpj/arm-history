@@ -4,5 +4,6 @@
 *.out
 *.temp
 *temp
+*.s
 temp
 .idea

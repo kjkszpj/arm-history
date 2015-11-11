@@ -84,7 +84,7 @@ clean:
 	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
 
 %.s: %.elf
-	$(OBJDUMP) -S $^ > $@
+	$(OBJDUMP) -S bin/$^ > $@
 
 %.bin: %.elf
 	$(OBJCOPY) -O binary -S $^ $@
