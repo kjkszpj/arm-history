@@ -19,6 +19,8 @@ void clear_low();
 
 int main()
 {
+    uart_spin_puts("Hi from kernel.\r\n");
+    uart_spin_puts("Now prepareing MMU\r\n");
     prepare_page_table();
     asm_mmu(PT_BASE);
     test();
@@ -49,6 +51,10 @@ void prepare_page_table()
         mask = (i << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
         page_table[i] = mask;
     }
+    uart_spin_puts("DO");
+    page_table[0x801] = (1 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    page_table[0x800] = (1 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    page_table[0x802] = (1 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
 }
 
 //extern void asm_mmu(int pt_base);
@@ -74,7 +80,7 @@ void asm_mmu(int pt_base)
 
 void test()
 {
-    uart_spin_puts((char *)0x123456);
+    uart_spin_puts((char *)0x80123456);
 }
 
 void clear_low()
