@@ -2,9 +2,9 @@
  *	PLEASE refer to elf format CAREFULLY first!
  *
  *	TODO:
- *	1.	buffer address is 0x120000 and 0x130002, do not load segment here
+ *	1.	buffer address is 0x1200000 and 0x1300002, do not load segment here
  *	2.	better load to the buffer and copy to target address
- *	3.	cross page interrupt is NOT fixed
+ *	3.	paddr instead of vaddr
  */
 
 #include <config.h>
@@ -20,12 +20,12 @@ void mbr_bootmain(void)
 {
 	u32 i;
 
-	volatile u8 *buffer = (void *) 0x130002;
+	volatile u8 *buffer = (void *) 0x1300002;
 	sd_dma_spin_read((u32)buffer, 1, 0);
 	u32 elf_addr = *(u32 *)(buffer + 0x1D6);
 
 	/* get second partition */
-	buffer = (void *) 0x120000;
+	buffer = (void *) 0x1200000;
 	sd_dma_spin_read((u32)buffer, 3, elf_addr);
 
 	void (*kernel_entry)(void) = (void *)(*(u32 *)(buffer + 0x18));

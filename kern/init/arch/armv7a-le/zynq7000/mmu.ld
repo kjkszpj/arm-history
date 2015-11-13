@@ -5,24 +5,19 @@ MEMORY
 		LENGTH = 0
 }
 
-start_addr = 0x200000;
+low_paddr = 3M;
+low_vaddr = 3M;
+high_paddr = 2M;
+high_vaddr = 2048M;
 
 SECTIONS
 {
-	. = start_addr;
-	.text . : {
-		*(.text)
+	.low low_vaddr : AT(low_paddr){
+		mmu_low.elf
 	}
-	.rodata . : {
-		*(.rodata)
-	}
-	.data . : {
-		*(.data)
-	}
-	.bss . : {
-		*(.bss)
-		*(COMMON)
+	.high high_vaddr : AT(high_paddr){
+		mmu_high.elf
 	}
 }
 
-ENTRY(main)
+ENTRY(mmu_low_main)

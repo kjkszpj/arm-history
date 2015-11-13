@@ -9,29 +9,31 @@
 // 1.	execution flow, now at 0x200000, need low and high
 // 2.	stack, now at 511M, need low and high
 // 3.	IO related, now at xxxx, need high
+// 4.  page table, high
 
-#include "start_mmu.h"
+//  TODO vaddr vs paddr
+
+#include "mmu_low.h"
 
 void prepare_page_table();
 void asm_mmu(int pt_base);
 void test();
-void clear_low();
+void jump_high();
 
-int main()
+int mmu_low_main()
 {
     uart_spin_puts("Hi from kernel.\r\n");
     uart_spin_puts("Now prepareing MMU\r\n");
     prepare_page_table();
     asm_mmu(PT_BASE);
     test();
-    clear_low();
+    jump_high();
     uart_spin_puts("MMU DONE.");
     return 0;
 }
 
 void prepare_page_table()
 {
-//    1:1 mapping for now
     u32 i;
     u32 mask;
     u32 *page_table = (u32*)PT_BASE;
@@ -44,34 +46,49 @@ void prepare_page_table()
     treasure[3] = '\n';
     treasure[4] = 0;
 
-    //  TODO domain?
     //  base address(31:20)|00||nG|S|AP[2]|TEX[2:0]|AP[1:0]|0|domain(8765)|00010
-    for (i = 0; i < 0x1000; i++)
+    for (i = 0; i < 0x800; i++)
     {
         mask = (i << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
         page_table[i] = mask;
+        page_table[i + 0x800] = mask;
     }
+    //  IO mapping, TODO should reallocate it latter
+    page_table[0xE00] = (0xE00 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    page_table[0xE01] = (0xE01 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    page_table[0xE10] = (0xE10 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    page_table[0xE20] = (0xE20 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    page_table[0xE40] = (0xE40 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    page_table[0xF80] = (0xF80 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    page_table[0xF88] = (0xF88 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    page_table[0xF89] = (0xF89 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    page_table[0xF8F] = (0xF8F << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    page_table[0xFC0] = (0xFC0 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    page_table[0xFFF] = (0xFFF << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
     uart_spin_puts("DO");
-    page_table[0x801] = (1 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
-    page_table[0x800] = (1 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
-    page_table[0x802] = (1 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
 }
 
 //extern void asm_mmu(int pt_base);
 
 void asm_mmu(int pt_base)
 {
-    asm
+    asm volatile
     (
 //        load variable pt_base into r0
         "mov r0, %0\n"
 //        pass r0 to xxxx
         "mcr p15, 0, r0, c2, c0, 0\n"
+//        invalidate TLB
+        "mov r0, #0\n"
+        "mcr p15, 0, r0, c8, c7, 0\n"
 //        activate MMU via SCTLR.M
         "mrc p15, 0, r0, c1, c0, 0\n"
         "orr r0, r0, #0b1\n"
         "mcr p15, 0, r0, c1, c0, 0\n"
-//        TODO invalidate TLB, anything else? cache?
+//        domain all client
+        "ldr r0, =0x55555555\n"
+        "mcr p15, 0, r0, c3, c0, 0\n"
+//        TODO anything else? cache? domain, should be 0b01
         :
         :"r"(pt_base)
         :"r0"
@@ -83,7 +100,8 @@ void test()
     uart_spin_puts((char *)0x80123456);
 }
 
-void clear_low()
+void jump_high()
 {
-    //TODO clear low memory
+    //  TODO jump by asm
+    //  TODO clear stack
 }
