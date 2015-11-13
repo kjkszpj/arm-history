@@ -5,7 +5,7 @@ MEMORY
 		LENGTH = 0
 }
 
-start_paddr = 2M;
+start_paddr = 3M;
 
 SECTIONS
 {

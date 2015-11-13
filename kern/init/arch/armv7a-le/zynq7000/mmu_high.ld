@@ -5,7 +5,7 @@ MEMORY
 		LENGTH = 0
 }
 
-start_vaddr = 2048M;
+start_vaddr = 2048M+512M+1M;
 
 SECTIONS
 {

@@ -49,9 +49,9 @@ FIRMWARE_M4	=  firmware/arch/$(ARCH)/firmware.m4 \
 MBR_OBJS	=  boot/arch/$(ARCH)/$(MACH)/bootmain.o
 
 MMU_L_OBJS	=	kern/init/arch/$(ARCH)/$(MACH)/mmu_low.o \
-				$(DRIVERS_OBJS)
+				#$(DRIVERS_OBJS)
 MMU_H_OBJS	=	kern/init/arch/$(ARCH)/$(MACH)/mmu_high.o \
-				#	$(DRIVERS_OBJS)
+				$(DRIVERS_OBJS)
 MMU_OBJS	=  	mmu_low.elf mmu_high.elf
 
 all: firmware.bin mbr.bin
@@ -72,19 +72,21 @@ mbr.elf: $(MBR_OBJS) boot/arch/$(ARCH)/$(MACH)/mbr.ld
 	$(LD) $(LDFLAGS) -T boot/arch/$(ARCH)/$(MACH)/mbr.ld -o $@ $^
 
 mmu_low.elf: $(MMU_L_OBJS)
-	$(LD) $(LDFLAGS) -T kern/init/arch/$(ARCH)/$(MACH)/mmu_low.ld -o kern/init/arch/$(ARCH)/$(MACH)/mmu_low.elf $(MMU_L_OBJS)
+	$(LD) $(LDFLAGS) -T kern/init/arch/$(ARCH)/$(MACH)/mmu_low.ld -o mmu_low.elf $(MMU_L_OBJS)
 
 mmu_high.elf: $(MMU_H_OBJS)
-	$(LD) $(LDFLAGS) -T kern/init/arch/$(ARCH)/$(MACH)/mmu_high.ld -o kern/init/arch/$(ARCH)/$(MACH)/mmu_high.elf $(MMU_H_OBJS)
+	$(LD) $(LDFLAGS) -T kern/init/arch/$(ARCH)/$(MACH)/mmu_high.ld -o mmu_high.elf $(MMU_H_OBJS)
 
 mmu.elf: $(MMU_OBJS)
-	cd kern/init/arch/$(ARCH)/$(MACH)/
-	$(LD) $(LDFLAGS) -T mmu.ld -o mmu.elf $(MMU_OBJS)
+	$(LD) $(LDFLAGS) -T kern/init/arch/$(ARCH)/$(MACH)/mmu.ld -o mmu.elf $(MMU_OBJS)
 
 clean:
 	rm -f firmware.ld
 	rm -rf $(FIRMWARE_OBJS) firmware.elf firmware.bin firmware.s
 	rm -rf $(MBR_OBJS) mbr.elf mbr.bin mbr.s
+	rm -rf $(MMU_L_OBJS) mmu_low.elf mmu_low.bin mmu_low.s
+	rm -rf $(MMU_H_OBJS) mmu_high.elf mmu_high.bin mmu_high.s
+	rm -rf $(MMU_OBJS) mmu.elf mmu.bin mmu.s
 
 .S.o:
 	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
