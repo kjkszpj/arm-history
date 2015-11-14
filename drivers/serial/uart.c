@@ -19,3 +19,14 @@ void uart_spin_puts(const char *str)
 		uart_spin_putbyte((unsigned char)*str);
 }
 
+void puthex(u32 num)
+{
+	int i;
+	const char table[] = "0123456789ABCDEF";
+	char buf[15] = "00000000\r\n\0";
+	for (i = 28; i >= 0; i -= 4){
+		buf[(28 - i) >> 2] = table[(num >> i) & 0xF];
+	}
+	uart_spin_puts(buf);
+}
+
