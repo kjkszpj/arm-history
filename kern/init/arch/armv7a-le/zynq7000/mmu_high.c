@@ -6,8 +6,7 @@
 //  TODO, should start using kern/mm?
 #include "mmu_high.h"
 
-
-void mmu_high_main()
+u32 mmu_high_main()
 {
 //    page mapping to clear:
 //    1.    PA = VA         for (VA < 2G, below kernel base)
@@ -22,4 +21,5 @@ void mmu_high_main()
     for (i = 0; (i < KERNEL_BASE >> 20); i++) page_table[i] = 0;
     for (i = 0xa02; i < 0xE00; i++) page_table[i] = 0;
 //    TODO, invalidate TLB?
+    return 0;
 }

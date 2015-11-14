@@ -19,5 +19,5 @@
 
 extern u32 *page_table;
 
-void mmu_high_main();
+u32 mmu_high_main();
 #endif //AIMV6_MMU_HIGH_H
