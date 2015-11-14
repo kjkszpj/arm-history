@@ -2,32 +2,24 @@
 //  2G+512M         page table
 //  2G+512M+16k     program
 //  4G              stack
+//  TODO, reallocate memory for device;
+//  TODO, should start using kern/mm?
 #include "mmu_high.h"
 
-u32 pt_offset = 0x20000000;
-u32 *page_table = (u32*)(KERNEL_BASE + 0x20000000);
 
 void mmu_high_main()
 {
-    uart_spin_puts("DONE?\r\n\0");
-//    clear_low();
-//    build_free_list();
-    while (1);
-}
+//    page mapping to clear:
+//    1.    PA = VA         for (VA < 2G, below kernel base)
+//    2.    PA = VA - 2G    for (VA >= 2G, above kernel base)
 
-void clear_low()
-{
+//    page rest:
+//    3.    PA = VA         for IO related
+//    4.    PA = 1M-2M      for 0xa0100000, rest program(mmu_high) here
+//    5.    PA = 511M-512M  for 0xfff00000, "stack" here
+
     u32 i;
-
-    for (i = 0; i < 0x800; i++) page_table[i] = page_table[i] & 0xFFFFFFFC;
-}
-
-void build_free_list()
-{
-    u32 i;
-
-    for (i = 8; i < 512; i++)
-    {
-//        free1M(P2V(i * 0x100000))
-    }
+    for (i = 0; (i < KERNEL_BASE >> 20); i++) page_table[i] = 0;
+    for (i = 0xa02; i < 0xE00; i++) page_table[i] = 0;
+//    TODO, invalidate TLB?
 }

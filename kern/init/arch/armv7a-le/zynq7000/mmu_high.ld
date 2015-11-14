@@ -2,7 +2,7 @@ MEMORY
 {
 	RAM (rwx) :
 		ORIGIN = 0,
-		LENGTH = 0
+		LENGTH = 512M
 }
 
 start_vaddr = 2048M+512M+1M;
