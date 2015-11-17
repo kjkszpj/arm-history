@@ -5,16 +5,19 @@ OS on ARM.
 
 ---
 ###	TODO
--	start MMU
--	device init
--	context?
 -	SCU
+-	kmalloc, vmalloc
+-	interrupt controller
+-	context
+-	CPU1
 -	DIV
 -	printf
 
 ---
 ###	Now finish
--	new bootloader
+-	bootloader
+-	MMU
+-	alloc_pages(not debug)
 
 ---
 ###	Contact me
