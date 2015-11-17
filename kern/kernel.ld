@@ -8,7 +8,7 @@ MEMORY
 low_paddr = 3M;
 low_vaddr = 3M;
 high_paddr = 2M;
-high_vaddr = 2048M+512M+1M;
+high_vaddr = 2048M+2M;
 
 SECTIONS
 {
@@ -16,7 +16,7 @@ SECTIONS
 		mmu_low.elf
 	}
 	.high high_vaddr : AT(high_paddr){
-		mmu_high.elf
+		kinit.elf
 	}
 }
 

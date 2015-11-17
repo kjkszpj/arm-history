@@ -14,19 +14,19 @@
 #define P2V(paddr)          (((u32)paddr) + KERNEL_BASE)
 #define V2P(vaddr)          (((u32)vaddr) - KERNEL_BASE)
 
-struct FREE_AREA
+struct free_area_t
 {
-    FREE_AREA* next;
+    free_area_t* next;
     u32 size;
 };
 
-FREE_AREA* farea_head;
+free_area_t* farea_head;
 
 //  unit in byte---(4096Byte), so as below, will return the PHYSICAL address of the first page.
 u32 init_pspace();
-u32 alloc_pages(u32 size);
-u32 free_pages(u32 st, u32 fi);
-u32 split_pages(FREE_AREA* p, u32 first_size);
+u32 pages_alloc(u32 size);
+u32 pages_free(u32 st, u32 fi);
+u32 pages_split(free_area_t* p, u32 first_size);
 
 extern void uart_spin_puts(const char *str);
 extern void puthex(u32 num);

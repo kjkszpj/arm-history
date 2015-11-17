@@ -4,13 +4,13 @@
 //  3.  prepare stack & jump
 //  TODO serious jump
 
-#include "mmu_low.h"
+#include <mmu_low.h>
 
 void mmu_low_main()
 {
     prepare_page_table();
     asm_mmu(PT_BASE);
-    jump_high(0xa0100000);
+    jump_high(0x80000000 + 0x200000);
 }
 
 void prepare_page_table()
@@ -20,11 +20,10 @@ void prepare_page_table()
     u32 *page_table = (u32*)PT_BASE;
 
 //    page mapping for now:
-//    1.    PA = VA         for (VA < 2G, below kernel base)
+//    1.    PA = VA         for (VA < 2G, below kernel base), should be clear after entering kernel space
 //    2.    PA = VA - 2G    for (VA >= 2G, above kernel base)
 //    3.    PA = VA         for IO related
-//    4.    PA = 1M-2M      for 0xa0100000, rest program(mmu_high) here
-//    5.    PA = 511M-512M  for 0xfff00000, "stack" here
+//    5.    PA = 511M-512M  for 0xfff00000, new "stack" here
 
     //  base address(31:20)|00||nG|S|AP[2]|TEX[2:0]|AP[1:0]|0|domain(8765)|00010
     for (i = 0; i < 0x800; i++)
@@ -44,11 +43,8 @@ void prepare_page_table()
     page_table[0xF89] = (0xF89 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
     page_table[0xF8F] = (0xF8F << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
     page_table[0xFC0] = (0xFC0 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+//    stack here
     page_table[0xFFF] = (0x1FF << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
-//    page table here
-    page_table[0x800+0x200] = (0x1 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
-//    rest of the program(mmu_high)
-    page_table[0x800+0x200+1] = (0x2 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
 }
 
 void asm_mmu(u32 pt_paddr)

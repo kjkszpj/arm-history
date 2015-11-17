@@ -2,6 +2,8 @@
 // Created by Peijie You on 15/11/14.
 //
 
+//  here to manage PHYSICAL MEMORY.
+//  TODO, I want buddy system here instead!(like LINUX?)
 //  TODO, define DEBUG?
 
 #include "pages_manage.h"
@@ -9,17 +11,17 @@
 u32 init_pspace()
 {
     farea_head = NULL;
-    pages_free(0x300000, 0x1FF00000);
+    return pages_free(0x300000, 0x1ff00000);
 }
 
-u32 alloc_pages(u32 need_size)
+u32 pages_alloc(u32 need_size)
 {
-//    TODO when to use L2 page table?
-    FREE_AREA* last;
-    FREE_AREA* next;
+//    Content NOT CLEARED when allocate.
+//    ADDITIONAL: align option
+//    L2 page table is NOT concerned here.
 
-    u32 i;
-    u8* content;
+    free_area_t* last = NULL;
+    free_area_t* next;
 
     if ((size & 0xFFF) != 0)
     {
@@ -38,30 +40,27 @@ u32 alloc_pages(u32 need_size)
 
     if (need_size < next->size)
     {
-        if (split_pages(next, need_size)) return 1;
+        if (pages_split(next, need_size) != 0) return 1;
     }
     if (last != NULL) last->next = next->next;
     if (next == farea_head) farea_head = next->next;
-
-//    use memset instead?
-    content = (u8*)next;
-    for (i = 0; i < need_size; i++) content[i] = 0;
     return V2P(next);
-//    TODO clear content;
 }
 
-u32 free_pages(u32 st, u32 fi)
+u32 pages_free(u32 st, u32 fi)
 {
+//    st, fi are in PHYSICAL ADDRESS
 //    procedure:
 //    scan for proper position
 //    prepate new FPAGE
 //    add to FPAGE list
 //    merge
 
-    FREE_AREA *last = NULL;
-    FREE_AREA *next;
-    FREE_AREA *temp = (FREE_AREA*)P2V(st);
+    free_area_t* last = NULL;
+    free_area_t* next;
+    free_area_t* temp = (free_area_t*)P2V(st);
 
+//    error if necessary
     if ((st & 0xFFF) != 0 || (fi & 0xFFF) != 0)
     {
         uart_spin_puts("---WRONG:\tin free_pages(), st & fi not aligned\r\n\0");
@@ -88,14 +87,15 @@ u32 free_pages(u32 st, u32 fi)
     return 0;
 }
 
-u32 split_pages(FREE_AREA* p, u32 first_size)
+u32 pages_split(free_area_t* p, u32 first_size)
 {
-    if (p == NULL || p->size <= first_size || (first_size & 0xFFF) != 0)
+    if (p == NULL || p->size < first_size || (first_size & 0xFFF) != 0)
     {
         uart_spin_puts("---WRONG:\tin split_pages()\r\n\0");
         return 1;
     }
-    FREE_AREA* q = (u32)p + first_size;
+    if (p->size == first_size) return 0;
+    free_area_t* q = (u32)p + first_size;
     q->size = p->size - first_size;
     q->next = p->next;
 
