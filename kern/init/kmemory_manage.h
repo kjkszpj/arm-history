@@ -5,8 +5,10 @@
 #ifndef AIMV6_KMEMORY_MANAGE_H
 #define AIMV6_KMEMORY_MANAGE_H
 
-void*   kmalloc(u32 size, u32 aligned);
-int     kminit();
-void*   kmfree(void *p);
+#include <config.h>
+
+void *kmalloc(u32 size, u32 aligned);
+void kmfree(void *p);
+void kminit();  // if necessary.
 
 #endif //AIMV6_KMEMORY_MANAGE_H

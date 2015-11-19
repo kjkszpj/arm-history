@@ -20,6 +20,7 @@ struct free_area_t
     u32 size;
 };
 
+//  TODO in fact, other program should NOT access this variable, how to protect?
 free_area_t* farea_head;
 
 //  unit in byte---(4096Byte), so as below, will return the PHYSICAL address of the first page.

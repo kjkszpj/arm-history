@@ -7,3 +7,4 @@
 *.s
 temp
 .idea
+firmware.ld

@@ -3,3 +3,15 @@
 //
 
 #include "kmemory_manage.h"
+
+void *kmalloc(u32 size, u32 aligned)
+{
+}
+
+void kmfree(void *p)
+{
+}
+
+void kminit()
+{
+}
