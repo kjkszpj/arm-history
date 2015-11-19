@@ -6,12 +6,15 @@ OS on ARM.
 ---
 ###	TODO
 -	SCU
+-	D cache, L2 cache
 -	kmalloc, vmalloc
 -	interrupt controller
--	context
+-	context & PCB, TCB things
 -	CPU1
 -	DIV
 -	printf
+-	IPC
+-	system call design & system library
 
 ---
 ###	Now finish
