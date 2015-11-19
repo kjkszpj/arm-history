@@ -5,6 +5,7 @@
 #ifndef AIMV6_INIT_H
 #define AIMV6_INIT_H
 
+#include <scu.h>
 #include <config.h>
 #include <mmu_high.h>
 
