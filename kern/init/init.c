@@ -4,12 +4,19 @@
 
 #include <kern/init/init.h>
 
-u32 *page_table = (u32*)(KERNEL_BASE + PT_OFFSET);
+u32 *page_table;
 
+// in fact, it is more like arch_init()
 void kinit()
 {
-    uart_spin_puts("Hi from kernel space.\r\n\0");
-    if (mmu_high_main() != 0) uart_spin_puts("MMU_down.\r\n\0");
-    if (scu_init() != 0) uart_spin_puts("SCU down.\r\n\0");
+//    TODO, why this?
+    page_table = (u32*)(KERNEL_BASE + PT_OFFSET);
+
+    uart_spin_puts("GE\r\n\0");
+    puthex(0x110);
+    if (mmu_high_main() != 0) uart_spin_puts("mmu_high fail.\r\n\0"); else uart_spin_puts("MMU done.\r\n\0");
+//    if (l1cache_init() != 0) uart_spin_puts("L1 cache init fail\r\n\0");
+    if (scu_init() != 0) uart_spin_puts("SCU init fail.\r\n\0"); else uart_spin_puts("SCU done.\r\n\0");
+    uart_spin_puts("Live to tell the story.\r\n\0");
     while (1);
 }

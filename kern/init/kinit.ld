@@ -5,12 +5,13 @@ MEMORY
 		LENGTH = 512M
 }
 
-start_vaddr = 2048M+512M+1M;
+start_vaddr = 2048M+2M;
 
 SECTIONS
 {
 	. = start_vaddr;
 	.text . :{
+	    *enter_kernel_space.o(.text)
 		*(.text)
 	}
 	.rodata . :{

@@ -58,14 +58,15 @@ void asm_mmu(u32 pt_paddr)
 //        invalidate TLB
         "mov r0, #0\n"
         "mcr p15, 0, r0, c8, c7, 0\n"
+//        domain all client
+        "ldr r0, =0x55555555\n"
+        "mcr p15, 0, r0, c3, c0, 0\n"
+        "dsb\n"
+        "isb\n"
 //        activate MMU via SCTLR.M
         "mrc p15, 0, r0, c1, c0, 0\n"
         "orr r0, r0, #0b1\n"
         "mcr p15, 0, r0, c1, c0, 0\n"
-//        domain all client
-        "ldr r0, =0x55555555\n"
-        "mcr p15, 0, r0, c3, c0, 0\n"
-//        TODO anything else? cache?
         :
         :"r"(pt_paddr)
         :"r0"
@@ -77,8 +78,6 @@ void jump_high(u32 high_exec_vaddr)
     asm volatile
     (
 //      TODO, decide what serious virtual address should sp be?
-        "ldr sp, =0xFFFFFFF0\n"
-        "movs fp, sp\n"
         "mov r0, %0\n"
         "blx r0\n"
         :

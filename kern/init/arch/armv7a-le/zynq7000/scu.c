@@ -10,11 +10,11 @@ u32 get_PERIPHBASE()
 
     asm volatile
     (
-    "MRC p15, 4, r0, c15, c0, 0\n"
-    "MOV %0, r0\n"
-    :"=r"(periphbase)
-    :
-    :"r0"
+        "MRC p15, 4, r0, c15, c0, 0\n"
+        "MOV %0, r0\n"
+        :"=r"(periphbase)
+        :
+        :"r0"
     );
     return periphbase;
 }
