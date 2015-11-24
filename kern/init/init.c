@@ -15,7 +15,7 @@ void kinit()
     uart_spin_puts("GE\r\n\0");
     puthex(0x110);
     if (mmu_high_main() != 0) uart_spin_puts("mmu_high fail.\r\n\0"); else uart_spin_puts("MMU done.\r\n\0");
-    if (l1cache_init() != 0) uart_spin_puts("L1 cache init fail\r\n\0");
+//    if (l1cache_init() != 0) uart_spin_puts("L1 cache init fail\r\n\0"); else uart_spin_puts("L1 cache done.\r\n\0");
     if (scu_init() != 0) uart_spin_puts("SCU init fail.\r\n\0"); else uart_spin_puts("SCU done.\r\n\0");
     uart_spin_puts("------Live to tell the story------\r\n\0");
     while (1);

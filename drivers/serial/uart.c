@@ -24,6 +24,7 @@ void puthex(u32 num)
 	int i;
 	const char table[] = "0123456789ABCDEF";
 	char buf[15] = "00000000\r\n\0";
+	uart_spin_puts(buf);
 	for (i = 28; i >= 0; i -= 4){
 		buf[(28 - i) >> 2] = table[(num >> i) & 0xF];
 	}
