@@ -23,7 +23,7 @@ u32 mmu_high_main()
     if ((u32)page_table == 0x80100000) uart_spin_puts("gogo\r\n\0");
     puthex((u32)page_table);
     for (i = 0; i < (KERNEL_BASE >> 20); i++) page_table[i] = 0;
-//    for (i = 0xA00; i < 0xE00; i++) page_table[i] = 0;
+    for (i = 0xA00; i < 0xE00; i++) page_table[i] = 0;
 //    TODO, invalidate TLB?
     return 0;
 }

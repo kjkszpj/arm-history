@@ -54,6 +54,7 @@ KINIT_OBJS	=	kern/init/arch/$(ARCH)/$(MACH)/mmu_high.o \
                 kern/init/init.o \
                 kern/init/arch/$(ARCH)/$(MACH)/scu.o \
                 kern/init/arch/$(ARCH)/$(MACH)/enter_kernel_space.o \
+                kern/init/arch/$(ARCH)/$(MACH)/l1cache.o \
 				$(DRIVERS_OBJS)
 
 TOTAL_KERNEL_OBJS	=  	mmu_low.elf kinit.elf

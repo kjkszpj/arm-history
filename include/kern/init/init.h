@@ -5,9 +5,9 @@
 #ifndef AIMV6_INIT_H
 #define AIMV6_INIT_H
 
-#include <scu.h>
 #include <config.h>
 #include <mmu_high.h>
+#include <scu.h>
 
 #include <drivers/serial/uart.h>
 #include <drivers/sd/sd-zynq7000.h>
@@ -17,5 +17,7 @@
 #define PT_OFFSET   0x00100000
 
 extern u32 *page_table;
+
+int l1cache_init();
 
 #endif //AIMV6_INIT_H

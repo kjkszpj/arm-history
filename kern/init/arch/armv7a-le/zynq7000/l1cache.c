@@ -1,11 +1,12 @@
 #include <config.h>
+#include <kern/init/init.h>
 
 // TODO, current cache policy of page table is?
 int l1cache_init()
 {
 	asm volatile
 	(
-		"LDR r0, #0"
+		"MOV r0, #0\n"
 		"MCR p15, 0, r0, c8, c7, 0\n"
 		"MCR p15, 0, r0, c7, c5, 0\n"
 		"MCR p15, 0, r0, c7, c5, 6\n"
@@ -13,7 +14,8 @@ int l1cache_init()
 		"MCR p15, 0, r11, c7, c14, 2\n"
 		// TODO initialize mmu
 		"MRC p15, 0, r0, c1, c0, 0\n"
-		"ORR r0, #0x1004\n"
+		"ORR r0, #0x1000\n"
+		"ORR r0, #0x0004\n"
 		"MCR p15, 0, r0, c1, c0, 0\n"
 		"DSB\n"
 		"ISB\n"
@@ -21,4 +23,5 @@ int l1cache_init()
 		:
 		:"r0"
 	);
+	return 0;
 }
