@@ -3,13 +3,14 @@
 //  2.  start mmu
 //  3.  prepare stack & jump
 //  TODO serious jump
+//  TODO serious 0x1100000
 
 #include <mmu_low.h>
 
 void mmu_low_main()
 {
     prepare_page_table();
-    asm_mmu(PT_BASE);
+    asm_mmu(PT0_BASE, PT1_BASE);
     jump_high(0x80000000 + 0x200000);
 }
 
@@ -17,7 +18,8 @@ void prepare_page_table()
 {
     u32 i;
     u32 mask;
-    u32 *page_table = (u32*)PT_BASE;
+    u32 *pt_high = (u32*)PT1_BASE;
+    u32 *pt_low = (u32*)(PT0_BASE);
 
 //    page mapping for now:
 //    1.    PA = VA         for (VA < 2G, below kernel base), should be clear after entering kernel space
@@ -29,32 +31,38 @@ void prepare_page_table()
     for (i = 0; i < 0x800; i++)
     {
         mask = (i << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
-        page_table[i] = mask;
-        page_table[i + 0x800] = mask;
+        pt_low[i] = mask;
+        pt_high[i + 0x800] = mask;
     }
     //  temp IO mapping, TODO should reallocate it latter
-    page_table[0xE00] = (0xE00 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
-    page_table[0xE01] = (0xE01 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
-    page_table[0xE10] = (0xE10 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
-    page_table[0xE20] = (0xE20 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
-    page_table[0xE40] = (0xE40 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
-    page_table[0xF80] = (0xF80 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
-    page_table[0xF88] = (0xF88 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
-    page_table[0xF89] = (0xF89 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
-    page_table[0xF8F] = (0xF8F << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
-    page_table[0xFC0] = (0xFC0 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    pt_high[0xE00] = (0xE00 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    pt_high[0xE01] = (0xE01 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    pt_high[0xE10] = (0xE10 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    pt_high[0xE20] = (0xE20 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    pt_high[0xE40] = (0xE40 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    pt_high[0xF80] = (0xF80 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    pt_high[0xF88] = (0xF88 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    pt_high[0xF89] = (0xF89 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    pt_high[0xF8F] = (0xF8F << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    pt_high[0xFC0] = (0xFC0 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
 //    stack here
-    page_table[0xFFF] = (0x1FF << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    pt_high[0xFFF] = (0x1FF << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
 }
 
-void asm_mmu(u32 pt_paddr)
+void asm_mmu(u32 pt0_paddr, u32 pt1_paddr)
 {
     asm volatile
     (
-//        load variable pt_base into r0
+//        load variable (kernel region)pt_base into TTBR1
         "mov r0, %0\n"
-//        pass r0 to xxxx
         "mcr p15, 0, r0, c2, c0, 0\n"
+        "mov r0, %1\n"
+        "mcr p15, 0, r0, c2, c0, 1\n"
+//        enable TTB1 by TTBCR1
+//        WARNING: here assuming TTBCR.N(T0SZ)=0
+        "mrc p15, 0, r0, c2, c0, 2\n"
+        "orr r0, r0, #1\n"
+        "mcr p15, 0, r0, c2, c0, 2\n"
 //        invalidate TLB
         "mov r0, #0\n"
         "mcr p15, 0, r0, c8, c7, 0\n"
@@ -68,7 +76,7 @@ void asm_mmu(u32 pt_paddr)
         "orr r0, r0, #0b1\n"
         "mcr p15, 0, r0, c1, c0, 0\n"
         :
-        :"r"(pt_paddr)
+        :"r"(pt0_paddr), "r"(pt1_paddr)
         :"r0"
     );
 }
