@@ -7,8 +7,8 @@
 
 #include <config.h>
 
-void *kmalloc(u32 size, u32 aligned);
+void *kmalloc(u32 size, u32 align);
 void kmfree(void *p);
-void kminit();  // if necessary.
+void kminit();
 
 #endif //AIMV6_KMEMORY_MANAGE_H

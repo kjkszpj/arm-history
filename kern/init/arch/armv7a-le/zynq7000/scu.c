@@ -6,7 +6,7 @@
 
 u32 get_PERIPHBASE()
 {
-    u32 periphbase;
+    u32 periphbase = 0;
 
     asm volatile
     (
@@ -29,7 +29,7 @@ int enable_scu()
 //    make sure SAC and then change SCU control register
     scu_register[SCU_SAC_OFFSET] |= 0b0011;
     scu_register[SCU_CONTROL_OFFSET] |= 0b1;
-    uart_spin_puts("SCU control register:\r\n\0");
+    uart_spin_puts("---SCU control register:\t\0");
     puthex(scu_register[SCU_CONTROL_OFFSET]);
     return 0;
 }
@@ -38,7 +38,7 @@ int scu_init()
 {
 //    only [31:13] is useful, drop the rest.
     PERIPHBASE = get_PERIPHBASE() & 0xFFFFE000;
-    uart_spin_puts("PERIPHBASE is at:\r\n\0");
+    uart_spin_puts("---PERIPHBASE is at:\t\0");
     puthex(PERIPHBASE);
 //    PERIPHBASE may be in PHYSICAL ADDRESS
     if (enable_scu() != 0) uart_spin_puts("enable SCU failed.\r\n\0");
