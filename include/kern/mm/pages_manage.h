@@ -14,16 +14,16 @@
 #define P2V(paddr)          (((u32)paddr) + KERNEL_BASE)
 #define V2P(vaddr)          (((u32)vaddr) - KERNEL_BASE)
 
-struct free_area_t
+typedef struct free_area_t
 {
-    free_area_t* next;
+    struct free_area_t* next;
     u32 size;
-};
+}free_area_t;
 
 //  TODO in fact, other program should NOT access this variable, how to protect?
 free_area_t* farea_head;
 
-//  unit in byte---(4096Byte), so as below, will return the PHYSICAL address of the first page.
+//  unit in byte, so as below, will return the PHYSICAL address of the first page.
 u32 init_pspace();
 u32 pages_alloc(u32 size);
 u32 pages_free(u32 st, u32 fi);

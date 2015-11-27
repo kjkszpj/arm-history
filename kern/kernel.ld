@@ -12,11 +12,15 @@ high_vaddr = 2048M+2M;
 
 SECTIONS
 {
-	.low low_vaddr : AT(low_paddr){
+	.low low_vaddr : AT(low_paddr)
+	{
 		mmu_low.elf
 	}
-	.high high_vaddr : AT(high_paddr){
-		kinit.elf
+
+	.high high_vaddr : AT(high_paddr)
+	{
+		*enter_kernel_space.o
+		*.o
 	}
 }
 

@@ -6,7 +6,7 @@
 //  TODO, I want buddy system here instead!(like LINUX?)
 //  TODO, define DEBUG?
 
-#include "pages_manage.h"
+#include <kern/mm/pages_manage.h>
 
 u32 init_pspace()
 {
@@ -23,7 +23,7 @@ u32 pages_alloc(u32 need_size)
     free_area_t* last = NULL;
     free_area_t* next;
 
-    if ((size & 0xFFF) != 0)
+    if ((need_size & 0xFFF) != 0)
     {
         uart_spin_puts("---WRONG:\tin alloc_pages(), size not aligned.\r\n\0");
 //        TODO why return 0?
@@ -95,7 +95,7 @@ u32 pages_split(free_area_t* p, u32 first_size)
         return 1;
     }
     if (p->size == first_size) return 0;
-    free_area_t* q = (u32)p + first_size;
+    free_area_t* q = (free_area_t*)((u32)p + first_size);
     q->size = p->size - first_size;
     q->next = p->next;
 

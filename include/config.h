@@ -21,4 +21,8 @@
 /* Other global configuration macros goes below. */
 #define DEBUG			/* enable pdebug() output */
 
+// ------my configure------
+#define MAX(a, b)	(a) > (b) ? (a) : (b)
+#define NULL 0
+
 #endif

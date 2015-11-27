@@ -54,10 +54,13 @@ KINIT_OBJS	=	kern/init/arch/$(ARCH)/$(MACH)/mmu_high.o \
                 kern/init/init.o \
                 kern/init/arch/$(ARCH)/$(MACH)/scu.o \
                 kern/init/arch/$(ARCH)/$(MACH)/enter_kernel_space.o \
-                kern/init/arch/$(ARCH)/$(MACH)/l1cache.o \
-				$(DRIVERS_OBJS)
+                kern/init/arch/$(ARCH)/$(MACH)/l1cache.o
 
-TOTAL_KERNEL_OBJS	=  	mmu_low.elf kinit.elf
+MM_OBJS 	=	kern/mm/slb.o \
+				kern/mm/pages_manage.o \
+				kern/mm/kmemory_manage.o
+
+TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(KINIT_OBJS) $(MM_OBJS)
 
 all: firmware.bin mbr.bin
 
@@ -78,9 +81,6 @@ mbr.elf: $(MBR_OBJS) boot/arch/$(ARCH)/$(MACH)/mbr.ld
 
 mmu_low.elf: $(MMU_L_OBJS) kern/init/arch/$(ARCH)/$(MACH)/mmu_low.ld
 	$(LD) $(LDFLAGS) -T kern/init/arch/$(ARCH)/$(MACH)/mmu_low.ld -o $@ $^
-
-kinit.elf: $(KINIT_OBJS) kern/init/kinit.ld
-	$(LD) $(LDFLAGS) -T kern/init/kinit.ld -o kinit.elf $(KINIT_OBJS)
 
 kernel.elf: $(TOTAL_KERNEL_OBJS) kern/kernel.ld
 	$(LD) $(LDFLAGS) -T kern/kernel.ld -o kernel.elf $(TOTAL_KERNEL_OBJS)
