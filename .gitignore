@@ -5,6 +5,7 @@
 *.temp
 *temp
 *.s
+*.debug_o
 temp
 .idea
 firmware.ld

@@ -17,6 +17,7 @@
  * machines.
  */
 #include <asm/config.h>
+#include <sys/types.h>
 
 /* Other global configuration macros goes below. */
 #define DEBUG			/* enable pdebug() output */

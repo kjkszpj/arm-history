@@ -60,9 +60,14 @@ MM_OBJS 	=	kern/mm/slb.o \
 				kern/mm/pages_manage.o \
 				kern/mm/kmemory_manage.o
 
+DEBUG_OBJS	=	kern/mm/pages_manage.debug_o \
+				kern/mm/kmemory_manage.debug_o \
+				kern/mm/slb.debug_o \
+				kern/debug/debug.debug_o
+
 TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(KINIT_OBJS) $(MM_OBJS)
 
-all: firmware.bin mbr.bin
+all: firmware.bin mbr.bin kernel.elf
 
 $(FIRMWARE_OBJS): EXTRA_CFLAGS = -O2
 
@@ -85,14 +90,6 @@ mmu_low.elf: $(MMU_L_OBJS) kern/init/arch/$(ARCH)/$(MACH)/mmu_low.ld
 kernel.elf: $(TOTAL_KERNEL_OBJS) kern/kernel.ld
 	$(LD) $(LDFLAGS) -T kern/kernel.ld -o kernel.elf $(TOTAL_KERNEL_OBJS)
 
-clean:
-	rm -f firmware.ld
-	rm -rf $(FIRMWARE_OBJS) firmware.elf firmware.bin firmware.s
-	rm -rf $(MBR_OBJS) mbr.elf mbr.bin mbr.s
-	rm -rf $(MMU_L_OBJS) mmu_low.elf mmu_low.bin mmu_low.s
-	rm -rf $(KINIT_OBJS) kinit.elf kinit.bin kinit.s
-	rm -rf $(TOTAL_KERNEL_OBJS) kernel.elf kernel.bin kernel.s
-
 .S.o:
 	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
 
@@ -106,3 +103,27 @@ clean:
 	$(OBJCOPY) -O binary -S $^ $@
 
 .PHONY: clean
+
+#	use local gcc to debug, generating debug_o
+%.debug_o: %.c
+	gcc-5 -Wall $(INCFLAG) \
+		-o $@ -c $^ -g
+
+
+
+
+
+#------command below------
+clean:
+	rm -f firmware.ld
+	rm -rf $(FIRMWARE_OBJS) firmware.elf firmware.bin firmware.s
+	rm -rf $(MBR_OBJS) mbr.elf mbr.bin mbr.s
+	rm -rf $(MMU_L_OBJS) mmu_low.elf mmu_low.bin mmu_low.s
+	rm -rf $(KINIT_OBJS) kinit.elf kinit.bin kinit.s
+	rm -rf $(TOTAL_KERNEL_OBJS) kernel.elf kernel.bin kernel.s
+	rm -rf $(DEBUG_OBJS) debug.elf
+
+##	for debug
+debug.elf:	$(DEBUG_OBJS)
+	gcc-5 -Wall $(INCFLAG) \
+		-o $@ $^ -g
