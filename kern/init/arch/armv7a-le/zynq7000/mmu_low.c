@@ -2,8 +2,9 @@
 //  1.  prepare basic page table
 //  2.  start mmu
 //  3.  prepare stack & jump
-//  TODO serious jump
 //  TODO serious 0x1100000
+//  TODO remove TTB1
+//  TODO struct for L1-pte, L2-pte, etc.
 
 #include <mmu_low.h>
 
@@ -28,6 +29,7 @@ void prepare_page_table()
 //    5.    PA = 511M-512M  for 0xfff00000, new "stack" here
 
     //  base address(31:20)|00||nG|S|AP[2]|TEX[2:0]|AP[1:0]|0|domain(8765)|00010
+//    TODO should update pte format, CACHEALBE!
     for (i = 0; i < 0x800; i++)
     {
         mask = (i << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
@@ -85,7 +87,6 @@ void jump_high(u32 high_exec_vaddr)
 {
     asm volatile
     (
-//      TODO, decide what serious virtual address should sp be?
         "mov r0, %0\n"
         "blx r0\n"
         :

@@ -11,7 +11,7 @@
 slb_t* slb_head;
 
 void* slb_alloc(u32 size) {return slb_alloc_align(size, 0);}
-int slb_free(void *p, u32 size) {return slb_free(p, 0);}
+int slb_free(void *p, u32 size) {return slb_free_align(p, size, 0);}
 
 void* slb_alloc_align(u32 osize, u32 align)
 {
@@ -66,7 +66,7 @@ int slb_free_align(void* p, u32 size, u32 align)
     slb_pool_t* iter_pool;
 
     for (iter_slb = slb_head; iter_slb != NULL; iter_slb = iter_slb->next_slb)
-        if (iter_slb->obj_align == align && iter_slb->obj_size) break;
+        if (iter_slb->obj_align == align && iter_slb->obj_size == size) break;
     if (iter_slb == NULL)
     {
         // should never happen, panic?
@@ -109,7 +109,7 @@ slb_pool_t* pool_alloc(u32 osize, u32 align)
     slb_pool_t* pool;
 
     if ((psize & 0xFFF) != 0) psize = ((psize >> 12) + 1) << 12;
-    while ((pool = (slb_pool_t*)pages_alloc(psize)) == NULL && psize > 0) psize -= 0x1000;
+    while ((pool = (slb_pool_t*)P2V(pages_alloc(psize))) == NULL && psize > 0) psize -= 0x1000;
     if (pool_segm(pool, psize, osize, align) == NULL)
     {
         pages_free((u32)pool, (u32)pool + psize);
@@ -120,7 +120,7 @@ slb_pool_t* pool_alloc(u32 osize, u32 align)
 
 void pool_free(slb_pool_t* p)
 {
-    pages_free((u32)p, p->pool_size);
+    pages_free(V2P(p), p->pool_size);
 }
 
 slb_pool_t* pool_segm(slb_pool_t* pool, u32 psize, u32 osize, u32 align)
@@ -135,9 +135,9 @@ slb_pool_t* pool_segm(slb_pool_t* pool, u32 psize, u32 osize, u32 align)
     u32 i = (u32)pool + (4 << 2);
     if (align != 0 && (i & (align - 1)) != 0) i = i + align - ((align - 1) & i);
     if (i >= (u32)pool + psize) return NULL;
-    pool->obj_head = (slb_obj_t*)i;
+    pool->obj_head = NULL;
 
-    for (; i < (u32)pool + psize; i += MAX(osize, align))
+    for (; i + osize <= (u32)pool + psize; i += MAX(osize, align))
         if (align == 0 || (i & (align - 1)) == 0)
         {
             slb_obj_t* new_obj = (slb_obj_t*)i;

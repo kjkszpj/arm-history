@@ -3,7 +3,6 @@
 //  2G+512M+16k     program
 //  4G              stack
 //  TODO, reallocate memory for device;
-//  TODO, should start using kern/mm?
 
 #include <mmu_high.h>
 
