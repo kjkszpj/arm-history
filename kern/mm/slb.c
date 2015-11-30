@@ -112,7 +112,7 @@ slb_pool_t* pool_alloc(u32 osize, u32 align)
     while ((pool = (slb_pool_t*)pages_alloc(psize)) == NULL && psize > 0) psize -= 0x1000;
     if (pool_segm(pool, psize, osize, align) == NULL)
     {
-        pages_free((u32)pool, psize);
+        pages_free((u32)pool, (u32)pool + psize);
         pool = NULL;
     }
     return pool;

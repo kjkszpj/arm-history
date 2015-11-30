@@ -11,7 +11,11 @@
 u32 init_pspace()
 {
     farea_head = NULL;
+#ifdef DEBUG
+    return pages_free(0x300000, 0x1ff0000);
+#else
     return pages_free(0x300000, 0x1ff00000);
+#endif
 }
 
 u32 pages_alloc(u32 need_size)
@@ -29,7 +33,14 @@ u32 pages_alloc(u32 need_size)
 //        TODO why return 0?
         return 0;
     }
-    for (next = farea_head; next != NULL && need_size > next->size; last = next, next = next->next);
+#ifdef DEBUG
+printf("---DEBUG: in pages_alloc\n");
+#endif
+    for (next = farea_head; next != NULL && need_size > next->size; last = next, next = next->next) 
+#ifdef DEBUG
+printf("%x: %x\n", V2P(next), next->size)
+#endif
+;
 //    not founded, TODO maybe solve by swapping
     if (next == NULL || next->size < need_size)
     {
@@ -66,7 +77,14 @@ u32 pages_free(u32 st, u32 fi)
         uart_spin_puts("---WRONG:\tin free_pages(), st & fi not aligned\r\n\0");
         return 1;
     }
-    for (next = farea_head; next != NULL && V2P(next) < st; last = next, next = next->next);
+#ifdef DEBUG
+printf("---DEBUG: in pages_free\n");
+#endif
+    for (next = farea_head; next != NULL && V2P(next) < st; last = next, next = next->next)
+#ifdef DEBUG
+printf("%x: %x\n", V2P(next), next->size)
+#endif
+;
 
     temp->size = fi - st;
     temp->next = next;

@@ -9,3 +9,4 @@
 temp
 .idea
 firmware.ld
+*.elf.*

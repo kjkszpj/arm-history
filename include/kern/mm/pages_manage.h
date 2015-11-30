@@ -7,8 +7,14 @@
 
 #include <config.h>
 
-#ifndef KERNEL_BASE
-#define KERNEL_BASE 0X80000000
+extern u8* kernel_base;
+
+#ifndef DEBUG
+	#ifndef KERNEL_BASE
+	#define KERNEL_BASE 0x80000000
+	#endif
+#else
+#define KERNEL_BASE ((u32)kernel_base)
 #endif
 
 #define P2V(paddr)          (((u32)paddr) + KERNEL_BASE)

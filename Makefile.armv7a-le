@@ -106,7 +106,7 @@ kernel.elf: $(TOTAL_KERNEL_OBJS) kern/kernel.ld
 
 #	use local gcc to debug, generating debug_o
 %.debug_o: %.c
-	gcc-5 -Wall $(INCFLAG) \
+	gcc-5 -Wall -m32 $(INCFLAG) \
 		-o $@ -c $^ -g
 
 
@@ -125,5 +125,5 @@ clean:
 
 ##	for debug
 debug.elf:	$(DEBUG_OBJS)
-	gcc-5 -Wall $(INCFLAG) \
+	gcc-5 -Wall -m32 $(INCFLAG) \
 		-o $@ $^ -g
