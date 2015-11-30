@@ -5,8 +5,7 @@ OS on ARM.
 
 ---
 ###	TODO
--	SCU
--	D cache, L2 cache
+-	alter page table struct and method
 -	kmalloc, vmalloc
 -	interrupt controller
 -	context & PCB, TCB things
@@ -17,10 +16,18 @@ OS on ARM.
 -	system call design & system library
 
 ---
-###	Now finish
+###	Now Finish
 -	bootloader
 -	MMU
--	alloc_pages(not debug)
+-	I cache, D cache
+-	SCU enable
+-	pages_manage(pages_alloc & pages_free)
+-	slb_manage(slb_alloc & slb_free)
+-	TTB1
+
+###	feature
+-	I cache, D cache enable (not fully managed for now)
+-	allow TTB1 (can NOT use on other architecture, delete / compatible)
 
 ---
 ###	Contact me
