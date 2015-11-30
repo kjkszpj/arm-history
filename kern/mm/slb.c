@@ -11,7 +11,7 @@
 slb_t* slb_head;
 
 void* slb_alloc(u32 size) {return slb_alloc_align(size, 0);}
-int slb_free(void *p, u32 size) {return slb_free(p, 0);}
+int slb_free(void *p, u32 size) {return slb_free_align(p, size, 0);}
 
 void* slb_alloc_align(u32 osize, u32 align)
 {
@@ -66,7 +66,7 @@ int slb_free_align(void* p, u32 size, u32 align)
     slb_pool_t* iter_pool;
 
     for (iter_slb = slb_head; iter_slb != NULL; iter_slb = iter_slb->next_slb)
-        if (iter_slb->obj_align == align && iter_slb->obj_size) break;
+        if (iter_slb->obj_align == align && iter_slb->obj_size == size) break;
     if (iter_slb == NULL)
     {
         // should never happen, panic?
@@ -115,9 +115,6 @@ slb_pool_t* pool_alloc(u32 osize, u32 align)
         pages_free((u32)pool, (u32)pool + psize);
         pool = NULL;
     }
-#ifdef DEBUG
-    printf("new pool at %x\r\n\0", (u32)pool);
-#endif
     return pool;
 }
 
@@ -140,21 +137,12 @@ slb_pool_t* pool_segm(slb_pool_t* pool, u32 psize, u32 osize, u32 align)
     if (i >= (u32)pool + psize) return NULL;
     pool->obj_head = NULL;
 
-    for (; i < (u32)pool + psize; i += MAX(osize, align))
+    for (; i + osize <= (u32)pool + psize; i += MAX(osize, align))
         if (align == 0 || (i & (align - 1)) == 0)
         {
             slb_obj_t* new_obj = (slb_obj_t*)i;
             new_obj->next_obj = pool->obj_head;
             pool->obj_head = new_obj;
         }
-
-#ifdef DEBUG
-    int cnt = 0;
-    for (slb_obj_t* new_obj = pool->obj_head; new_obj != NULL; new_obj = new_obj->next_obj)
-    {
-        cnt ++;
-    }
-    printf("obj count %d\r\n\0", cnt);
-#endif
     return pool;
 }

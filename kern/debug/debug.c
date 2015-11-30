@@ -101,20 +101,53 @@ int main()
 //	pages_free(c, c + 0x200000);
 //	pages_free(b, b + 0x200000);
 //	printf("%x\n", a = pages_alloc(0xfff00000));
-	uart_spin_puts("---page_manage good\r\n\0");
+	uart_spin_puts("---page_manage good\r\n\r\n\0");
 	if (slb_init() == 0) uart_spin_puts("slb good\r\n\0");
 
-	pte_l1* x[100];
-	pte_l2* y[100];
-	xjj1* xj1[10000];
-	xjj2* xj2[10000];
+	pte_l2* x[100+10];
+	pte_l2* y[100+10];
+	xjj2* xj1[10000+10];
+	xjj2* xj2[10000+10];
 
-	int cnt = {100, 100, 10000, 10000};
-	int sz[4] = {sizeof(pte_l1), sizeof(pte_l2), sizeof(xjj1), sizeof(xjj2)};
+	int cntx = 100;
+	int cnty = 100;
+	int cnt1 = 10000;
+	int cnt2 = 10000;
 
-	for (i = 0; i < 100000; i++)
+	for (int i = 0; i < 100000; i++)
 	{
 		int ordert = rand() % 4;
 		int order = rand() % 2;
+		printf("id: %d %d %d\r\n\0", i, order, ordert);
+		if (order == 0)
+		{
+			if (ordert == 0 && cntx > 0)
+			{
+				x[cntx--] = (pte_l1*)slb_alloc_align(sizeof(pte_l2), sizeof(pte_l2));
+				memset(x[cntx + 1], 0, sizeof(pte_l2));
+			}
+			if (ordert == 1 && cnty > 0)
+			{
+				y[cnty--] = (pte_l2*)slb_alloc_align(sizeof(pte_l2), sizeof(pte_l2));
+				memset(y[cnty + 1], 0, sizeof(pte_l2));
+			}
+			if (ordert == 2 && cnt1 > 0)
+			{
+				xj1[cnt1--] = (xjj1*)slb_alloc(sizeof(xjj2));
+				memset(xj1[cnt1 + 1], 0, sizeof(xjj2));
+			}
+			if (ordert == 3 && cnt2 > 0)
+			{
+				xj2[cnt2--] = (xjj2*)slb_alloc(sizeof(xjj2));
+				memset(xj2[cnt2 + 1], 0, sizeof(xjj2));
+			}
+		}
+		if (order == 1)
+		{
+			if (ordert == 0 && cntx < 100) slb_free_align(x[++cntx], sizeof(pte_l2), sizeof(pte_l2));
+			if (ordert == 1 && cnty < 100) slb_free_align(y[++cnty], sizeof(pte_l2), sizeof(pte_l2));
+			if (ordert == 2 && cnt1 < 10000) slb_free(xj1[++cnt1], sizeof(xjj2));
+			if (ordert == 3 && cnt2 < 10000) slb_free(xj2[++cnt2], sizeof(xjj2));
+		}
 	}
 }
