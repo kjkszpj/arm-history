@@ -103,7 +103,7 @@ kernel.elf: $(TOTAL_KERNEL_OBJS) kern/kernel.ld
 
 
 
-#------command below------
+#------useful command below------
 clean:
 	rm -f firmware.ld
 	rm -rf $(FIRMWARE_OBJS) firmware.elf firmware.bin firmware.s

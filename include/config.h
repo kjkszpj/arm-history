@@ -19,7 +19,7 @@
 #include <asm/config.h>
 
 /* Other global configuration macros goes below. */
-#define DEBUG			/* enable pdebug() output */
+//#define DEBUG			/* enable pdebug() output */
 
 // ------my configure------
 #define MAX(a, b)	(a) > (b) ? (a) : (b)
