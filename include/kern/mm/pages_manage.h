@@ -7,14 +7,13 @@
 
 #include <config.h>
 
-extern u8* kernel_base;
-
 #ifndef DEBUG
 	#ifndef KERNEL_BASE
 	#define KERNEL_BASE 0x80000000
 	#endif
 #else
-#define KERNEL_BASE ((u32)kernel_base)
+	extern u8* kernel_base;
+	#define KERNEL_BASE ((u32)kernel_base)
 #endif
 
 #define P2V(paddr)          (((u32)paddr) + KERNEL_BASE)
@@ -27,7 +26,6 @@ typedef struct free_area_t
 }free_area_t;
 
 //  TODO in fact, other program should NOT access this variable, how to protect?
-free_area_t* farea_head;
 
 //  unit in byte, so as below, will return the PHYSICAL address of the first page.
 u32 init_pspace();

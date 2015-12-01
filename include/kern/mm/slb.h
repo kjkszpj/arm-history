@@ -33,8 +33,6 @@ typedef struct slb_pool_t
     struct slb_pool_t* next_pool;
 }slb_pool_t;
 
-extern struct slb_t* slb_head;
-
 void* slb_alloc(u32 size);
 void* slb_alloc_align(u32 size, u32 align);
 int slb_free(void *p, u32 size);

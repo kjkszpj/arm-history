@@ -8,6 +8,8 @@
 
 #include <kern/mm/pages_manage.h>
 
+static free_area_t* farea_head;
+
 u32 init_pspace()
 {
     farea_head = NULL;
