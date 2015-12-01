@@ -21,7 +21,6 @@ typedef struct free_area_t
 }free_area_t;
 
 //  TODO in fact, other program should NOT access this variable, how to protect?
-free_area_t* farea_head;
 
 //  unit in byte, so as below, will return the PHYSICAL address of the first page.
 u32 init_pspace();

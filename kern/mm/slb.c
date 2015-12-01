@@ -8,7 +8,7 @@
 #include <kern/mm/pages_manage.h>
 #include <kern/mm/slb.h>
 
-slb_t* slb_head;
+static slb_t* slb_head;
 
 void* slb_alloc(u32 size) {return slb_alloc_align(size, 0);}
 int slb_free(void *p, u32 size) {return slb_free_align(p, size, 0);}
