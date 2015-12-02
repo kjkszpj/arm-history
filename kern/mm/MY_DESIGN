@@ -1,0 +1,14 @@
+1.	pages_alloc(), basic allocation, will return free, physical continous memory(unit is 4KB)
+	implemented in first fit like algorithm on free list.
+
+2.	slb_alloc(), allocation for kernel OBJECT.
+	Since it is an object, we can simply use sizeof(object_type) to get the size when freeing the object.
+	implemented base on pages_alloc() to get new slab pool
+
+3.	kmalloc(), allocation of any size memory, like int[100].
+	We can not get the size of this kind of memory easily when free(meta data needed).
+	Implemented base on slb_alloc(), we add meta data(size) on the head and pack it as a "object", then ask the slab to give us an instance of such object.
+	To prevent too much category of slab pool, we round the size up to power of 2.(reduce outer fragment, increase inner fragment)
+
+4.	vmalloc(), not implemented yet.
+5.	malloc(), not implemented yet.
