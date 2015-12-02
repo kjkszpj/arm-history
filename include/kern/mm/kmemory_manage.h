@@ -6,9 +6,9 @@
 #define AIMV6_KMEMORY_MANAGE_H
 
 #include <config.h>
+#include <kern/mm/slb.h>
 
-void *kmalloc(u32 size, u32 align);
-void kmfree(void *p);
-void kminit();
+void *kmalloc(u32 size);
+int kmfree(void *p);
 
 #endif //AIMV6_KMEMORY_MANAGE_H
