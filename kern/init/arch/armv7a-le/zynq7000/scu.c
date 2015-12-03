@@ -37,6 +37,7 @@ int enable_scu()
 int scu_init()
 {
 //    only [31:13] is useful, drop the rest.
+//    on armv7a-le zynq-7000, this value should always give 0xF8F00000 or something
     PERIPHBASE = get_PERIPHBASE() & 0xFFFFE000;
     uart_spin_puts("---PERIPHBASE is at:\t\0");
     puthex(PERIPHBASE);

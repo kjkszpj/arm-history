@@ -39,8 +39,4 @@ int slb_free(void *p, u32 size);
 int slb_free_align(void* p, u32 size, u32 align);
 int slb_init();
 
-slb_pool_t* pool_alloc(u32 osize, u32 align);
-void pool_free(slb_pool_t* p);
-slb_pool_t* pool_segm(slb_pool_t* pool, u32 psize, u32 osize, u32 align);
-
 #endif //AIMV6_SLB_H

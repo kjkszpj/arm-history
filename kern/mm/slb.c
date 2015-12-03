@@ -10,6 +10,10 @@
 
 static slb_t* slb_head;
 
+static slb_pool_t* pool_alloc(u32 osize, u32 align);
+static void pool_free(slb_pool_t* p);
+static slb_pool_t* pool_segm(slb_pool_t* pool, u32 psize, u32 osize, u32 align);
+
 void* slb_alloc(u32 size) {return slb_alloc_align(size, 0);}
 int slb_free(void *p, u32 size) {return slb_free_align(p, size, 0);}
 
@@ -102,7 +106,7 @@ int slb_init()
     return 0;
 }
 
-slb_pool_t* pool_alloc(u32 osize, u32 align)
+static slb_pool_t* pool_alloc(u32 osize, u32 align)
 {
     // still need a container outside this function
     // TODO, what if pool is too small
@@ -120,12 +124,12 @@ slb_pool_t* pool_alloc(u32 osize, u32 align)
     return pool;
 }
 
-void pool_free(slb_pool_t* p)
+static void pool_free(slb_pool_t* p)
 {
     pages_free(V2P(p), p->pool_size);
 }
 
-slb_pool_t* pool_segm(slb_pool_t* pool, u32 psize, u32 osize, u32 align)
+static slb_pool_t* pool_segm(slb_pool_t* pool, u32 psize, u32 osize, u32 align)
 {
     if (pool == NULL) return NULL;
 
