@@ -41,7 +41,7 @@ int vsnprintf(char *str, size_t size, const char *fmt, va_list ap)
 
 #define is_digit(ch)	(((ch) >= '0') && ((ch) <= '9'))
 
-	static const char *digits = "0123456789abcdef";
+	static const char *digits = "0123456789ABCDEF";
 
 	long val;
 	unsigned long uval;

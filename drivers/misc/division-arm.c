@@ -37,3 +37,28 @@ unsigned __aeabi_uidivmod(unsigned numerator, unsigned denominator)
 	);
 	return quot;
 }
+
+unsigned __aeabi_uidiv(unsigned numerator, unsigned denominator)
+{
+	// TODO
+	// asm?
+	return 0;
+}
+
+unsigned __aeabi_idivmod(unsigned numerator, unsigned denominator)
+{
+	// asm?
+	return 0;
+}
+
+unsigned __aeabi_idiv(unsigned numerator, unsigned denominator)
+{
+	return 0;
+}
+
+// exception
+// TODO should also implement uidiv0?
+unsigned __aeabi_idiv0(unsigned numerator, unsigned denominator)
+{
+	return -1;
+}
