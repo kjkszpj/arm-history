@@ -17,6 +17,7 @@ void* slb_alloc_align(u32 osize, u32 align)
 {
     slb_t* iter_slb;
 
+    if (align == 0 && osize <= 4) align = osize;
     for (iter_slb = slb_head; iter_slb != NULL; iter_slb = iter_slb->next_slb)
         if (iter_slb->obj_align == align && iter_slb->obj_size == osize)
         {
@@ -65,6 +66,7 @@ int slb_free_align(void* p, u32 size, u32 align)
     slb_t* iter_slb;
     slb_pool_t* iter_pool;
 
+    if (align == 0 && size <= 4) align = size;
     for (iter_slb = slb_head; iter_slb != NULL; iter_slb = iter_slb->next_slb)
         if (iter_slb->obj_align == align && iter_slb->obj_size == size) break;
     if (iter_slb == NULL)
