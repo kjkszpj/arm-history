@@ -10,8 +10,6 @@ OS on ARM.
 -	interrupt controller
 -	context & PCB, TCB things
 -	CPU1
--	DIV
--	printf
 -	IPC
 -	system call design & system library
 
@@ -21,9 +19,10 @@ OS on ARM.
 -	MMU
 -	I cache, D cache
 -	SCU enable
--	pages_manage(pages_alloc & pages_free)
--	slb_manage(slb_alloc & slb_free)
+-	pages\_manage(pages\_alloc & pages\_free)
+-	slb\_manage(slb\_alloc & slb\_free)
 -	TTB1
+-	DIV & printf
 
 ###	feature
 -	I cache, D cache enable (not fully managed for now)

@@ -71,10 +71,10 @@ unsigned int __aeabi_uidivmod(unsigned int numerator, unsigned int denominator)
 
 	asm volatile
 	(
-		"mov r0, %0\n"
-		"mov r1, %1\n"
+		"ldr r0, %0\n"
+		"ldr r1, %1\n"
 		:
-		:"r"(quot), "r"(numerator)
+		:"m"(quot), "m"(numerator)
 	);
 	return quot;
 }
@@ -102,10 +102,10 @@ signed int __aeabi_idivmod(signed int numerator, signed int denominator)
 	signed int remain = numerator - result * denominator;
 	asm volatile
 	(
-		"mov r0, %0\n"
-		"mov r1, %1\n"
+		"ldr r0, %0\n"
+		"ldr r1, %1\n"
 		:
-		:"r"(result), "r"(remain)
+		:"m"(result), "m"(remain)
 	);
 	return 0;
 }

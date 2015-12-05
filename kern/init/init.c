@@ -5,6 +5,7 @@
 #include <kern/init/init.h>
 #include <kern/mm/pages_manage.h>
 #include <kern/mm/slb.h>
+#include <stdio.h>
 
 u32 *page_table = (u32*)(KERNEL_BASE + PT_OFFSET);
 
@@ -18,8 +19,15 @@ void kinit()
     if (l1cache_init() == 0) uart_spin_puts("L1 cache done.\r\n\0");
     if (scu_init() == 0) uart_spin_puts("SCU done.\r\n\0");
 
-    if (init_pspace() == 0) uart_spin_puts("pages manage done.r\n\0");
-    if (slb_init() == 0) uart_spin_puts("pages manage done.\r\n\0");
+    if (init_pspace() == 0) uart_spin_puts("pages manage done.\r\n\0");
+    if (slb_init() == 0) uart_spin_puts("slb manage done.\r\n\0");
+
+    uart_spin_puts("now trying snprintf\r\n\0");
+
+    char temp[100];
+    snprintf(temp, 90, "decimal:\t%d %d\r\n\0", 123, 0xFFFD0F00);
+    uart_spin_puts(temp);
+    
     volatile u32 i;
     volatile u32 a;
     for (i = 0; i < 10; i++) a = i;

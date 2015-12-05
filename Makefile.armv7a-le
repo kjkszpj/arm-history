@@ -61,7 +61,9 @@ MM_OBJS 	=	kern/mm/slb.o \
 				kern/mm/pages_manage.o \
 				kern/mm/kmemory_manage.o
 
-TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(KINIT_OBJS) $(MM_OBJS)
+LIB_OBJS	=	lib/libc/stdio/snprintf.o
+
+TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(KINIT_OBJS) $(MM_OBJS) $(LIB_OBJS)
 
 all: firmware.bin mbr.bin kernel.elf
 
