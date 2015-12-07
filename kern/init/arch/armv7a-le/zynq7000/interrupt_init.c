@@ -52,7 +52,5 @@ static int prepare_ICDIPTR()
     used_irq[36] = true;
     used_irq[93] = true;
     used_irq[94] = true;
-    for (i = 0; i < 96; i++)
-        if (!used_irq[i])
-            iptr[i] = (iptr[i] & 0xFC) | 0b01;
+    for (i = 0; i < 96; i++) if (!used_irq[i]) iptr[i] = (iptr[i] & 0xFC) | 0b01;
 }

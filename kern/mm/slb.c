@@ -10,8 +10,9 @@
 
 static slb_t* slb_head;
 
-static slb_pool_t* pool_alloc(u32 osize, u32 align);
+static int min(int a, int b) {return a < b ? a : b;}
 static void pool_free(slb_pool_t* p);
+static slb_pool_t* pool_alloc(u32 osize, u32 align);
 static slb_pool_t* pool_segm(slb_pool_t* pool, u32 psize, u32 osize, u32 align);
 
 void* slb_alloc(u32 size) {return slb_alloc_align(size, 0);}
@@ -21,7 +22,7 @@ void* slb_alloc_align(u32 osize, u32 align)
 {
     slb_t* iter_slb;
 
-    if (align == 0 && osize <= 4) align = osize;
+    if (align == 0) align = min(osize, 4);
     for (iter_slb = slb_head; iter_slb != NULL; iter_slb = iter_slb->next_slb)
         if (iter_slb->obj_align == align && iter_slb->obj_size == osize)
         {
