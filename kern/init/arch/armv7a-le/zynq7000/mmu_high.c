@@ -21,6 +21,16 @@ u32 mmu_high_main()
 
     for (i = 0; i < (KERNEL_BASE >> 20); i++) page_table[i] = 0;
     // for (i = 0xA00; i < 0xE00; i++) page_table[i] = 0;
-//    TODO, invalidate TLB?
+
+    asm volatile
+    (
+        "mov r0, #0\n"
+        "mcr p15, 0, r0, c8, c7, 0\n"
+        "dsb\n"
+        "isb\n"
+        :
+        :
+        :"r0"
+    );
     return 0;
 }

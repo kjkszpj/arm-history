@@ -20,7 +20,7 @@ void prepare_page_table()
     u32 i;
     u32 mask;
     u32 *pt_high = (u32*)PT1_BASE;
-    u32 *pt_low = (u32*)(PT0_BASE);
+    u32 *pt_low = (u32*)PT0_BASE;
 
 //    page mapping for now:
 //    1.    PA = VA         for (VA < 2G, below kernel base), should be clear after entering kernel space
@@ -58,16 +58,16 @@ void asm_mmu(u32 pt0_paddr, u32 pt1_paddr)
 {
     asm volatile
     (
-//        load variable (kernel region)pt_base into TTBR1
+//        load variable (kernel region)pt_base into TTBR0 and TTBR1
         "mov r0, %0\n"
         "mcr p15, 0, r0, c2, c0, 0\n"
         "mov r0, %1\n"
         "mcr p15, 0, r0, c2, c0, 1\n"
 //        enable TTB1 by TTBCR1
 //        WARNING: here assuming TTBCR.N(T0SZ)=0
-        "mrc p15, 0, r0, c2, c0, 2\n"
-        "orr r0, r0, #1\n"
-        "mcr p15, 0, r0, c2, c0, 2\n"
+//        "mrc p15, 0, r0, c2, c0, 2\n"
+//        "orr r0, r0, #1\n"
+//        "mcr p15, 0, r0, c2, c0, 2\n"
 //        invalidate TLB
         "mov r0, #0\n"
         "mcr p15, 0, r0, c8, c7, 0\n"

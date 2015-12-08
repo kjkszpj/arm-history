@@ -8,7 +8,7 @@
 #include <config.h>
 
 #define KERN_BASE   0x80000000
-#define PT0_BASE 0x1100000
+#define PT0_BASE 0x100000
 #define PT1_BASE 0x100000
 
 void asm_mmu(u32 pt0_paddr, u32 pt1_paddr);

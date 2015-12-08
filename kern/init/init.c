@@ -29,6 +29,7 @@ void kinit()
     uart_spin_puts("------DEBUG------\r\n\0");
     print_cpu();
     uart_spin_puts("now trying interrupt\r\n\0");
+    uart_spin_puts("svc\r\n\0");
     asm volatile
     (
         "SVC #2"
@@ -37,9 +38,15 @@ void kinit()
         :
     );
 //    align, data abort.
-    u32 *b = 0x2;
+    uart_spin_puts("address data abort\r\n\0");
+//    TODO, for now, data abort will return to pc which generate this interrupt, loop forever
+//    u32 *b = 0x0;
+//    *b = 123;
+    uart_spin_puts("align data abort\r\n\0");
+    b = 0x80000002;
     *b = 123;
 
+    uart_spin_puts("enough!\r\n\0");
     print_cpu();
     uart_spin_puts("now trying snprintf\r\n\0");
     char temp[100];
