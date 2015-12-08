@@ -48,7 +48,7 @@ void mbr_bootmain(void)
 		phoff += phentsize;
 	}
 	/*now entering kernel*/
-	uart_spin_puts("DO");
+	uart_spin_puts("DO\0");
 	kernel_entry();
 	while (1);
 }

@@ -9,12 +9,29 @@
 
 static int prepare_ICDICFR();
 static int prepare_ICDIPTR();
+static int asm_sctlr();
 
 int interrupt_init()
 {
     if (prepare_ICDICFR() != 0) return 1;
     if (prepare_ICDIPTR() != 0) return 1;
-//    TODO, what else to init
+    asm_sctlr();
+    return 0;
+}
+
+static int asm_sctlr()
+{
+    asm volatile
+    (
+        "MRC p15, 0, r0, c1, c0, 0\n"
+        // set VE[24] bit to 0
+        "AND r0, r0, #0xFEFFFFFF\n"
+        "ORR r0, r0, #0x2000\n"
+        "MCR p15, 0, r0, c1, c0, 0\n"
+        :
+        :
+        :"r0"
+    );
     return 0;
 }
 
@@ -36,6 +53,7 @@ static int prepare_ICDIPTR()
     u8* iptr = (u8*)(PERIPHBASE + ICDIPTR_OFFSET);
 
     bool used_irq[100];
+    int i;
 
 //    TODO
 //    for now, all go to cpu0
@@ -53,4 +71,5 @@ static int prepare_ICDIPTR()
     used_irq[93] = true;
     used_irq[94] = true;
     for (i = 0; i < 96; i++) if (!used_irq[i]) iptr[i] = (iptr[i] & 0xFC) | 0b01;
+    return 0;
 }

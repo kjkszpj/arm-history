@@ -7,6 +7,11 @@
 
 #include <config.h>
 
+
+#include <drivers/serial/uart.h>
+#include <drivers/sd/sd-zynq7000.h>
+#include <drivers/misc/dtb-zynq7000.h>
+
 #define ICDICFR_OFFSET 0x00001C00
 #define ICDIPTR_OFFSET 0x00001800
 

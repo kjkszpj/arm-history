@@ -6,7 +6,7 @@ OS on ARM.
 ---
 ###	TODO
 -	alter page table struct and method
--	kmalloc, vmalloc
+-	vmalloc, malloc, sbrk
 -	interrupt controller
 -	context & PCB, TCB things
 -	CPU1
@@ -19,8 +19,9 @@ OS on ARM.
 -	MMU
 -	I cache, D cache
 -	SCU enable
--	pages\_manage(pages\_alloc & pages\_free)
--	slb\_manage(slb\_alloc & slb\_free)
+-	physical pages
+-	slb
+-	kmalloc
 -	TTB1
 -	DIV & printf
 
