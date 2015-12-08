@@ -39,12 +39,13 @@ void kinit()
     );
 //    align, data abort.
     uart_spin_puts("address data abort\r\n\0");
+    u32 *b;
 //    TODO, for now, data abort will return to pc which generate this interrupt, loop forever
-//    u32 *b = 0x0;
+//    b = 0x0;
 //    *b = 123;
-    uart_spin_puts("align data abort\r\n\0");
-    b = 0x80000002;
-    *b = 123;
+//    uart_spin_puts("align data abort\r\n\0");
+//    b = 0x80000002;
+//    *b = 123;
 
     uart_spin_puts("enough!\r\n\0");
     print_cpu();
@@ -74,6 +75,10 @@ static int print_cpu()
 
     uart_spin_puts("sp:\t\0");
     asm volatile("MOV %0, sp\n" :"=r"(a) : :);
+    puthex(a);
+
+    uart_spin_puts("pc:\t\0");
+    asm volatile("MOV %0, pc\n" :"=r"(a) : :);
     puthex(a);
 
     uart_spin_puts("lr:\t\0");
