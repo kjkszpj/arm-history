@@ -30,6 +30,7 @@ void prepare_page_table()
 
     //  base address(31:20)|00||nG|S|AP[2]|TEX[2:0]|AP[1:0]|0|domain(8765)|00010
 //    TODO should update pte format, CACHEALBE!
+    for (i = 0; i < 0xFFF; i++) pt_low[i] = pt_high[i] = 0;
     for (i = 0; i < 0x800; i++)
     {
         mask = (i << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
@@ -48,7 +49,9 @@ void prepare_page_table()
     pt_high[0xF8F] = (0xF8F << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
     pt_high[0xFC0] = (0xFC0 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
 //    stack here
-    pt_high[0xFFF] = (0x1FF << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    pt_high[0xDFF] = (0x1FF << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
+    // interrupt table
+    pt_high[0xFFF] = (0x004 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
 }
 
 void asm_mmu(u32 pt0_paddr, u32 pt1_paddr)

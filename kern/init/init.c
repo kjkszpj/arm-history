@@ -5,6 +5,7 @@
 #include <kern/init/init.h>
 #include <kern/mm/pages_manage.h>
 #include <kern/mm/slb.h>
+#include <interrupt_init.h>
 #include <stdio.h>
 
 u32 *page_table = (u32*)(KERNEL_BASE + PT_OFFSET);
@@ -22,10 +23,21 @@ void kinit()
     if (init_pspace() == 0) uart_spin_puts("pages manage done.\r\n\0");
     if (slb_init() == 0) uart_spin_puts("slb manage done.\r\n\0");
 
+    if (interrupt_init() == 0) uart_spin_puts("int done.\r\n\0"); else uart_spin_puts("bad.\r\n\0");
+
+    uart_spin_puts("now triny interrupt\r\n\0");
+    asm volatile
+    (
+        "SVC #2"
+        :
+        :
+        :
+    );
+
     uart_spin_puts("now trying snprintf\r\n\0");
 
     char temp[100];
-    snprintf(temp, 90, "decimal:\t%d %d\r\n\0", 123, 0xFFFD0F00);
+    snprintf(temp, 90, "decimal:\t%d %d\r\n\0", 123, 0xFFFD0FA0);
     uart_spin_puts(temp);
     
     volatile u32 i;
@@ -33,4 +45,11 @@ void kinit()
     for (i = 0; i < 10; i++) a = i;
     uart_spin_puts("------Live to tell the story------\r\n\0");
     while (1);
+}
+
+int inte()
+{
+    // stack issue?
+    uart_spin_puts("successful int\r\n\0");
+    return 0;
 }

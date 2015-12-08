@@ -20,7 +20,7 @@ u32 mmu_high_main()
     u32 i;
 
     for (i = 0; i < (KERNEL_BASE >> 20); i++) page_table[i] = 0;
-    for (i = 0xA00; i < 0xE00; i++) page_table[i] = 0;
+    // for (i = 0xA00; i < 0xE00; i++) page_table[i] = 0;
 //    TODO, invalidate TLB?
     return 0;
 }

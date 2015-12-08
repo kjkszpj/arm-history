@@ -55,7 +55,9 @@ KINIT_OBJS	=	kern/init/arch/$(ARCH)/$(MACH)/mmu_high.o \
                 kern/init/init.o \
                 kern/init/arch/$(ARCH)/$(MACH)/scu.o \
                 kern/init/arch/$(ARCH)/$(MACH)/enter_kernel_space.o \
-                kern/init/arch/$(ARCH)/$(MACH)/l1cache.o
+                kern/init/arch/$(ARCH)/$(MACH)/l1cache.o \
+                kern/init/arch/$(ARCH)/$(MACH)/interrupt_init.o \
+                kern/init/arch/$(ARCH)/$(MACH)/interrupt_vector.o
 
 MM_OBJS 	=	kern/mm/slb.o \
 				kern/mm/pages_manage.o \
