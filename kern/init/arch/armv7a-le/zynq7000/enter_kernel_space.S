@@ -6,7 +6,6 @@
 entery_kernel_space:
 /*  switch mode, from svc to sys */
     MRS r0, cpsr
-    AND r0, r0, #0xFFFFFFE0
     ORR r0, r0, #0b11111
     MSR cpsr, r0
 /*  new stack */

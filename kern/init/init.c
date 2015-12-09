@@ -14,6 +14,28 @@ u32 *page_table = (u32*)(KERNEL_BASE + PT_OFFSET);
 // DEBUG
 static int print_cpu();
 
+struct context_cpu
+{
+    u32 r0;
+    u32 r1;
+    u32 r2;
+    u32 r3;
+    u32 r4;
+    u32 r5;
+    u32 r6;
+    u32 r7;
+    u32 r8;
+    u32 r9;
+    u32 r10;
+    u32 r11;
+    u32 r12;
+    u32 sp;
+    u32 lr;
+    u32 pc;
+    u32 cpsr;
+    u32 spsr;
+}*stack_svc;
+
 void kinit()
 {
     uart_spin_puts("GE\r\n\0");
@@ -26,20 +48,21 @@ void kinit()
 
     if (interrupt_init() == 0) uart_spin_puts("int done.\r\n\0");
 
-    uart_spin_puts("------DEBUG------\r\n\0");
+    stack_svc = slb_alloc(sizeof(struct context_cpu));
+    uart_spin_puts("------DEBUG------\r\norigin status:\r\n\0");
     print_cpu();
     uart_spin_puts("now trying interrupt\r\n\0");
     uart_spin_puts("svc\r\n\0");
-    asm volatile
-    (
-        "SVC #2"
-        :
-        :
-        :
-    );
+//    asm volatile
+//    (
+//        "SVC #2"
+//        :
+//        :
+//        :
+//    );
 //    align, data abort.
-    uart_spin_puts("address data abort\r\n\0");
-    u32 *b;
+//    uart_spin_puts("address data abort\r\n\0");
+//    u32 *b;
 //    TODO, for now, data abort will return to pc which generate this interrupt, loop forever
 //    b = 0x0;
 //    *b = 123;
@@ -98,10 +121,10 @@ static int print_cpu()
 }
 
 // DEBUG
-int inte()
+
+int int_ent_svc()
 {
-    // stack issue?
-    uart_spin_puts("successful int\r\n\0");
+    uart_spin_puts("----It works!\r\n\0");
     print_cpu();
     return 0;
 }
