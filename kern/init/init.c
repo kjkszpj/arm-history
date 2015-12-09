@@ -48,6 +48,8 @@ void kinit()
 
 //    test? fuck, do not test here!
 //    TODO, no stack for now.
+    stack_svc = *(struct context_cpu*)slb_alloc(sizeof(struct context_cpu));
+    puthex(&stack_svc);
     uart_spin_puts("------DEBUG------\r\norigin status:\r\n\0");
     print_cpu();
     uart_spin_puts("now trying interrupt\r\n\0");
@@ -59,7 +61,6 @@ void kinit()
         :
         :
     );
-
 //    align, data abort. invalid address, data abort.
 //    uart_spin_puts("address data abort\r\n\0");
 //    u32 *b;
