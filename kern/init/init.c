@@ -29,12 +29,10 @@ struct context_cpu
     u32 r10;
     u32 r11;
     u32 r12;
-    u32 sp;
     u32 lr;
-    u32 pc;
     u32 cpsr;
     u32 spsr;
-}*stack_svc;
+}stack_svc;
 
 void kinit()
 {
@@ -48,18 +46,19 @@ void kinit()
 
     if (interrupt_init() == 0) uart_spin_puts("int done.\r\n\0");
 
-    stack_svc = slb_alloc(sizeof(struct context_cpu));
+    stack_svc = *(struct context_cpu*)slb_alloc(sizeof(struct context_cpu));
+    puthex(&stack_svc);
     uart_spin_puts("------DEBUG------\r\norigin status:\r\n\0");
     print_cpu();
     uart_spin_puts("now trying interrupt\r\n\0");
     uart_spin_puts("svc\r\n\0");
-//    asm volatile
-//    (
-//        "SVC #2"
-//        :
-//        :
-//        :
-//    );
+    asm volatile
+    (
+        "SVC #2"
+        :
+        :
+        :
+    );
 //    align, data abort.
 //    uart_spin_puts("address data abort\r\n\0");
 //    u32 *b;
@@ -100,13 +99,13 @@ static int print_cpu()
     asm volatile("MOV %0, sp\n" :"=r"(a) : :);
     puthex(a);
 
-    uart_spin_puts("pc:\t\0");
-    asm volatile("MOV %0, pc\n" :"=r"(a) : :);
-    puthex(a);
-
-    uart_spin_puts("lr:\t\0");
-    asm volatile("MOV %0, lr\n" :"=r"(a) : :);
-    puthex(a);
+//    uart_spin_puts("pc:\t\0");
+//    asm volatile("MOV %0, pc\n" :"=r"(a) : :);
+//    puthex(a);
+//
+//    uart_spin_puts("lr:\t\0");
+//    asm volatile("MOV %0, lr\n" :"=r"(a) : :);
+//    puthex(a);
 
     uart_spin_puts("r0:\t\0");
     asm volatile("MOV %0, r0\n" :"=r"(a) : :);
@@ -124,7 +123,14 @@ static int print_cpu()
 
 int int_ent_svc()
 {
-    uart_spin_puts("----It works!\r\n\0");
+    uart_spin_puts("----It works! falling into interrupt svc\r\n\0");
     print_cpu();
+    uart_spin_puts("struct context_cpu\r\n\0");
+    puthex(&stack_svc);
+    puthex(stack_svc.r0);
+    puthex(stack_svc.lr);
+    puthex(stack_svc.cpsr);
+    puthex(stack_svc.spsr);
+    uart_spin_puts("bye.\r\n\0");
     return 0;
 }
