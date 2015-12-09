@@ -33,6 +33,7 @@ int_pre_ndef:
     b   int_pre_ndef
 
 int_pre_undefine_inst:
+    b   int_pre_undefine_inst
 
 int_pre_SVC:
     ldr     sp, =stack_svc
@@ -47,23 +48,32 @@ int_pre_SVC:
 
 /*  change mode */
     mrs     r0, cpsr
+    and     r0, r0, #0xFFFFFFE0
     orr     r0, r0, #0b11111
     msr     cpsr, r0
 
     bl      int_ent_svc
 
-    ldmia   sp!, {r0}
-    msr     spsr, r0
-    ldmia   sp!, {r0}
+/*  should first change mode and then ldm*/
+    mrs     r0, cpsr
+    and     r0, r0, #0xFFFFFFE0
+    orr     r0, r0, #0b10011
     msr     cpsr, r0
-    ldmia   sp!, {r0-r12, pc}^
+
+    ldmdb   sp!, {r0}
+    msr     spsr, r0
+    ldmdb   sp!, {r0}
+    msr     cpsr, r0
+    ldmdb   sp!, {r0-r12, pc}^
 
 int_pre_prefetch_abort:
+    b       int_pre_prefetch_abort
 
 int_pre_data_abort:
+    b       int_pre_data_abort
 
 int_pre_IRQ:
+    b       int_pre_IRQ
 
 int_pre_FIQ:
-
-nop
+    b       int_pre_FIQ
