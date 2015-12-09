@@ -100,7 +100,7 @@ int slb_init()
 
     slb_head = (slb_t*)init_pool->obj_head;
     init_pool->obj_head = init_pool->obj_head->next_obj;
-    slb_head->obj_align = 0;
+    slb_head->obj_align = min(4, sizeof(slb_t));
     slb_head->obj_size = sizeof(slb_t);
     slb_head->pool_head = init_pool;
     slb_head->next_slb = NULL;
