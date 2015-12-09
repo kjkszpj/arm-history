@@ -33,6 +33,8 @@ struct context_cpu
     u32 spsr;
 }stack_svc;
 
+static int print_cpu();
+
 void kinit()
 {
     uart_spin_puts("GE\r\n\0");
