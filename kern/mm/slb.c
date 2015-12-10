@@ -10,7 +10,8 @@
 
 static slb_t* slb_head;
 
-static int min(int a, int b) {return a < b ? a : b;}
+inline static int min(int a, int b) {return a < b ? a : b;}
+inline static int max(int a, int b) {return a > b ? a : b;}
 static void pool_free(slb_pool_t* p);
 static slb_pool_t* pool_alloc(u32 osize, u32 align);
 static slb_pool_t* pool_segm(slb_pool_t* pool, u32 psize, u32 osize, u32 align);
@@ -23,6 +24,7 @@ void* slb_alloc_align(u32 osize, u32 align)
     slb_t* iter_slb;
 
     if (align == 0) align = min(osize, 4);
+    osize = max(osize, sizeof(slb_obj_t));
     for (iter_slb = slb_head; iter_slb != NULL; iter_slb = iter_slb->next_slb)
         if (iter_slb->obj_align == align && iter_slb->obj_size == osize)
         {
@@ -100,8 +102,9 @@ int slb_init()
 
     slb_head = (slb_t*)init_pool->obj_head;
     init_pool->obj_head = init_pool->obj_head->next_obj;
+    // just in case we change struct slb_t and slb_obj_t latter
     slb_head->obj_align = min(4, sizeof(slb_t));
-    slb_head->obj_size = sizeof(slb_t);
+    slb_head->obj_size = max(sizeof(slb_t), sizeof(slb_obj_t));
     slb_head->pool_head = init_pool;
     slb_head->next_slb = NULL;
     return 0;
