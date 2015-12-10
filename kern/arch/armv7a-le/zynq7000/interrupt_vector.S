@@ -18,7 +18,6 @@ interrupt_vector:
  * 0x18     IRQ
  * 0x1C     FIQ
  */
-
 	b	int_pre_ndef
 	b	int_pre_undefine_inst
 	b	int_pre_SVC
@@ -28,43 +27,59 @@ interrupt_vector:
 	b	int_pre_IRQ
 	b	int_pre_FIQ
 
-/*  should give a error message instead? */
+
+
+
 int_pre_ndef:
-    b   int_pre_ndef
+    mrs     r0, cpsr
+    orr     r0, r0, #0b11111
+    msr     cpsr, r0
+    b   int_ent_ndef
 
 int_pre_undefine_inst:
     b   int_pre_undefine_inst
 
 int_pre_SVC:
+    /*  "stack" infact is an object */
     ldr     sp, =stack_svc
-/*  dump to object via stmia, it is an object rather than stack.
- *  TODO, it does not follow the context_cpu format.
- */
+
+    /*
+     *  dump to object via stmia, it is an object rather than stack.
+     *  TODO, it does not follow the context_cpu format.
+     */
     stmia   sp!, {r0-r12, lr}
     mrs     r0, cpsr
     stmia   sp!, {r0}
     mrs     r0, spsr
     stmia   sp!, {r0}
 
-/*  change mode */
+    /*  change mode */
     mrs     r0, cpsr
     and     r0, r0, #0xFFFFFFE0
     orr     r0, r0, #0b11111
     msr     cpsr, r0
 
+    /*
+     *  since r0 have been saved, fill free to use r0 to store sp
+     *  can not stmia and ldmdb sp, it will fail?
+     */
+    mov     r0, sp
     bl      int_ent_svc
+    mov     sp, r0
 
-/*  should first change mode and then ldm*/
+    /*  should first change mode for bank sp and then ldm */
     mrs     r0, cpsr
     and     r0, r0, #0xFFFFFFE0
     orr     r0, r0, #0b10011
     msr     cpsr, r0
 
+    /*  return from interrupt */
     ldmdb   sp!, {r0}
     msr     spsr, r0
     ldmdb   sp!, {r0}
     msr     cpsr, r0
     ldmdb   sp!, {r0-r12, pc}^
+    /* should prevent falling? */
 
 int_pre_prefetch_abort:
     b       int_pre_prefetch_abort

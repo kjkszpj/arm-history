@@ -14,6 +14,7 @@
 
 #define ICDICFR_OFFSET 0x00001C00
 #define ICDIPTR_OFFSET 0x00001800
+#define	ICDSGIR_OFFSET 0x00001F00
 
 int interrupt_init();
 
