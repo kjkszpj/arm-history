@@ -4,23 +4,42 @@
 
 //  TODO, not so sure about the hardware part of interrupt preparation
 //  referring to zynq-7000, Chap 7, figure 7-4 and 7-5
+//  in this .c file, we focus on dealing with the HARDWARE related issue when interrupt
 
 #include <interrupt.h>
+#include <kern/mm/slb.h>
 
-static int prepare_ICDICFR();
+//typedef struct
+//{
+////---order here is weird, because we want to use stmia when interrupt
+//    u32 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12;
+//    u32 pc;
+//    u32 cpsr, spsr;
+//    u32 sp, lr;
+//} context_cpu_t;
+
+static int check_ICDICFR();
 static int prepare_ICDIPTR();
 static int asm_sctlr();
 
+//  todo, context_cpu_t only or full pcb
+context_cpu_t context_svc;
+context_cpu_t context_abort;
+context_cpu_t context_irq;
+context_cpu_t context_fiq;
+
 int interrupt_init()
 {
-    if (prepare_ICDICFR() != 0) return 1;
+    if (check_ICDICFR() != 0) return 1;
     if (prepare_ICDIPTR() != 0) return 1;
     asm_sctlr();
+//    init_context_container();
     return 0;
 }
 
 static int asm_sctlr()
 {
+//    in case it is off
     asm volatile
     (
         "MRC p15, 0, r0, c1, c0, 0\n"
@@ -35,16 +54,16 @@ static int asm_sctlr()
     return 0;
 }
 
-static int prepare_ICDICFR()
+static int check_ICDICFR()
 {
     u32* icfr = (u32*)(PERIPHBASE + ICDICFR_OFFSET);
+    int i;
+
     if (icfr[0] != 0xAAAAAAAA) return 1;
     if (icfr[1] != 0x7DC00000) return 1;
 
-    int i;
     uart_spin_puts("information ICDICFR:\r\n\0");
     for (i = 0; i < 6; i++) puthex(icfr[i]);
-//    TODO, update?
     return 0;
 }
 
@@ -74,7 +93,36 @@ static int prepare_ICDIPTR()
     return 0;
 }
 
+void int_ent_svc()
+{
+//    u32 temp;
 
+    /*
+     * save the bank register of mode before interrupt,
+     * i.e. sp, lr, pc, cpsr, spsr
+     * 1.   r0 now may hold the sp
+     * 2.   can access tad lr now
+     * 3.   pc is in the context stack, pc = lr thing
+     * 4.   cpsr = saved spsr
+     * 5.   spsr (if nessary)
+     */
+
+    asm volatile("mov %0, r0\n" :"=r"(context_svc.sp) : : );
+//    i think we should not concern lr, it will push in stack?
+    asm volatile("mov %0, lr\n" :"=r"(context_svc.lr) : : );
+//    store (now) spsr, if interrupt from sys to sys(irq enabled), then we must be able to cascade return
+    asm volatile("mrs %0, spsr\n" :"=r"(context_svc.spsr) : : );
+
+//    TODO, enable irq, fiq
+//    syscall();
+//    TODO, disable irq, fiq
+
+    asm volatile("msr spsr, %0\n" : :"r"(context_svc.spsr) : );
+    asm volatile("mov lr, %0\n" : :"r"(context_svc.lr) : );
+    asm volatile("mov r0, %0\n" : :"r"(context_svc.spsr) : );
+}
+
+// for debug, and visualization
 static int print_cpu()
 {
     u32 a;
@@ -105,25 +153,25 @@ static int print_cpu()
 
 // DEBUG
 
-int int_ent_svc()
-{
-    uart_spin_puts("----It works! falling into interrupt svc\r\n\0");
-    print_cpu();
-    uart_spin_puts("struct context_cpu\r\n\0");
-    puthex(&stack_svc);
-    puthex(stack_svc.r0);
-    puthex(stack_svc.lr);
-    puthex(stack_svc.cpsr);
-    puthex(stack_svc.spsr);
-    uart_spin_puts("bye.\r\n\0");
-    return 0;
-}
+//int int_ent_svc()
+//{
+//    uart_spin_puts("----It works! falling into interrupt svc\r\n\0");
+//    print_cpu();
+//    uart_spin_puts("struct context_cpu\r\n\0");
+//    puthex(&stack_svc);
+//    puthex(stack_svc.r0);
+//    puthex(stack_svc.lr);
+//    puthex(stack_svc.cpsr);
+//    puthex(stack_svc.spsr);
+//    uart_spin_puts("bye.\r\n\0");
+//    return 0;
+//}
 
-int test_all_interrupt()
+void test_all_interrupt()
 {
 //    test? fuck, do not test here!
 //    TODO, no stack for now.
-    stack_svc = *(struct context_cpu*)slb_alloc(sizeof(struct context_cpu));
+    u32 stack_svc = slb_alloc(100);
     puthex(&stack_svc);
     uart_spin_puts("------DEBUG------\r\norigin status:\r\n\0");
     print_cpu();
@@ -148,5 +196,4 @@ int test_all_interrupt()
 
     uart_spin_puts("enough!\r\n\0");
     print_cpu();
-
 }

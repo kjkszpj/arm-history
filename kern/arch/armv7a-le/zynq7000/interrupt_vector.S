@@ -34,7 +34,7 @@ int_pre_ndef:
     mrs     r0, cpsr
     orr     r0, r0, #0b11111
     msr     cpsr, r0
-    b   int_ent_ndef
+    b   int_pre_ndef
 
 int_pre_undefine_inst:
     b   int_pre_undefine_inst
@@ -48,8 +48,6 @@ int_pre_SVC:
      *  TODO, it does not follow the context_cpu format.
      */
     stmia   sp!, {r0-r12, lr}
-    mrs     r0, cpsr
-    stmia   sp!, {r0}
     mrs     r0, spsr
     stmia   sp!, {r0}
 
@@ -76,8 +74,6 @@ int_pre_SVC:
     /*  return from interrupt */
     ldmdb   sp!, {r0}
     msr     spsr, r0
-    ldmdb   sp!, {r0}
-    msr     cpsr, r0
     ldmdb   sp!, {r0-r12, pc}^
     /* should prevent falling? */
 

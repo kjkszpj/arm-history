@@ -61,7 +61,8 @@ KINIT_OBJS	=	kern/init/arch/$(ARCH)/$(MACH)/mmu_high.o \
 
 MM_OBJS 	=	kern/mm/slb.o \
 				kern/mm/pages_manage.o \
-				kern/mm/kmemory_manage.o
+				kern/mm/kmemory_manage.o \
+				kern/arch/$(ARCH)/$(MACH)/pte.o
 
 LIB_OBJS	=	lib/libc/stdio/snprintf.o
 
