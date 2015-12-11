@@ -3,6 +3,7 @@
 //
 
 //  TODO LOCK issue
+//  TODO link in free object, is this design secure?
 //  for object only? use kmalloc for nurmal allocation
 
 #include <kern/mm/pages_manage.h>
