@@ -41,24 +41,27 @@
 //    u32 sp, lr;
 //} context_cpu_t;
 
+//  inner function
+//  for init
 static int check_ICDICFR();
 static int prepare_ICDIPTR();
 static int asm_sctlr();
+static int init_context_container();
 
 //  todo, context_cpu_t only or full pcb
-extern context_cpu_t context_no;
-extern context_cpu_t context_ndef;
-extern context_cpu_t context_svc;
-extern context_cpu_t context_abort;
-extern context_cpu_t context_irq;
-extern context_cpu_t context_fiq;
+context_cpu_t* context_no;
+context_cpu_t* context_ndef;
+context_cpu_t* context_svc;
+context_cpu_t* context_abort;
+context_cpu_t* context_irq;
+context_cpu_t* context_fiq;
 
 int interrupt_init()
 {
     if (check_ICDICFR() != 0) return 1;
     if (prepare_ICDIPTR() != 0) return 1;
     asm_sctlr();
-//    init_context_container();
+    init_context_container();
     return 0;
 }
 
@@ -120,26 +123,39 @@ static int prepare_ICDIPTR()
     return 0;
 }
 
+static int init_context_container()
+{
+//    context container, for temperate storage
+    context_no =    (context_cpu_t*)slb_alloc(sizeof(context_cpu_t));
+    context_ndef =  (context_cpu_t*)slb_alloc(sizeof(context_cpu_t));
+    context_svc =   (context_cpu_t*)slb_alloc(sizeof(context_cpu_t));
+    context_abort = (context_cpu_t*)slb_alloc(sizeof(context_cpu_t));
+    context_irq =   (context_cpu_t*)slb_alloc(sizeof(context_cpu_t));
+    context_fiq =   (context_cpu_t*)slb_alloc(sizeof(context_cpu_t));
+
+    return 0;
+}
+
 
 //  entry of interrupt
-void int_ent_ndef()
+int int_ent_ndef()
 {
-    asm volatile("mov %0, r0\n" :"=r"(context_ndef.sp) : : );
-    asm volatile("mov %0, lr\n" :"=r"(context_ndef.lr) : : );
-    asm volatile("mrs %0, spsr\n" :"=r"(context_ndef.spsr) : : );
+    asm volatile("mov %0, r0\n" :"=r"(context_ndef->sp) : : );
+    asm volatile("mov %0, lr\n" :"=r"(context_ndef->lr) : : );
+    asm volatile("mrs %0, spsr\n" :"=r"(context_ndef->spsr) : : );
 
 //    TODO, enable irq, fiq
 //    syscall();
 //    TODO, disable irq, fiq
 
-    asm volatile("msr spsr, %0\n" : :"r"(context_ndef.spsr) : );
-    asm volatile("mov lr, %0\n" : :"r"(context_ndef.lr) : );
-    asm volatile("mov r0, %0\n" : :"r"(context_ndef.sp) : );
-    return context_ndef.sp;
+    asm volatile("msr spsr, %0\n" : :"r"(context_ndef->spsr) : );
+    asm volatile("mov lr, %0\n" : :"r"(context_ndef->lr) : );
+    asm volatile("mov r0, %0\n" : :"r"(context_ndef->sp) : );
+    return context_ndef->sp;
 }
 
 //  mainly focus here
-void int_ent_svc()
+int int_ent_svc()
 {
 //    u32 temp;
 
@@ -153,85 +169,85 @@ void int_ent_svc()
      * 5.   spsr (if nessary)
      */
 
-    asm volatile("mov %0, r0\n" :"=r"(context_svc.sp) : : );
+    asm volatile("mov %0, r0\n" :"=r"(context_svc->sp) : : );
 //    i think we should not concern lr, it will push in stack?
-    asm volatile("mov %0, lr\n" :"=r"(context_svc.lr) : : );
+    asm volatile("mov %0, lr\n" :"=r"(context_svc->lr) : : );
 //    store (now) spsr, if interrupt from sys to sys(irq enabled), then we must be able to cascade return
-    asm volatile("mrs %0, spsr\n" :"=r"(context_svc.spsr) : : );
+    asm volatile("mrs %0, spsr\n" :"=r"(context_svc->spsr) : : );
 
 //    TODO, enable irq, fiq
 //    syscall();
 //    TODO, disable irq, fiq
 
-    asm volatile("msr spsr, %0\n" : :"r"(context_svc.spsr) : );
-    asm volatile("mov lr, %0\n" : :"r"(context_svc.lr) : );
-    asm volatile("mov r0, %0\n" : :"r"(context_svc.sp) : );
-    return context_svc.sp;
+    asm volatile("msr spsr, %0\n" : :"r"(context_svc->spsr) : );
+    asm volatile("mov lr, %0\n" : :"r"(context_svc->lr) : );
+    asm volatile("mov r0, %0\n" : :"r"(context_svc->sp) : );
+    return context_svc->sp;
 }
 
-void int_ent_prefetch_abort()
+int int_ent_prefetch_abort()
 {
-    asm volatile("mov %0, r0\n" :"=r"(context_abort.sp) : : );
-    asm volatile("mov %0, lr\n" :"=r"(context_abort.lr) : : );
-    asm volatile("mrs %0, spsr\n" :"=r"(context_abort.spsr) : : );
+    asm volatile("mov %0, r0\n" :"=r"(context_abort->sp) : : );
+    asm volatile("mov %0, lr\n" :"=r"(context_abort->lr) : : );
+    asm volatile("mrs %0, spsr\n" :"=r"(context_abort->spsr) : : );
 
 //    TODO, enable irq, fiq
 //    prefetch_abort();
 //    TODO, disable irq, fiq
 
-    asm volatile("msr spsr, %0\n" : :"r"(context_abort.spsr) : );
-    asm volatile("mov lr, %0\n" : :"r"(context_abort.lr) : );
-    asm volatile("mov r0, %0\n" : :"r"(context_abort.sp) : );
-    return context_abort.sp;
+    asm volatile("msr spsr, %0\n" : :"r"(context_abort->spsr) : );
+    asm volatile("mov lr, %0\n" : :"r"(context_abort->lr) : );
+    asm volatile("mov r0, %0\n" : :"r"(context_abort->sp) : );
+    return context_abort->sp;
 }
 
-void int_ent_data_abort()
+int int_ent_data_abort()
 {
-    asm volatile("mov %0, r0\n" :"=r"(context_abort.sp) : : );
-    asm volatile("mov %0, lr\n" :"=r"(context_abort.lr) : : );
-    asm volatile("mrs %0, spsr\n" :"=r"(context_abort.spsr) : : );
+    asm volatile("mov %0, r0\n" :"=r"(context_abort->sp) : : );
+    asm volatile("mov %0, lr\n" :"=r"(context_abort->lr) : : );
+    asm volatile("mrs %0, spsr\n" :"=r"(context_abort->spsr) : : );
 
 //    TODO, enable irq, fiq
 //    prefetch_data_abort();
 //    TODO, disable irq, fiq
 
-    asm volatile("msr spsr, %0\n" : :"r"(context_abort.spsr) : );
-    asm volatile("mov lr, %0\n" : :"r"(context_abort.lr) : );
-    asm volatile("mov r0, %0\n" : :"r"(context_abort.sp) : );
-    return context_abort.sp;
+    asm volatile("msr spsr, %0\n" : :"r"(context_abort->spsr) : );
+    asm volatile("mov lr, %0\n" : :"r"(context_abort->lr) : );
+    asm volatile("mov r0, %0\n" : :"r"(context_abort->sp) : );
+    return context_abort->sp;
 }
 
-void int_ent_irq()
+int int_ent_irq()
 {
-    asm volatile("mov %0, r0\n" :"=r"(context_irq.sp) : : );
-    asm volatile("mov %0, lr\n" :"=r"(context_irq.lr) : : );
-    asm volatile("mrs %0, spsr\n" :"=r"(context_irq.spsr) : : );
+    asm volatile("mov %0, r0\n" :"=r"(context_irq->sp) : : );
+    asm volatile("mov %0, lr\n" :"=r"(context_irq->lr) : : );
+    asm volatile("mrs %0, spsr\n" :"=r"(context_irq->spsr) : : );
 
 //    TODO, enable irq, fiq
 //    irq();
 //    TODO, disable irq, fiq
 
-    asm volatile("msr spsr, %0\n" : :"r"(context_irq.spsr) : );
-    asm volatile("mov lr, %0\n" : :"r"(context_irq.lr) : );
-    asm volatile("mov r0, %0\n" : :"r"(context_irq.sp) : );
-    return context_irq.sp;
+    asm volatile("msr spsr, %0\n" : :"r"(context_irq->spsr) : );
+    asm volatile("mov lr, %0\n" : :"r"(context_irq->lr) : );
+    asm volatile("mov r0, %0\n" : :"r"(context_irq->sp) : );
+    return context_irq->sp;
 }
 
-void int_ent_fiq()
+int int_ent_fiq()
 {
 //    TODO, fiq bank more register, save it
-    asm volatile("mov %0, r0\n" :"=r"(context_fiq.sp) : : );
-    asm volatile("mov %0, lr\n" :"=r"(context_fiq.lr) : : );
-    asm volatile("mrs %0, spsr\n" :"=r"(context_fiq.spsr) : : );
+    asm volatile("mov %0, r0\n" :"=r"(context_fiq->sp) : : );
+    asm volatile("mov %0, lr\n" :"=r"(context_fiq->lr) : : );
+    asm volatile("mrs %0, spsr\n" :"=r"(context_fiq->spsr) : : );
 
 //    TODO, enable irq, fiq
 //    fiq();
 //    TODO, disable irq, fiq
 
-    asm volatile("msr spsr, %0\n" : :"r"(context_fiq.spsr) : );
-    asm volatile("mov lr, %0\n" : :"r"(context_fiq.lr) : );
-    asm volatile("mov r0, %0\n" : :"r"(context_fiq.sp) : );
-    return context_fiq.sp;
+    asm volatile("msr spsr, %0\n" : :"r"(context_fiq->spsr) : );
+    asm volatile("mov lr, %0\n" : :"r"(context_fiq->lr) : );
+    asm volatile("mov r0, %0\n" : :"r"(context_fiq->sp) : );
+    return context_fiq->sp;
 }
 
 // for debug, and visualization
@@ -279,33 +295,32 @@ static int print_cpu()
 //    return 0;
 //}
 
-void test_all_interrupt()
-{
-//    test? fuck, do not test here!
-//    TODO, no stack for now.
-    u32 stack_svc = slb_alloc(100);
-    puthex(&stack_svc);
-    uart_spin_puts("------DEBUG------\r\norigin status:\r\n\0");
-    print_cpu();
-    uart_spin_puts("now trying interrupt\r\n\0");
-    uart_spin_puts("svc\r\n\0");
-    asm volatile
-    (
-        "SVC #2"
-        :
-        :
-        :
-    );
-//    align, data abort. invalid address, data abort.
-//    uart_spin_puts("address data abort\r\n\0");
-//    u32 *b;
-//    TODO, for now, data abort will return to pc which generate this interrupt, loop forever
-//    b = 0x0;
-//    *b = 123;
-//    uart_spin_puts("align data abort\r\n\0");
-//    b = 0x80000002;
-//    *b = 123;
-
-    uart_spin_puts("enough!\r\n\0");
-    print_cpu();
-}
+//void test_all_interrupt()
+//{
+////    test? fuck, do not test here!
+//    u32 stack_svc = slb_alloc(100);
+//    puthex(&stack_svc);
+//    uart_spin_puts("------DEBUG------\r\norigin status:\r\n\0");
+//    print_cpu();
+//    uart_spin_puts("now trying interrupt\r\n\0");
+//    uart_spin_puts("svc\r\n\0");
+//    asm volatile
+//    (
+//        "SVC #2"
+//        :
+//        :
+//        :
+//    );
+////    align, data abort-> invalid address, data abort->
+////    uart_spin_puts("address data abort\r\n\0");
+////    u32 *b;
+////    todo, for now, data abort will return to pc which generate this interrupt, loop forever
+////    b = 0x0;
+////    *b = 123;
+////    uart_spin_puts("align data abort\r\n\0");
+////    b = 0x80000002;
+////    *b = 123;
+//
+//    uart_spin_puts("enough!\r\n\0");
+//    print_cpu();
+//}

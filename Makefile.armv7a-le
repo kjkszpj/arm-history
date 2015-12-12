@@ -56,7 +56,8 @@ KINIT_OBJS	=	kern/init/arch/$(ARCH)/$(MACH)/mmu_high.o \
                 kern/init/arch/$(ARCH)/$(MACH)/scu.o \
                 kern/init/arch/$(ARCH)/$(MACH)/enter_kernel_space.o \
                 kern/init/arch/$(ARCH)/$(MACH)/l1cache.o \
-                kern/arch/$(ARCH)/$(MACH)/interrupt.o \
+
+INT_OBJS    =   kern/arch/$(ARCH)/$(MACH)/interrupt.o \
                 kern/arch/$(ARCH)/$(MACH)/interrupt_vector.o
 
 MM_OBJS 	=	kern/mm/slb.o \
@@ -66,7 +67,7 @@ MM_OBJS 	=	kern/mm/slb.o \
 
 LIB_OBJS	=	lib/libc/stdio/snprintf.o
 
-TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(KINIT_OBJS) $(MM_OBJS) $(LIB_OBJS)
+TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(KINIT_OBJS) $(MM_OBJS) $(LIB_OBJS) $(INT_OBJS)
 
 all: firmware.bin mbr.bin kernel.elf
 

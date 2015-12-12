@@ -36,6 +36,7 @@ int_pre_no:
 
 int_pre_ndef:
     ldr     sp, =context_ndef
+    ldr     sp, [sp]
     stmia   sp!, {r0-r12, lr}
     mrs     r0, spsr
     stmia   sp!, {r0}
@@ -58,6 +59,7 @@ int_pre_ndef:
 int_pre_SVC:
     /*  "stack" infact is an object */
     ldr     sp, =context_svc
+    ldr     sp, [sp]
 
     /*
      *  dump to object via stmia, it is an object rather than stack.
@@ -99,6 +101,7 @@ int_pre_SVC:
 
 int_pre_prefetch_abort:
     ldr     sp, =context_abort
+    ldr     sp, [sp]
     stmia   sp!, {r0-r12, lr}
     mrs     r0, spsr
     stmia   sp!, {r0}
@@ -120,6 +123,7 @@ int_pre_prefetch_abort:
 
 int_pre_data_abort:
     ldr     sp, =context_abort
+    ldr     sp, [sp]
     stmia   sp!, {r0-r12, lr}
     mrs     r0, spsr
     stmia   sp!, {r0}
@@ -141,6 +145,7 @@ int_pre_data_abort:
 
 int_pre_IRQ:
     ldr     sp, =context_irq
+    ldr     sp, [sp]
     stmia   sp!, {r0-r12, lr}
     mrs     r0, spsr
     stmia   sp!, {r0}
@@ -162,6 +167,7 @@ int_pre_IRQ:
 
 int_pre_FIQ:
     ldr     sp, =context_fiq
+    ldr     sp, [sp]
     //  TODO, register bank, r0-r7
     stmia   sp!, {r0-r12, lr}
     mrs     r0, spsr

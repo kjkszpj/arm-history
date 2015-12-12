@@ -16,22 +16,22 @@
 #define ICDIPTR_OFFSET 0x00001800
 #define	ICDSGIR_OFFSET 0x00001F00
 
-extern context_cpu_t context_no;
-extern context_cpu_t context_ndef;
-extern context_cpu_t context_svc;
-extern context_cpu_t context_abort;
-extern context_cpu_t context_irq;
-extern context_cpu_t context_fiq;
+extern context_cpu_t* context_no;
+extern context_cpu_t* context_ndef;
+extern context_cpu_t* context_svc;
+extern context_cpu_t* context_abort;
+extern context_cpu_t* context_irq;
+extern context_cpu_t* context_fiq;
 
 int interrupt_init();
 
-void    int_ent_no();
-void    int_ent_ndef();
-void    int_ent_svc();
-void    int_ent_prefetch_abort();
-void    int_ent_data_abort();
-void    int_ent_irq();
-void    int_ent_fiq();
+int    int_ent_no();
+int    int_ent_ndef();
+int    int_ent_svc();
+int    int_ent_prefetch_abort();
+int    int_ent_data_abort();
+int    int_ent_irq();
+int    int_ent_fiq();
 
 void    int_no();
 void    int_ndef();
