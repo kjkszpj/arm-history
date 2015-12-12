@@ -3,6 +3,8 @@ OS on ARM.
 
 ![laksmi](http://www.yogeshkumar.myewebsite.com/img/mid/14/diwali-lakshmi-puja-divali-laksmi-pooja-laxmi-wallpaper.jpg)
 
+Don't know if I can get A for this project, after all, project is just 50% of the grade.
+
 ---
 ###	TODO
 -	alter page table struct and method
@@ -25,9 +27,25 @@ OS on ARM.
 -	TTB1
 -	DIV & printf
 
+---
 ###	feature
 -	I cache, D cache enable (not fully managed for now)
 -	allow TTB1 (can NOT use on other architecture, delete / compatible)
+
+###	hard feature
+-	swap
+-	file system
+-	vmalloc
+-	pae
+-	arm-fast context switch extension?
+
+###	things that is not implemented here
+-	all kinds of flag, cpu info
+-	vmalloc?
+-	complicated file system
+-	GBA simulator
+-	screen
+-	network
 
 ---
 ###	Contact me

@@ -6,6 +6,29 @@
 //  referring to zynq-7000, Chap 7, figure 7-4 and 7-5
 //  in this .c file, we focus on dealing with the HARDWARE related issue when interrupt
 
+// system call design
+// // process related syscall
+// 1.  fork
+// 2.  exec
+// 3.  kill / exit?
+// 4.  waitforpid?
+// 5.  getpid
+// -   getuid
+// // file related syscall
+// 6.  open
+// 7.  close
+// 8.  read
+// 9.  write
+// 10. relocate
+// -   getdir
+// -   chdir
+// // time related syscall
+// 11. sleep
+// 12. time
+// 13. clock
+// // ipc related?
+// -   ipc...
+
 #include <interrupt.h>
 #include <kern/mm/slb.h>
 
