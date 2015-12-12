@@ -23,10 +23,12 @@ static int prepare_ICDIPTR();
 static int asm_sctlr();
 
 //  todo, context_cpu_t only or full pcb
-context_cpu_t context_svc;
-context_cpu_t context_abort;
-context_cpu_t context_irq;
-context_cpu_t context_fiq;
+extern context_cpu_t context_no;
+extern context_cpu_t context_ndef;
+extern context_cpu_t context_svc;
+extern context_cpu_t context_abort;
+extern context_cpu_t context_irq;
+extern context_cpu_t context_fiq;
 
 int interrupt_init()
 {
@@ -37,6 +39,8 @@ int interrupt_init()
     return 0;
 }
 
+
+//  init procedure
 static int asm_sctlr()
 {
 //    in case it is off
@@ -93,6 +97,25 @@ static int prepare_ICDIPTR()
     return 0;
 }
 
+
+//  entry of interrupt
+void int_ent_ndef()
+{
+    asm volatile("mov %0, r0\n" :"=r"(context_ndef.sp) : : );
+    asm volatile("mov %0, lr\n" :"=r"(context_ndef.lr) : : );
+    asm volatile("mrs %0, spsr\n" :"=r"(context_ndef.spsr) : : );
+
+//    TODO, enable irq, fiq
+//    syscall();
+//    TODO, disable irq, fiq
+
+    asm volatile("msr spsr, %0\n" : :"r"(context_ndef.spsr) : );
+    asm volatile("mov lr, %0\n" : :"r"(context_ndef.lr) : );
+    asm volatile("mov r0, %0\n" : :"r"(context_ndef.sp) : );
+    return context_ndef.sp;
+}
+
+//  mainly focus here
 void int_ent_svc()
 {
 //    u32 temp;
@@ -119,7 +142,73 @@ void int_ent_svc()
 
     asm volatile("msr spsr, %0\n" : :"r"(context_svc.spsr) : );
     asm volatile("mov lr, %0\n" : :"r"(context_svc.lr) : );
-    asm volatile("mov r0, %0\n" : :"r"(context_svc.spsr) : );
+    asm volatile("mov r0, %0\n" : :"r"(context_svc.sp) : );
+    return context_svc.sp;
+}
+
+void int_ent_prefetch_abort()
+{
+    asm volatile("mov %0, r0\n" :"=r"(context_abort.sp) : : );
+    asm volatile("mov %0, lr\n" :"=r"(context_abort.lr) : : );
+    asm volatile("mrs %0, spsr\n" :"=r"(context_abort.spsr) : : );
+
+//    TODO, enable irq, fiq
+//    prefetch_abort();
+//    TODO, disable irq, fiq
+
+    asm volatile("msr spsr, %0\n" : :"r"(context_abort.spsr) : );
+    asm volatile("mov lr, %0\n" : :"r"(context_abort.lr) : );
+    asm volatile("mov r0, %0\n" : :"r"(context_abort.sp) : );
+    return context_abort.sp;
+}
+
+void int_ent_data_abort()
+{
+    asm volatile("mov %0, r0\n" :"=r"(context_abort.sp) : : );
+    asm volatile("mov %0, lr\n" :"=r"(context_abort.lr) : : );
+    asm volatile("mrs %0, spsr\n" :"=r"(context_abort.spsr) : : );
+
+//    TODO, enable irq, fiq
+//    prefetch_data_abort();
+//    TODO, disable irq, fiq
+
+    asm volatile("msr spsr, %0\n" : :"r"(context_abort.spsr) : );
+    asm volatile("mov lr, %0\n" : :"r"(context_abort.lr) : );
+    asm volatile("mov r0, %0\n" : :"r"(context_abort.sp) : );
+    return context_abort.sp;
+}
+
+void int_ent_irq()
+{
+    asm volatile("mov %0, r0\n" :"=r"(context_irq.sp) : : );
+    asm volatile("mov %0, lr\n" :"=r"(context_irq.lr) : : );
+    asm volatile("mrs %0, spsr\n" :"=r"(context_irq.spsr) : : );
+
+//    TODO, enable irq, fiq
+//    irq();
+//    TODO, disable irq, fiq
+
+    asm volatile("msr spsr, %0\n" : :"r"(context_irq.spsr) : );
+    asm volatile("mov lr, %0\n" : :"r"(context_irq.lr) : );
+    asm volatile("mov r0, %0\n" : :"r"(context_irq.sp) : );
+    return context_irq.sp;
+}
+
+void int_ent_fiq()
+{
+//    TODO, fiq bank more register, save it
+    asm volatile("mov %0, r0\n" :"=r"(context_fiq.sp) : : );
+    asm volatile("mov %0, lr\n" :"=r"(context_fiq.lr) : : );
+    asm volatile("mrs %0, spsr\n" :"=r"(context_fiq.spsr) : : );
+
+//    TODO, enable irq, fiq
+//    fiq();
+//    TODO, disable irq, fiq
+
+    asm volatile("msr spsr, %0\n" : :"r"(context_fiq.spsr) : );
+    asm volatile("mov lr, %0\n" : :"r"(context_fiq.lr) : );
+    asm volatile("mov r0, %0\n" : :"r"(context_fiq.sp) : );
+    return context_fiq.sp;
 }
 
 // for debug, and visualization

@@ -18,30 +18,46 @@ interrupt_vector:
  * 0x18     IRQ
  * 0x1C     FIQ
  */
+	b	int_pre_no
 	b	int_pre_ndef
-	b	int_pre_undefine_inst
 	b	int_pre_SVC
 	b	int_pre_prefetch_abort
 	b	int_pre_data_abort
-	b	int_pre_ndef
+	b	int_pre_no
 	b	int_pre_IRQ
 	b	int_pre_FIQ
 
 
 
 
+int_pre_no:
+    //  todo, better solution
+    b       int_pre_no
+
 int_pre_ndef:
+    ldr     sp, =context_ndef
+    stmia   sp!, {r0-r12, lr}
+    mrs     r0, spsr
+    stmia   sp!, {r0}
     mrs     r0, cpsr
+    and     r0, r0, #0xFFFFFFE0
     orr     r0, r0, #0b11111
     msr     cpsr, r0
-    b   int_pre_ndef
+    mov     r0, sp
+    bl      int_ent_ndef
+    mov     sp, r0
+    mrs     r0, cpsr
+    and     r0, r0, #0xFFFFFFE0
+    orr     r0, r0, #0b11011
+    msr     cpsr, r0
+    ldmdb   sp!, {r0}
+    msr     spsr, r0
+    ldmdb   sp!, {r0-r12, pc}^
 
-int_pre_undefine_inst:
-    b   int_pre_undefine_inst
 
 int_pre_SVC:
     /*  "stack" infact is an object */
-    ldr     sp, =stack_svc
+    ldr     sp, =context_svc
 
     /*
      *  dump to object via stmia, it is an object rather than stack.
@@ -65,7 +81,10 @@ int_pre_SVC:
     bl      int_ent_svc
     mov     sp, r0
 
-    /*  should first change mode for bank sp and then ldm */
+    /*
+     *  should first change mode for bank sp and then ldm
+     *  since sp is bank, after change mode, we can not access svc_sp/context_svc, so leave it to c program to solve
+     */
     mrs     r0, cpsr
     and     r0, r0, #0xFFFFFFE0
     orr     r0, r0, #0b10011
@@ -77,14 +96,87 @@ int_pre_SVC:
     ldmdb   sp!, {r0-r12, pc}^
     /* should prevent falling? */
 
+
 int_pre_prefetch_abort:
-    b       int_pre_prefetch_abort
+    ldr     sp, =context_abort
+    stmia   sp!, {r0-r12, lr}
+    mrs     r0, spsr
+    stmia   sp!, {r0}
+    mrs     r0, cpsr
+    and     r0, r0, #0xFFFFFFE0
+    orr     r0, r0, #0b11111
+    msr     cpsr, r0
+    mov     r0, sp
+    bl      int_ent_prefetch_abort
+    mov     sp, r0
+    mrs     r0, cpsr
+    and     r0, r0, #0xFFFFFFE0
+    orr     r0, r0, #0b10111
+    msr     cpsr, r0
+    ldmdb   sp!, {r0}
+    msr     spsr, r0
+    ldmdb   sp!, {r0-r12, pc}^
+
 
 int_pre_data_abort:
-    b       int_pre_data_abort
+    ldr     sp, =context_abort
+    stmia   sp!, {r0-r12, lr}
+    mrs     r0, spsr
+    stmia   sp!, {r0}
+    mrs     r0, cpsr
+    and     r0, r0, #0xFFFFFFE0
+    orr     r0, r0, #0b11111
+    msr     cpsr, r0
+    mov     r0, sp
+    bl      int_ent_data_abort
+    mov     sp, r0
+    mrs     r0, cpsr
+    and     r0, r0, #0xFFFFFFE0
+    orr     r0, r0, #0b10111
+    msr     cpsr, r0
+    ldmdb   sp!, {r0}
+    msr     spsr, r0
+    ldmdb   sp!, {r0-r12, pc}^
+
 
 int_pre_IRQ:
-    b       int_pre_IRQ
+    ldr     sp, =context_irq
+    stmia   sp!, {r0-r12, lr}
+    mrs     r0, spsr
+    stmia   sp!, {r0}
+    mrs     r0, cpsr
+    and     r0, r0, #0xFFFFFFE0
+    orr     r0, r0, #0b11111
+    msr     cpsr, r0
+    mov     r0, sp
+    bl      int_ent_irq
+    mov     sp, r0
+    mrs     r0, cpsr
+    and     r0, r0, #0xFFFFFFE0
+    orr     r0, r0, #0b10010
+    msr     cpsr, r0
+    ldmdb   sp!, {r0}
+    msr     spsr, r0
+    ldmdb   sp!, {r0-r12, pc}^
+
 
 int_pre_FIQ:
-    b       int_pre_FIQ
+    ldr     sp, =context_fiq
+    //  TODO, register bank, r0-r7
+    stmia   sp!, {r0-r12, lr}
+    mrs     r0, spsr
+    stmia   sp!, {r0}
+    mrs     r0, cpsr
+    and     r0, r0, #0xFFFFFFE0
+    orr     r0, r0, #0b11111
+    msr     cpsr, r0
+    mov     r0, sp
+    bl      int_ent_prefetch_abort
+    mov     sp, r0
+    mrs     r0, cpsr
+    and     r0, r0, #0xFFFFFFE0
+    orr     r0, r0, #0b10111
+    msr     cpsr, r0
+    ldmdb   sp!, {r0}
+    msr     spsr, r0
+    ldmdb   sp!, {r0-r12, pc}^
