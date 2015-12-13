@@ -35,8 +35,10 @@ LDFLAGS		=  -EL -O -N
 DRIVERS_OBJS	=   drivers/clock/gtc-a9mpcore.o \
                     drivers/sd/sd-zynq7000.o \
                     drivers/serial/uart.o \
+                    drivers/serial/uart-printf.o \
                     drivers/serial/uart-zynq7000.o \
-                    drivers/misc/division-arm.o
+                    drivers/misc/division-arm.o \
+                    lib/libc/stdio/snprintf.o
 
 FIRMWARE_OBJS	=   firmware/arch/$(ARCH)/vector.o \
 		            firmware/arch/$(ARCH)/bootasm.o \
@@ -65,9 +67,7 @@ MM_OBJS 	=	kern/mm/slb.o \
 				kern/mm/kmemory_manage.o \
 				kern/arch/$(ARCH)/$(MACH)/pte.o
 
-LIB_OBJS	=	lib/libc/stdio/snprintf.o
-
-TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(KINIT_OBJS) $(MM_OBJS) $(LIB_OBJS) $(INT_OBJS)
+TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(KINIT_OBJS) $(MM_OBJS) $(INT_OBJS)
 
 all: firmware.bin mbr.bin kernel.elf
 

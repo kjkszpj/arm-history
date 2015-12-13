@@ -11,29 +11,6 @@
 u32 *page_table = (u32*)(KERNEL_BASE + PT_OFFSET);
 
 // TODO, for now it is more like arch_init()
-// TODO, move interrupt related out!
-
-struct context_cpu
-{
-    u32 r0;
-    u32 r1;
-    u32 r2;
-    u32 r3;
-    u32 r4;
-    u32 r5;
-    u32 r6;
-    u32 r7;
-    u32 r8;
-    u32 r9;
-    u32 r10;
-    u32 r11;
-    u32 r12;
-    u32 lr;
-    u32 cpsr;
-    u32 spsr;
-}stack_svc;
-
-static int print_cpu();
 
 void kinit()
 {

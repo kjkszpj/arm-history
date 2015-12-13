@@ -12,8 +12,13 @@
 #include <drivers/sd/sd-zynq7000.h>
 #include <drivers/misc/dtb-zynq7000.h>
 
-#define ICDICFR_OFFSET 0x00001C00
+#define ICCICR_OFFSET  0x00000100
+#define ICCPMR_OFFSET  0x00000104
+
+#define ICDDCR_OFFSET  0x00001000
+#define ICDIPR_OFFSET  0x00001400
 #define ICDIPTR_OFFSET 0x00001800
+#define ICDICFR_OFFSET 0x00001C00
 #define	ICDSGIR_OFFSET 0x00001F00
 
 extern context_cpu_t* context_no;
