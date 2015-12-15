@@ -45,12 +45,14 @@
 
 //  inner function
 //  for init
+//  TODO, set ICDISER0-2
 static int check_ICDICFR();
 static void prepare_ICCICR();
 static void prepare_ICCPMR();
 static void prepare_ICDDCR();
 static void prepare_ICDIPR();
 static void prepare_ICDIPTR();
+static void prepare_ICDISER();
 static int asm_sctlr();
 static int init_context_container();
 //  for debug
@@ -72,6 +74,7 @@ int interrupt_init()
     prepare_ICDDCR();
     prepare_ICDIPTR();
     prepare_ICDIPR();
+    prepare_ICDISER();
     prepare_ICCPMR();
     prepare_ICCICR();
     asm_sctlr();
@@ -154,22 +157,30 @@ static void prepare_ICDIPR()
     int i;
 
     uart_spin_puts("icdipr\r\n\0");
-    for (i = 0; i < 24; i++) ipr[i] = 0x10203040;
+    for (i = 0; i < 24; i++) ipr[i] = 0x01020304;
+}
+
+static void prepare_ICDISER()
+{
+    u32* iser = (u32*)(PERIPHBASE + ICDISER_OFFSET);
+    iser[0] = 0xFFFFFFFF;
+    iser[1] = 0xFFFFFFFF;
+    iser[2] = 0xFFFFFFFF;
+    uart_spin_printf("icdiser\t%x\r\n\0", iser[0]);
 }
 
 static void prepare_ICCPMR()
 {
     u32* pmr = (u32*)(PERIPHBASE+ICCPMR_OFFSET);
-    pmr[0] = pmr[0] & 0xFFFFFFF01;
+    pmr[0] = (pmr[0] & 0xFFFFFFF00) | 0xFF;
     uart_spin_printf("iccpmr\t%x\r\n\0", pmr[0]);
 }
 
 static void prepare_ICCICR()
 {
     u32* icr = (u32*)(PERIPHBASE+ICCICR_OFFSET);
-    uart_spin_puts("iccicr\t\0");
     icr[0] = icr[0] | 0b11;
-    puthex(icr[0]);
+    uart_spin_printf("iccicr\t%x\r\n\0", icr[0]);
 }
 
 static int init_context_container()
@@ -295,8 +306,11 @@ int int_ent_irq()
 //    TODO, enable irq, fiq
 //    irq();
 //    TODO, disable irq, fiq
+    u32 irq_id = *(u32*)(0xF8F0010C);
     uart_spin_puts("It works!, now in irq\r\n\0");
+    puthex(irq_id);
     print_cpu();
+
     puthex((*context_irq).sp);
     puthex((*context_irq).lr);
     puthex((*context_irq).pc);
@@ -360,15 +374,15 @@ static int test_all_interrupt()
 //    test? fuck, do not test here!
     uart_spin_puts("------DEBUG------\r\norigin status:\r\n\0");
     print_cpu();
-//    uart_spin_puts("now trying interrupt\r\n\0");
-//    uart_spin_puts("svc\r\n\0");
-//    asm volatile
-//    (
-//        "SVC #2"
-//        :
-//        :
-//        :
-//    );
+    uart_spin_puts("now trying interrupt\r\n\0");
+    uart_spin_puts("svc\r\n\0");
+    asm volatile
+    (
+        "SVC #2"
+        :
+        :
+        :
+    );
 ////    align, data abort-> invalid address, data abort->
 //    uart_spin_puts("address data abort\r\n\0");
 //    u32 *b;
@@ -380,29 +394,29 @@ static int test_all_interrupt()
 //    *b = 123;
 ////  now try the private clock, irq
     uart_spin_puts("private clock\r\n\0");
-    asm volatile
-    (
-        "mrs r0, cpsr\n"
-        "and r0, r0, #0xFFFFFE3F\n"
-        "msr cpsr, r0\n"
-        "dsb\n"
-        "isb\n"
-        :
-        :
-        :"r0"
-    );
-    print_cpu();
+     asm volatile
+     (
+         "mrs r0, cpsr\n"
+         "and r0, r0, #0xFFFFFE3F\n"
+         "msr cpsr, r0\n"
+         "dsb\n"
+         "isb\n"
+         :
+         :
+         :"r0"
+     );
+    // print_cpu();
     u32* pcr = (u32*)(PERIPHBASE+0x0600);
     puthex(pcr[0]);
     puthex(pcr[1]);
     puthex(pcr[2]);
     puthex(pcr[3]);
-    pcr[0] = 0x123;
-    pcr[1] = 0x123;
-    pcr[2] = (pcr[2] & 0xFFFFFFF8) | 0b101;
+    pcr[0] = 0x123400;
+    pcr[1] = 0x123400;
+    pcr[2] = (pcr[2] & 0xFFFFFFF8) | 0b111;
     u32 i = 0;
     volatile u32 a = 0;
-    for (i = 0; i < 10000000; i++); i = a;
+    for (i = 0; i < 100000000; i++) i = a;
     uart_spin_puts("------enough!------\r\n\0");
     puthex(pcr[0]);
     puthex(pcr[1]);
