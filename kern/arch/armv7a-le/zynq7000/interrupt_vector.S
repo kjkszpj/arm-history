@@ -7,6 +7,8 @@
  * see armv7a-arm, table b1-3
  */
 
+/* todo, I think the cpsr flag is wrong!*/
+
 interrupt_vector:
 /*
  * 0x00     not used / reset?
@@ -45,7 +47,9 @@ int_pre_ndef:
     orr     r0, r0, #0b11111
     msr     cpsr, r0
     mov     r0, sp
+    mov     r1, lr
     bl      int_ent_ndef
+    mov     lr, r1
     mov     sp, r0
     mrs     r0, cpsr
     and     r0, r0, #0xFFFFFFE0
@@ -80,7 +84,9 @@ int_pre_SVC:
      *  can not stmia and ldmdb sp, it will fail?
      */
     mov     r0, sp
+    mov     r1, lr
     bl      int_ent_svc
+    mov     lr, r1
     mov     sp, r0
 
     /*
@@ -110,7 +116,9 @@ int_pre_prefetch_abort:
     orr     r0, r0, #0b11111
     msr     cpsr, r0
     mov     r0, sp
+    mov     r1, lr
     bl      int_ent_prefetch_abort
+    mov     lr, r1
     mov     sp, r0
     mrs     r0, cpsr
     and     r0, r0, #0xFFFFFFE0
@@ -132,7 +140,9 @@ int_pre_data_abort:
     orr     r0, r0, #0b11111
     msr     cpsr, r0
     mov     r0, sp
+    mov     r1, lr
     bl      int_ent_data_abort
+    mov     lr, r1
     mov     sp, r0
     mrs     r0, cpsr
     and     r0, r0, #0xFFFFFFE0
@@ -154,7 +164,9 @@ int_pre_IRQ:
     orr     r0, r0, #0b11111
     msr     cpsr, r0
     mov     r0, sp
+    mov     r1, lr
     bl      int_ent_irq
+    mov     lr, r1
     mov     sp, r0
     mrs     r0, cpsr
     and     r0, r0, #0xFFFFFFE0
@@ -177,11 +189,13 @@ int_pre_FIQ:
     orr     r0, r0, #0b11111
     msr     cpsr, r0
     mov     r0, sp
+    mov     r1, lr
     bl      int_ent_prefetch_abort
+    mov     r1, lr
     mov     sp, r0
     mrs     r0, cpsr
     and     r0, r0, #0xFFFFFFE0
-    orr     r0, r0, #0b10111
+    orr     r0, r0, #0b10001
     msr     cpsr, r0
     ldmdb   sp!, {r0}
     msr     spsr, r0
