@@ -1,26 +1,23 @@
+//
+// Created by Peijie You on 16/1/10.
+//
+
 #include <kern/init/init.h>
 #include <kern/mm/slb.h>
 #include <kern/mm/pte.h>
 #include <kern/sched/pcb.h>
 #include <kern/mm/pages_manage.h>
+#include <kern/sched/sched.h>
 #include <interrupt.h>
 
-#include <drivers/serial/uart.h>
-#include <drivers/sd/sd-zynq7000.h>
-#include <drivers/misc/dtb-zynq7000.h>
-
-typedef struct pcb_t
-{
-//    small object first, for locality?
-    taskd_t         td;
-    proc_status_t   status;
-    u32             ret_val;
-
-    pgd_t*          page_table;
-    context_cpu_t   cpu;
-    sched_info_t    sched_info;
-    account_t       account;
-} pcb_t;
+void sched_new(pcb_t* task){}
+void sched_mature(pcb_t* task){}
+void sched_allow(pcb_t* task){}
+void sched_block(pcb_t* task){}
+void sched_preempt(pcb_t* task){}
+void sched_wake(pcb_t* task){}
+void sched_finish(pcb_t* task){}
+void sched_kill(pcb_t* task){}
 
 void init_sched()
 {

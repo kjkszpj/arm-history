@@ -2,13 +2,19 @@
 // Created by Peijie You on 15/12/10.
 //
 
-#ifndef AIMV6_PTE_H
-#define AIMV6_PTE_H
-
 /*
  * program that alter page table, please include this file and operate on these struct
  * ---refer to lulu2184
  */
+
+#ifndef AIMV6_PTE_H
+#define AIMV6_PTE_H
+
+#include <config.h>
+#include <settings.h>
+
+#define P2V(paddr)          (((u32)paddr) + KERNEL_BASE)
+#define V2P(vaddr)          (((u32)vaddr) - KERNEL_BASE)
 
 typedef struct
 {
@@ -18,7 +24,7 @@ typedef struct
     unsigned SBZ2       : 1;
     unsigned domain     : 4;
     unsigned empty      : 1;
-    unsigned pbase      : 22;
+    unsigned base       : 22;
 } ptel1_page_table_t;
 
 typedef struct
@@ -67,5 +73,7 @@ typedef struct
 void invalidate_tlb();
 void move_TTBR0(u32 pt0_paddr);
 void move_TTBR1(u32 pt1_paddr);
+void mmap(u32 *pt_vaddr, u32 start, u32 finish, u32 pattern1, u32 pattern2);
+void unmmap(u32 *pt_vaddr, u32 start, u32 finish);
 
 #endif //AIMV6_PTE_H

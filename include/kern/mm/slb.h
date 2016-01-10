@@ -7,11 +7,11 @@
 
 #include <config.h>
 
-//  TODO slab / silly b / si loud b
+//  slab / silly b / si loud b
 
 typedef struct slb_t
 {
-//    todo cache, no cache now, put it back to pool (slow, rather than cache) when slb_free
+//  cache, no cache now, put it back to pool (slow, rather than cache) when slb_free
     u32 obj_align;
     u32 obj_size;
 
@@ -33,6 +33,7 @@ typedef struct slb_pool_t
     struct slb_pool_t* next_pool;
 }slb_pool_t;
 
+// return the VIRTUAL address in kernel space
 void* slb_alloc(u32 size);
 void* slb_alloc_align(u32 size, u32 align);
 int slb_free(void *p, u32 size);

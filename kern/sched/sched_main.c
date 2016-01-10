@@ -14,10 +14,13 @@
 #include <kern/mm/pte.h>
 // for sched
 #include <kern/sched/pcb.h>
+#include <kern/sched/sched.h>
 // for P2V V2P thing
 #include <kern/mm/pages_manage.h>
 // for init_entry
 #include <interrupt.h>
+
+#include <string.h>
 
 // for debug
 #include <drivers/serial/uart.h>
@@ -25,8 +28,8 @@
 #include <drivers/misc/dtb-zynq7000.h>
 
 //------ you are welcome to chang this desgin
-u32 cnt_pcb = 0;
-pcb_t* pcb_list[MAX_PCB];
+static u32 cnt_pcb = 0;
+static pcb_t* pcb_list[MAX_PCB];
 
 //  implement context switch
 void switch_mm(pgd_t* pt_from, pgd_t* pd_to)
@@ -58,9 +61,9 @@ void switch_to(context_cpu_t* cpu_from, context_cpu_t* cpu_to, context_cpu_t* on
 
 void context_switch(pcb_t* task_from, pcb_t* task_to)
 {
-    uart_spin_printf("It works! Now going to context switch.\r\n\0");
-    sched_preempt(task_from);
-    sched_allow(task_to);
+//    uart_spin_printf("It works! Now going to context switch.\r\n\0");
+//    sched_preempt(task_from);
+//    sched_allow(task_to);
     switch_mm(task_from->page_table, task_to->page_table);
     switch_to(&(task_from->cpu), &(task_to->cpu), context_irq);
 }
@@ -70,7 +73,7 @@ pcb_t* new_pcb()
 {
     if (cnt_pcb == MAX_PCB)
     {
-        uart_spin_printf('**ERROR**, no more pcb.\r\n\0');
+        uart_spin_printf("**ERROR**, no more pcb.\r\n\0");
     }
     pcb_list[cnt_pcb] = slb_alloc(sizeof(pcb_t));
     memset(pcb_list[cnt_pcb], 0, sizeof(pcb_t));
@@ -81,7 +84,7 @@ pcb_t* new_pcb()
     return pcb_list[cnt_pcb++];
 }
 
-void delete_pcb(pcb_t)
+void delete_pcb(pcb_t task)
 {
 //    pass
 }
@@ -94,5 +97,12 @@ void init_pcb()
 //for debug
 void print_pcb(pcb_t* task)
 {
-    //pass
+    uart_spin_printf("---DEBUG---:\r\n\0");
+    uart_spin_printf("  pid:\t%d\r\n\0", task->td.pid);
+    uart_spin_printf("  page table:\t%d\r\n\0", (u32)task->page_table);
+    uart_spin_printf("    cpu, sp:\t%d\r\n\0", (u32)task->cpu.sp);
+    uart_spin_printf("    cpu, lr:\t%d\r\n\0", (u32)task->cpu.lr);
+    uart_spin_printf("    cpu, pc:\t%d\r\n\0", (u32)task->cpu.pc);
+    uart_spin_printf("    cpu, r0:\t%d\r\n\0", (u32)task->cpu.r0);
+    uart_spin_printf("    cpu, cpsr:\t%d\r\n\0", (u32)task->cpu.cpsr);
 }

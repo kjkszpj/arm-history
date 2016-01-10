@@ -5,9 +5,8 @@
 #include <kern/mm/kmemory_manage.h>
 
 //	local function
-u32 up_bound(u32 size);
-u32 lowbit(u32 x);
-
+static u32 lowbit(u32 x);
+static u32 up_bound(u32 size);
 
 //	key function implemented
 void *kmalloc(u32 size)
@@ -26,11 +25,9 @@ int kmfree(void *p)
 	return slb_free(p, up_bound(size));
 }
 
+static u32 lowbit(u32 x) {return x & (-x);}
 
-//	TODO, should be used only in this file
-inline u32 lowbit(u32 x) {return x & (-x);}
-
-u32 up_bound(u32 size)
+static u32 up_bound(u32 size)
 {
 //	upbound to power of two
 //	add meta data

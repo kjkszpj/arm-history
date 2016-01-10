@@ -5,7 +5,7 @@
 
 /*******system call design******
  *
- * todo,
+ * todo
  * process related syscall
  * 1.   fork
  * 2.   exec

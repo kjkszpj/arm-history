@@ -53,22 +53,29 @@ MBR_OBJS	=   boot/arch/$(ARCH)/$(MACH)/bootmain.o
 
 MMU_L_OBJS	=	kern/init/arch/$(ARCH)/$(MACH)/mmu_low.o
 
-KINIT_OBJS	=	kern/init/arch/$(ARCH)/$(MACH)/mmu_high.o \
-                kern/init/init.o \
-                kern/init/arch/$(ARCH)/$(MACH)/scu.o \
+KINIT_OBJS	=	kern/init/init.o \
                 kern/init/arch/$(ARCH)/$(MACH)/enter_kernel_space.o \
+                kern/init/arch/$(ARCH)/$(MACH)/interrupt.o \
                 kern/init/arch/$(ARCH)/$(MACH)/l1cache.o \
-                kern/init/arch/$(ARCH)/$(MACH)/interrupt.o
+                kern/init/arch/$(ARCH)/$(MACH)/mmu_high.o \
+                kern/init/arch/$(ARCH)/$(MACH)/scu.o \
+                kern/sched/sched_init.o
 
 INT_OBJS    =   kern/arch/$(ARCH)/$(MACH)/interrupt.o \
                 kern/arch/$(ARCH)/$(MACH)/interrupt_vector.o
 
-MM_OBJS 	=	kern/mm/slb.o \
+SCHED_OBJS  =   kern/sched/sched_main.o
+
+MM_OBJS 	=	kern/mm/kmemory_manage.o \
+                kern/mm/mmap.o \
 				kern/mm/pages_manage.o \
-				kern/mm/kmemory_manage.o \
+				kern/mm/slb.o \
 				kern/arch/$(ARCH)/$(MACH)/pte.o
 
-TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(KINIT_OBJS) $(MM_OBJS) $(INT_OBJS)
+LIBC_OBJS   =   lib/libc/string/memcpy.o \
+                lib/libc/string/memset.o
+
+TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(KINIT_OBJS) $(MM_OBJS) $(INT_OBJS) $(SCHED_OBJS) $(LIBC_OBJS)
 
 all: firmware.bin mbr.bin kernel.elf
 

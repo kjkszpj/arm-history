@@ -37,6 +37,9 @@ void sched_wake(pcb_t* task);        //  6
 void sched_finish(pcb_t* task);      //  7
 void sched_kill(pcb_t* task);        //  8
 
+pcb_t* sched_get_running();
+pcb_t* sched_get_bypid(int pid);
+
 //  todo, data structure, just for sched_RR
 
 #endif //AIMV6_SCHED_RR_H

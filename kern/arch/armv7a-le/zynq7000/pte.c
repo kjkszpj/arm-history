@@ -43,7 +43,7 @@ void move_TTBR1(u32 pt1_paddr)
         "dsb\n"
         "isb\n"
         :
-        :"r"(pt0_paddr)
+        :"r"(pt1_paddr)
         :"r0"
     );
     invalidate_tlb();

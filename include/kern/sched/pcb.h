@@ -69,8 +69,14 @@ typedef struct pcb_t
     account_t       account;
 } pcb_t;
 
-void new_pcb();
-void delete_pcb();
+/*
+ * some related method
+ */
+
+pcb_t* new_pcb();
+void delete_pcb(pcb_t task);
+void init_pcb();
+void print_pcb(pcb_t* task);
 
 //------you are welcome to change this design
 #define MAX_PCB 0x1000
