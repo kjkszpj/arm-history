@@ -288,6 +288,56 @@ int sd_dma_spin_read(u32 pa, u16 count, u32 offset)
 	return 0;
 }
 
+
+// todo check
+int sd_dma_spin_load(u32 va, u16 count, u32 offset, u32* page_table)
+{
+/*------my sd_dma_spin_load, use va instead of pa------*/
+	int ret;
+	u16 state16;
+	u32 state32;
+	u32 pa = walk_v2p(va, page_table);
+	/* check card */
+	state32 = in32(SD_BASE + SD_PRES_STATE_OFFSET);
+	if (!(state32 & SD_PSR_CARD_INSRT)) return -1;
+	/* block size set to 512 during controller init, skipping check */
+	/* write address */
+	out32(SD_BASE + SD_SDMA_SYS_ADDR_OFFSET, pa);
+	/* CMD18 with auto_cmd12 */
+	ret = sd_spin_send_cmd(SD_CMD18, count, offset, 1);
+	if (ret) return -2;
+	/* wait for transfer complete */
+	do {
+		state16 = in16(SD_BASE + SD_NORM_INTR_STS_OFFSET);
+		if (state16 & SD_INTR_ERR) {
+			out16(SD_BASE + SD_ERR_INTR_STS_OFFSET, \
+				SD_ERR_INTR_ALL);
+			return -3;
+		}
+		if (state16 & SD_INTR_DMA) {
+			unsigned int next_paddr = in32(SD_BASE + SD_SDMA_SYS_ADDR_OFFSET);
+			if (next_paddr & 0x1FF == 0)
+			{
+			    va += 0x1000;
+			    next_paddr = walk_v2p(va, page_table);
+			}
+			out16(SD_BASE + SD_NORM_INTR_STS_OFFSET, SD_INTR_DMA);
+			out32(SD_BASE + SD_SDMA_SYS_ADDR_OFFSET, next_paddr);
+		}
+	} while (!(state16 & SD_INTR_TC));
+	/* clean up */
+	out16(SD_BASE + SD_NORM_INTR_STS_OFFSET, SD_INTR_TC);
+	return 0;
+}
+
+static u32 walk_v2p(u32 va, u32* page_table)
+{
+//  l2tp here not l2pt
+    u32* l2tp = (u32*)(page_table[va >> 20] >> 10) + 0x80000000;
+    va = va & 0xFFFFF;
+    return l2tp[va >> 12] & 0xFFFFF000;
+}
+
 /*
  * write block to memory card
  * utilize basic DMA (known as SDMA in documents)

@@ -71,10 +71,10 @@ void _fork()
     //  todo
     //  we will always return the FATHER
     pcb_t* c_pcb = new_pcb();
-    u32 temp = c_pcb->td.pid;
+    u32 cpid = c_pcb->td.pid;
     pcb_t* f_pcb = sched_get_running();
     memcpy(c_pcb, f_pcb, sizeof(pcb_t));
-    c_pcb->td.pid = temp;
+    c_pcb->td.pid = cpid;
     c_pcb->td.ppid = sched_get_running()->td.pid;
     sched_mature(c_pcb);
     //  pseudo return value?
@@ -129,9 +129,10 @@ void _exec()
         u8 offset = phe_offset % BLOCK_SIZE;
         u32 start_id = phe_offset / BLOCK_SIZE;
         u32 end_id = ((phe_offset + (u32)phe_memsz - 1) / BLOCK_SIZE) + 1;
-//        todo, pattern
-//        mmap((u32*)task->page_table, (phe_vaddr >> 12 << 12), phe_vaddr + phe_memsz, , ,);
+//        todo, check the domain, and pattern
+        mmap((u32*)task->page_table, (phe_vaddr >> 12 << 12), phe_vaddr + phe_memsz, 0b0XXXX0?001, 0b010000111110);
         uart_spin_printf("offset:  %d\t, to vaddr:  %d\t\r\0", phe_offset, phe_vaddr);
+        sd_dma_spin_load(phe_vaddr - offset, end_id - start_id, start_id + elf_addr, (u32*)task->page_table);
         // todo read
         phoff += phentsize;
     }

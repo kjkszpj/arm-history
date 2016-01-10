@@ -86,7 +86,7 @@ pcb_t* new_pcb()
 
 void delete_pcb(pcb_t task)
 {
-//    pass
+//    pass, should never delete
 }
 
 void init_pcb()
