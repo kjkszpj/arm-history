@@ -6,6 +6,7 @@
 #define AIMV6_INTERRUPT_INIT_H
 
 #include <config.h>
+#include <kern/syscall.h>
 #include <kern/sched/pcb.h>
 
 #include <drivers/serial/uart.h>
@@ -33,21 +34,27 @@ extern context_cpu_t* context_fiq;
 
 int interrupt_init();
 
-int    int_ent_no();
-int    int_ent_ndef();
-int    int_ent_svc();
-int    int_ent_prefetch_abort();
-int    int_ent_data_abort();
-int    int_ent_irq();
-int    int_ent_fiq();
+int     int_ent_no();
+int     int_ent_ndef();
+int     int_ent_svc();
+int     int_ent_prefetch_abort();
+int     int_ent_data_abort();
+int     int_ent_irq();
+int     int_ent_fiq();
 
+// for debug
+int     test_all_interrupt();
+
+//---somehow arch NOT related part?
 void    int_no();
 void    int_ndef();
-void    syscall();
 void    prefetch_abort();
 void    data_abort();
-void    irq();
+//  maybe return int for irq handler?
+void    irq(int id);
 void    fiq();
 
+//  things that define else where
 extern u32 PERIPHBASE;
+
 #endif //AIMV6_INTERRUPT_INIT_H

@@ -45,7 +45,6 @@ int main(void)
 		u8 offset = phe_offset & 511;
 		u32 start_id = phe_offset >> 9;
 		u32 end_id = ((phe_offset + (u32)phe_filesz - 1) >> 9) + 1;
-		/* TODO should be big_read instead */
 		sd_dma_spin_read(phe_vaddr - offset, end_id - start_id, start_id + elf_addr);
 		phoff += phentsize >> 2;
 	}

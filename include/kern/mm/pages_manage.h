@@ -6,6 +6,7 @@
 #define AIMV6_PAGES_MANAGE_H
 
 #include <config.h>
+#include <kern/init/init.h>
 
 #ifndef KERNEL_BASE
 #define KERNEL_BASE 0X80000000

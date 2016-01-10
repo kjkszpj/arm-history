@@ -7,13 +7,17 @@ Don't know if I can get A for this project, after all, project is just 50% of th
 
 ---
 ###	TODO
--	alter page table struct and method
--	vmalloc, malloc, sbrk
--	interrupt controller
+-   syscalls
+-   irq handler
+    -   a sgi for cpu1
+    -   ppi, private timer for scheduler
+-   scheduler
 -	context & PCB, TCB things
--	CPU1
+-   careful interrupt handler
 -	IPC
--	system call design & system library
+-	alter page table struct and method
+-   L2 page
+-	vmalloc, malloc, sbrk
 
 ---
 ###	Now Finish
@@ -21,23 +25,24 @@ Don't know if I can get A for this project, after all, project is just 50% of th
 -	MMU
 -	I cache, D cache
 -	SCU enable
--	physical pages
+-	physical pages alloc
 -	slb
 -	kmalloc
 -	TTB1
 -	DIV & printf
+-   careless interrupt handler
 
 ---
 ###	feature
 -	I cache, D cache enable (not fully managed for now)
--	allow TTB1 (can NOT use on other architecture, delete / compatible)
+-	allow TTB1 (can NOT use on other architecture, delete / 兼容)
 
 ###	hard feature
 -	swap
 -	file system
 -	vmalloc
--	pae
--	arm-fast context switch extension?
+-   CPU1
+-   L2 cache
 
 ###	things that is not implemented here
 -	all kinds of flag, cpu info
@@ -46,6 +51,8 @@ Don't know if I can get A for this project, after all, project is just 50% of th
 -	GBA simulator
 -	screen
 -	network
+-   PAE(physical address extension)
+-	ARM---fast context switch extension?
 
 ---
 ###	Contact me

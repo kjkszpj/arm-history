@@ -5,8 +5,11 @@
 #ifndef AIMV6_PTE_H
 #define AIMV6_PTE_H
 
-// program that alter page table, please include this file and operate on these struct
-// refer to lulu2184
+/*
+ * program that alter page table, please include this file and operate on these struct
+ * ---refer to lulu2184
+ */
+
 typedef struct
 {
     unsigned type       : 2;

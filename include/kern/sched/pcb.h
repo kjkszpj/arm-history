@@ -47,6 +47,14 @@ typedef struct
     u32 info;
 } sched_info_t;
 
+//---feel free to add other information here?
+typedef struct
+{
+    u32 usr_time;
+    u32 sys_time;
+    u32 total_time;
+} account_t;
+
 //  process control block
 typedef struct pcb_t
 {
@@ -58,6 +66,10 @@ typedef struct pcb_t
     pgd_t*          page_table;
     context_cpu_t   cpu;
     sched_info_t    sched_info;
+    account_t       account;
 } pcb_t;
+
+void new_pcb();
+void delete_pcb();
 
 #endif //AIMV6_PCB_H
