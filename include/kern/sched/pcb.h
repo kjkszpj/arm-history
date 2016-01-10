@@ -22,7 +22,7 @@ typedef struct
 //  process status
 typedef enum
 {
-    NEW=0, READY, RUN, WAIT, DONE, ABORT
+    NEW=0, READY, RUNNING, WAIT, DONE, ABORT
 } proc_status_t;
 
 //  page global directory?
@@ -71,5 +71,8 @@ typedef struct pcb_t
 
 void new_pcb();
 void delete_pcb();
+
+//------you are welcome to change this design
+#define MAX_PCB 0x1000
 
 #endif //AIMV6_PCB_H

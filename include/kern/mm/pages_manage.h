@@ -8,9 +8,11 @@
 #include <config.h>
 #include <kern/init/init.h>
 
-#ifndef KERNEL_BASE
-#define KERNEL_BASE 0X80000000
-#endif
+/*
+    #ifndef KERNEL_BASE
+    #define KERNEL_BASE 0X80000000
+    #endif
+ */
 
 #define P2V(paddr)          (((u32)paddr) + KERNEL_BASE)
 #define V2P(vaddr)          (((u32)vaddr) - KERNEL_BASE)

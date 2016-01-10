@@ -121,7 +121,10 @@ static void prepare_ICCICR()
 
 static int init_context_container()
 {
-//    context container, for temperate storage
+    /*
+     * context container, for temperate storage
+     * here the "context" means that context of program BEFORE entering the exception.
+     */
     context_no =    (context_cpu_t*)slb_alloc(sizeof(context_cpu_t));
     context_ndef =  (context_cpu_t*)slb_alloc(sizeof(context_cpu_t));
     context_svc =   (context_cpu_t*)slb_alloc(sizeof(context_cpu_t));

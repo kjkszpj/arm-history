@@ -65,5 +65,7 @@ typedef struct
 
 //  useful function
 void invalidate_tlb();
+void move_TTBR0(u32 pt0_paddr);
+void move_TTBR1(u32 pt1_paddr);
 
 #endif //AIMV6_PTE_H
