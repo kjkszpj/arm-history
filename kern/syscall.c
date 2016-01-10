@@ -8,16 +8,26 @@
 
 #include <elf.h>
 #include <config.h>
+#include <settings.h>
 #include <interrupt.h>
 #include <kern/syscall.h>
 #include <kern/sched/pcb.h>
 #include <kern/sched/sched.h>
 #include <kern/init/init.h>
+#include <kern/mm/kmemory_manage.h>
+#include <string.h>
+
+// for temp debug
+extern void cs_debug();
 
 int syscall(int id)
 {
+    uart_spin_printf("SVC id:\t%d.\r\n\0", id);
     switch (id)
     {
+        case ID_DEBUG:
+            cs_debug();
+            break;
         case ID_FORK:
             _fork();
             break;
@@ -53,13 +63,18 @@ int syscall(int id)
         default:
             break;
     }
+    return 0;
 }
 
 void _fork()
 {
+    //  todo
     //  we will always return the FATHER
     pcb_t* c_pcb = new_pcb();
-
+    u32 temp = c_pcb->td.pid;
+    pcb_t* f_pcb = sched_get_running();
+    memcpy(c_pcb, f_pcb, sizeof(pcb_t));
+    c_pcb->td.pid = temp;
     c_pcb->td.ppid = sched_get_running()->td.pid;
     sched_mature(c_pcb);
     //  pseudo return value?
@@ -79,9 +94,10 @@ void _exec()
      * 4.   construct cpu context
      */
 
+    int i;
     u32 start_block = context_svc->r0;
     pcb_t* task = sched_get_running();
-    unmmap(task->page_table, 0, KERNEL_BASE);
+    unmmap((u32*)task->page_table, 0, KERNEL_BASE);
     /*
      * todo, change follow from sd_spin_read to fs read / good read
      * I copy this code form bootmain.c, hoping there is no bug.
@@ -91,7 +107,7 @@ void _exec()
     sd_dma_spin_read((u32)buffer, 3, start_block);
 
     elf32hdr_t e = *(elf32hdr_t*)buffer;
-    void (*kernel_entry)(void) = (void *)e.e_entry;
+    void (*program_entry)(void) = (void *)e.e_entry;
     u32 phoff = e.e_phoff;
     u32 phnum = e.e_phnum;
     u32 phentsize = e.e_phentsize;
@@ -100,7 +116,7 @@ void _exec()
     for (i = 0; i < phnum; i++)
     {
         sd_dma_spin_read((u32)buffer, 2, start_block + phoff / BLOCK_SIZE);
-        ph = (elf32_phdr_t *)(buffer + (phoff % BLOCK_SIZE));
+        ph = *(elf32_phdr_t*)(buffer + (phoff % BLOCK_SIZE));
         if (ph.p_type != PT_LOAD)
         {
             uart_spin_printf("type for program header not match!\r\n\0");
@@ -114,7 +130,7 @@ void _exec()
         u32 start_id = phe_offset / BLOCK_SIZE;
         u32 end_id = ((phe_offset + (u32)phe_memsz - 1) / BLOCK_SIZE) + 1;
 //        todo, pattern
-//        mmap(task->page_table, (phe_vaddr >> 12 << 12), phe_vaddr + phe_memsz, pa);
+//        mmap((u32*)task->page_table, (phe_vaddr >> 12 << 12), phe_vaddr + phe_memsz, , ,);
         uart_spin_printf("offset:  %d\t, to vaddr:  %d\t\r\0", phe_offset, phe_vaddr);
         // todo read
         phoff += phentsize;

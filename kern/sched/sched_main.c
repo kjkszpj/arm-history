@@ -59,13 +59,13 @@ void switch_to(context_cpu_t* cpu_from, context_cpu_t* cpu_to, context_cpu_t* on
     memcpy(on_return, cpu_to, sizeof(context_cpu_t));
 }
 
-void context_switch(pcb_t* task_from, pcb_t* task_to)
+void context_switch(pcb_t* task_from, pcb_t* task_to, context_cpu_t* on_return)
 {
 //    uart_spin_printf("It works! Now going to context switch.\r\n\0");
 //    sched_preempt(task_from);
 //    sched_allow(task_to);
     switch_mm(task_from->page_table, task_to->page_table);
-    switch_to(&(task_from->cpu), &(task_to->cpu), context_irq);
+    switch_to(&(task_from->cpu), &(task_to->cpu), on_return);
 }
 
 //  new/delete
@@ -97,12 +97,25 @@ void init_pcb()
 //for debug
 void print_pcb(pcb_t* task)
 {
-    uart_spin_printf("---DEBUG---:\r\n\0");
+    uart_spin_printf("---LOOK PCB---:\r\n\0");
     uart_spin_printf("  pid:\t%d\r\n\0", task->td.pid);
-    uart_spin_printf("  page table:\t%d\r\n\0", (u32)task->page_table);
-    uart_spin_printf("    cpu, sp:\t%d\r\n\0", (u32)task->cpu.sp);
-    uart_spin_printf("    cpu, lr:\t%d\r\n\0", (u32)task->cpu.lr);
-    uart_spin_printf("    cpu, pc:\t%d\r\n\0", (u32)task->cpu.pc);
-    uart_spin_printf("    cpu, r0:\t%d\r\n\0", (u32)task->cpu.r0);
-    uart_spin_printf("    cpu, cpsr:\t%d\r\n\0", (u32)task->cpu.cpsr);
+    uart_spin_printf("  page table:\t%x\r\n\0", (u32)task->page_table);
+    uart_spin_printf("    cpu, sp:\t%x\r\n\0", (u32)task->cpu.sp);
+    uart_spin_printf("    cpu, lr:\t%x\r\n\0", (u32)task->cpu.lr);
+    uart_spin_printf("    cpu, pc:\t%x\r\n\0", (u32)task->cpu.pc);
+    uart_spin_printf("    cpu, r0:\t%x\r\n\0", (u32)task->cpu.r0);
+    uart_spin_printf("    cpu, cpsr:\t%x\r\n\0", (u32)task->cpu.cpsr);
+}
+
+void cs_debug()
+{
+    memcpy(&(pcb_running->cpu), context_svc, sizeof(context_cpu_t));
+    print_pcb(pcb_running);
+    pcb_t* temp = new_pcb();
+    u32 pid = temp->td.pid;
+    memcpy(temp, pcb_running, sizeof(pcb_t));
+    temp->td.pid = pid;
+    temp->cpu.pc -= 4;
+    context_switch(pcb_running, temp, context_svc);
+    pcb_running = temp;
 }

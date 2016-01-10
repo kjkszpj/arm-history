@@ -81,4 +81,6 @@ void print_pcb(pcb_t* task);
 //------you are welcome to change this design
 #define MAX_PCB 0x1000
 
+extern pcb_t* pcb_running;
+
 #endif //AIMV6_PCB_H

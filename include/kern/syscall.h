@@ -37,6 +37,7 @@
 #include<config.h>
 
 /*---process related---*/
+#define ID_DEBUG    0x0
 #define ID_FORK     0x1
 #define ID_EXEC     0x2
 #define ID_KILL     0x3
@@ -53,6 +54,9 @@
 #define ID_TIME     0x21
 #define ID_CLOCK    0x22
 
-void syscall(int id);
+int syscall(int id);
+
+void _fork();
+void _exec();
 
 #endif //AIMV6_SYSCALL_H

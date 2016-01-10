@@ -17,5 +17,6 @@
 #define PAGE_L2SIZE 0x00001000
 
 #define BLOCK_SIZE  512
+#define ELF32
 
 #endif //AIMV6_SETTINGS_H

@@ -36,7 +36,7 @@ int interrupt_init()
     prepare_ICCICR();
     asm_sctlr();
     init_context_container();
-    test_all_interrupt();
+//    test_all_interrupt();
     return 0;
 }
 

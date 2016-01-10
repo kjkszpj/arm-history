@@ -8,6 +8,8 @@
 #include <interrupt.h>
 #include <stdio.h>
 
+extern int init_sched();
+
 u32 *page_table = (u32*)(KERNEL_BASE + PT_OFFSET);
 
 // TODO, for now it is more like arch_init()
@@ -24,6 +26,8 @@ void kinit()
     if (slb_init() == 0) uart_spin_puts("slb manage done.\r\n\0");
 //    init interrupt
     if (interrupt_init() == 0) uart_spin_puts("int done.\r\n\0");
+
+    if (init_sched() == 0) uart_spin_puts("sched done.\r\n\0");
     
 //    uart_spin_puts("now trying snprintf\r\n\0");
 //    char temp[100];

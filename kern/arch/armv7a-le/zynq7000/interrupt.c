@@ -42,6 +42,7 @@
  */
 
 #include <interrupt.h>
+#include <kern/syscall.h>
 
 static int print_cpu();
 
@@ -63,7 +64,7 @@ int int_ent_ndef()
 //  mainly focus here
 int int_ent_svc()
 {
-//    u32 temp;
+    u32 svc_id;
 
     /*
      * todo, other entry programs refer(copy) to this one, make sure they all work well.
@@ -83,9 +84,12 @@ int int_ent_svc()
     asm volatile("mov %0, r1\n" :"=r"(context_svc->lr) : : );
     asm volatile("mrs %0, spsr\n" :"=r"(context_svc->spsr) : : );
 
-//    syscall();
     uart_spin_puts("It works!, now in svc\r\n\0");
     print_cpu();
+
+    uart_spin_printf("%x\r\n\0", context_svc->pc - 4);
+    svc_id = (*(u32*)(context_svc->pc - 4)) & 0x00FFFFFF;
+    syscall(svc_id);
     puthex((*context_svc).sp);
     puthex((*context_svc).lr);
     puthex((*context_svc).pc);
@@ -145,7 +149,7 @@ int int_ent_irq()
     asm volatile("mrs %0, spsr\n" :"=r"(context_irq->spsr) : : );
 
     u32 irq_id = *(u32*)(PERIPHBASE + ICCIAR_OFFSET);
-    uart_spin_puts("---fuck irq\r\n\0");
+    uart_spin_puts("It works!, now in fiq\r\n\0");
     puthex(irq_id);
     print_cpu();
     puthex((*context_irq).sp);

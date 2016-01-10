@@ -62,7 +62,8 @@ KINIT_OBJS	=	kern/init/init.o \
                 kern/sched/sched_init.o
 
 INT_OBJS    =   kern/arch/$(ARCH)/$(MACH)/interrupt.o \
-                kern/arch/$(ARCH)/$(MACH)/interrupt_vector.o
+                kern/arch/$(ARCH)/$(MACH)/interrupt_vector.o \
+                kern/syscall.o
 
 SCHED_OBJS  =   kern/sched/sched_main.o
 

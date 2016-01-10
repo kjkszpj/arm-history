@@ -24,5 +24,6 @@
 /* ------my configure------ */
 #define MAX(a, b)	(a) > (b) ? (a) : (b)
 #define NULL 0
+#define ELF32
 
 #endif

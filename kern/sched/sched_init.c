@@ -19,7 +19,12 @@ void sched_wake(pcb_t* task){}
 void sched_finish(pcb_t* task){}
 void sched_kill(pcb_t* task){}
 
-void init_sched()
+pcb_t* sched_get_running() {return 0;}
+pcb_t* sched_get_bypid(int pid) {return 0;}
+
+pcb_t* pcb_running;
+
+int init_sched()
 {
     init_pcb();
     uart_spin_printf("Init sched.\r\n\0");
@@ -48,6 +53,18 @@ void init_sched()
     sched_mature(pcb_now);
     sched_allow(pcb_now);
 
+    pcb_running = pcb_now;
+
     pcb_t* pcb_mirror = new_pcb();
     //todo some fo(a)ck thing here, then exec?
+
+    uart_spin_printf("------DEBUG------\r\n\0");
+    asm volatile
+    (
+        "SVC 0"
+        :
+        :
+        :
+    );
+    return 0;
 }
