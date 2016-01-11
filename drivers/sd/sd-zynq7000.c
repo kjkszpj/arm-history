@@ -257,6 +257,7 @@ int sd_spin_init_mem_card()
  */
 int sd_dma_spin_read(u32 pa, u16 count, u32 offset)
 {
+
 	int ret;
 	u16 state16;
 	u32 state32;
@@ -331,6 +332,11 @@ int sd_dma_spin_write(u32 pa, u16 count, u32 offset)
 			out16(SD_BASE + SD_ERR_INTR_STS_OFFSET, \
 				SD_ERR_INTR_ALL);
 			return -3;
+		}
+		if (state16 & SD_INTR_DMA) {
+			unsigned int next_paddr = in32(SD_BASE + SD_SDMA_SYS_ADDR_OFFSET);
+			out16(SD_BASE + SD_NORM_INTR_STS_OFFSET, SD_INTR_DMA);
+			out32(SD_BASE + SD_SDMA_SYS_ADDR_OFFSET, next_paddr);
 		}
 	} while (!(state16 & SD_INTR_TC));
 	/* clean up */
