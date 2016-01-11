@@ -72,7 +72,7 @@ void asm_mmu(u32 pt0_paddr, u32 pt1_paddr)
         "mov r0, #0\n"
         "mcr p15, 0, r0, c8, c7, 0\n"
 //        domain all client
-        "ldr r0, =0x55555555\n"
+        "ldr r0, =0xFFFF5555\n"
         "mcr p15, 0, r0, c3, c0, 0\n"
         "dsb\n"
         "isb\n"

@@ -11,13 +11,13 @@
 #include <config.h>
 #include <settings.h>
 #include <interrupt.h>
+#include <kern/init/init.h>
+#include <kern/mm/slb.h>
+#include <kern/mm/pte.h>
 #include <kern/syscall.h>
 #include <kern/sched/pcb.h>
 #include <kern/sched/sched.h>
-#include <kern/init/init.h>
-#include <kern/mm/slb.h>
 #include <string.h>
-#include <kern/mm/pte.h>
 
 //  todo, no use pcb_running
 
@@ -72,7 +72,6 @@ int syscall(int id)
         default:
             break;
     }
-    uart_spin_printf("???");
     return 0;
 }
 
@@ -118,9 +117,7 @@ void _exec()
     uart_spin_printf("%x..\r\n\0", start_block);
     pcb_t* task = sched_get_running();
     u32 lpsr = task->cpu.cpsr;
-//    uart_spin_printf("------cp-------\r\n\0");
     unmmap((u32*)task->page_table, 0, KERNEL_BASE);
-//    uart_spin_printf("------cp-------\r\n\0");
     /*
      * todo, change follow from sd_spin_read to fs read
      * I copy this code form bootmain.c and elf.h, hoping there is no bug.
@@ -134,21 +131,18 @@ void _exec()
         uart_spin_printf("what?\r\n\0");
     }
 
-    u32 program_entry = *(u32 *)(buffer + 0x18);
+    u32 entry = *(u32 *)(buffer + 0x18);
     u32 phoff = *((u32 *)(buffer + 0x1C));
     u32 phentsize = *((u16 *)(buffer + 0x2A));
     u32 phnum = *((u16 *)(buffer + 0x2C));
     uart_spin_printf("%x..\r\n\0", phoff);
 
-//    uart_spin_printf("------cp-loop------\r\n\0");
     u32 *p_header;
     for (i = 0; i < phnum; i++)
     {
         sd_dma_spin_read(V2P((u32)buffer), 2, start_block + (phoff / BLOCK_SIZE));
-        uart_spin_printf("------cp-------\r\n\0");
         uart_spin_printf("%x\t%x\r\n\0", phoff, buffer + (phoff % BLOCK_SIZE));
         p_header = (u32 *)(buffer + (phoff % BLOCK_SIZE));
-        uart_spin_printf("------cp-------\r\n\0");
         if (p_header[0] != PT_LOAD)
         {
             uart_spin_printf("type for program header not match!\r\n\0");
@@ -157,33 +151,36 @@ void _exec()
         u32 phe_offset = p_header[1];
         u32 phe_vaddr = p_header[2];
         u32 phe_memsz = p_header[5];
-//        uart_spin_printf("------cp-------\r\n\0");
         //  no p_flags / p_align implemented
         u8 offset = phe_offset % BLOCK_SIZE;
         u32 start_id = phe_offset / BLOCK_SIZE;
         u32 end_id = ((phe_offset + (u32)phe_memsz - 1) / BLOCK_SIZE) + 1;
-//        uart_spin_printf("------cp-------\r\n\0");
         //  check the domain, and pattern
-//        uart_spin_printf("---cp3?---\r\n\0");
-        mmap((u32*)task->page_table, (phe_vaddr >> 12 << 12), phe_vaddr + (end_id - start_id) * BLOCK_SIZE, 0b0111100001, 0b010000111110);
+        mmap((u32*)task->page_table, (phe_vaddr >> 12 << 12), phe_vaddr + (end_id - start_id) * BLOCK_SIZE, 0b0111100001, 0b010000100010);
         uart_spin_printf("offset:  %d\t, to vaddr:  %d\t\r\n\0", phe_offset, phe_vaddr);
         sd_dma_spin_load(phe_vaddr - offset, end_id - start_id, start_id + start_block, (u32*)task->page_table);
         phoff += phentsize;
     }
-//    uart_spin_printf("------cp-------\r\n\0");
     slb_free_align(buffer, BLOCK_SIZE * 5, BLOCK_SIZE);
-//    uart_spin_printf("------cp-slb------\r\n\0");
     uart_spin_printf("Loading done, ready to execute\r\n\0");
-//    memset(task->cpu, 0, sizeof(context_cpu_t));
-//    todo, the program will return to nurser
-//    task->cpu.lr = ;
-//    task->cpu.sp = ;
-//    task->cpu.fp = ;
+    mmap((u32*)task->page_table, KERNEL_BASE - USER_STACK, KERNEL_BASE, 0b0111100001, 0b010000100010);
+    memset(&task->cpu, 0, sizeof(context_cpu_t));
+    task->cpu.r0 = entry;
     lpsr = ((lpsr & 0x0FFFFFE0) | 0b10000);
     task->cpu.cpsr = lpsr;
     task->cpu.spsr = lpsr;
-    task->cpu.pc = program_entry;
+    task->cpu.pc = USER_ENTRY;
     memcpy(context_svc, &task->cpu, sizeof(context_cpu_t));
+    context_switch(task, task, context_svc);
+    print_pcb(task);
+
+    void (*go)(void) = (void *)(*(u32 *)(buffer + 0x18));
+    uart_spin_printf("%x\r\n\0", *(u32*)(USER_ENTRY + 0));
+    uart_spin_printf("%x\r\n\0", *(u32*)(USER_ENTRY + 4));
+    uart_spin_printf("%x\r\n\0", *(u32*)(USER_ENTRY + 8));
+    uart_spin_printf("------cp-------\r\n\0");
+    go();
+    uart_spin_printf("------cp-------\r\n\0");
 //    uart_spin_printf("------cp-------\r\n\0");
 }
 

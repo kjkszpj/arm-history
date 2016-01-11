@@ -21,4 +21,7 @@
 #define BLOCK_SIZE  512
 #define ELF32
 
+#define USER_STACK  0x00800000
+#define USER_ENTRY  0x00300000
+
 #endif //AIMV6_SETTINGS_H
