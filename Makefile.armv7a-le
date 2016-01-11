@@ -76,12 +76,14 @@ MM_OBJS 	=	kern/mm/kmemory_manage.o \
 				kern/mm/slb.o \
 				kern/arch/$(ARCH)/$(MACH)/pte.o
 
+FS_OBJS		=	kern/fs/fs_manage.o
+
 LIBC_OBJS   =   lib/libc/string/memcpy.o \
                 lib/libc/string/memset.o
 
 USER_OBJS   =   user/el.o
 
-TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(EX_DIVE_OBJS) $(KINIT_OBJS) $(MM_OBJS) \
+TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(EX_DIVE_OBJS) $(KINIT_OBJS) $(MM_OBJS) $(FS_OBJS) \
                         $(INT_OBJS) $(SCHED_OBJS) $(LIBC_OBJS)
 
 all: firmware.bin mbr.bin kernel.elf user.elf
