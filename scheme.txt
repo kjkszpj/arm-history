@@ -1,0 +1,30 @@
+fs?
+sched?
+
+***must***
+syscall
+-	fork,	done (means no debug)
+-	exec,	done
+-	exit,	no
+-	kill,	no
+-	block,	no
+-	wait,	optional
+
+-	read,	no
+-	write,	no
+
+user program
+-	idle
+-	init
+-	nurser (asm)
+-	sys lib for user
+
+device
+-	init it
+-	handle one extern interrupt
+
+***medium***
+-	shell
+
+***hard***
+-	cpu 1
