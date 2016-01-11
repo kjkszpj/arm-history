@@ -43,6 +43,7 @@
 #define ID_KILL     0x3
 #define ID_WAIT     0x4
 #define ID_GETPID   0x5
+#define ID_GETPPID	0x6
 /*---file related---*/
 #define ID_OPEN     0x10
 #define ID_CLOSE    0x11
