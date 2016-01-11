@@ -1,5 +1,6 @@
 //
 // Created by Peijie You on 16/1/1.
+// Modified by Xiaotao Liang
 //
 
 /*
@@ -23,6 +24,7 @@
 // for temp debug
 static void load_elf_debug();
 
+// store the return value at r0
 int syscall(int id)
 {
     uart_spin_printf("From syscall(), \r\n  SVC id:\t%d.\r\n\0", id);
@@ -42,7 +44,11 @@ int syscall(int id)
         case ID_WAIT:
             break;
         case ID_GETPID:
+			_getpid();
             break;
+		case ID_GETPPID:
+			_getppid();
+			break;
 
         //  optional?
         case ID_OPEN:
@@ -162,9 +168,17 @@ void _exec()
     context_switch(task, task, context_svc);
 }
 
+void _getpid()
+{
+    pcb_t* pcb = sched_get_running();
+    context_svc->r0 = pcb->td.pid;
+}
 
-
-
+void _getppid()
+{
+    pcb_t* pcb = sched_get_running();
+    context_svc->r0 = pcb->td.ppid;
+}
 
 
 void load_elf_debug()
