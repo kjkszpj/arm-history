@@ -10,20 +10,6 @@
 #include <kern/sched/sched.h>
 #include <interrupt.h>
 
-void sched_new(pcb_t* task){}
-void sched_mature(pcb_t* task){}
-void sched_allow(pcb_t* task){}
-void sched_block(pcb_t* task){}
-void sched_preempt(pcb_t* task){}
-void sched_wake(pcb_t* task){}
-void sched_finish(pcb_t* task){}
-void sched_kill(pcb_t* task){}
-
-pcb_t* sched_get_running() {return pcb_running;}
-pcb_t* sched_get_bypid(int pid) {return 0;}
-
-pcb_t* pcb_running;
-
 int init_sched()
 {
     init_pcb();
@@ -39,10 +25,6 @@ int init_sched()
      *
      * no set:
      * 1.   cpu context
-     *
-     * not yet set
-     * 1.   sched_info
-     * 2.   account
      */
 
     pcb_t* pcb_now = new_pcb();
@@ -53,10 +35,9 @@ int init_sched()
     sched_mature(pcb_now);
     sched_allow(pcb_now);
 
-    pcb_running = pcb_now;
-
     pcb_t* pcb_mirror = new_pcb();
-    //todo some fo(a)ck thing here, then exec?
+
+    //todo some fo(a)ck thing here, then exec idle?
 
     // uart_spin_printf("------DEBUG------\r\n\0");
     // u32 user_base = 0x003b9ad4;
@@ -68,5 +49,34 @@ int init_sched()
     //     :"r"(user_base)
     //     :"r0"
     // );
+    uart_spin_printf("------DEBUG------\r\n\0");
+    u32 cid = 0;
+    asm volatile
+    (
+        "SVC 1\n"
+        "mov %0, r0\n"
+        :"=r"(cid)
+        :
+        :"r0"
+    );
+    uart_spin_printf("------good to go------\r\n\0");
+    if (cid == 0)
+    {
+        u32 user_base = 0x003b9ad4;
+        asm volatile
+        (
+            "mov r0, %0\n"
+            "SVC 2\n"
+            :
+            :"r"(user_base)
+            :"r0"
+        );
+    }
+    else
+    {
+        uart_spin_printf("fork succeed, cid= %d\r\n\0", cid);
+        uart_spin_printf("I am your father.\r\n\0");
+        test_all_interrupt();
+    }
     return 0;
 }

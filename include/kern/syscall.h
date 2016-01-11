@@ -43,12 +43,15 @@
 #define ID_KILL     0x3
 #define ID_WAIT     0x4
 #define ID_GETPID   0x5
+#define ID_GETPPID	0x6
 /*---file related---*/
 #define ID_OPEN     0x10
 #define ID_CLOSE    0x11
 #define ID_READ     0x12
 #define ID_WRITE    0x13
 #define ID_SEEK     0x14
+#define ID_CREATE 	0x15
+#define ID_DELETE	0x16
 /*---time related---*/
 #define ID_SLEEP    0x20
 #define ID_TIME     0x21
@@ -58,5 +61,13 @@ int syscall(int id);
 
 void _fork();
 void _exec();
+void _getpid();
+void _getppid();
+void _open();
+void _close();
+void _read();
+void _write();
+void _create();
+void _delete();
 
 #endif //AIMV6_SYSCALL_H

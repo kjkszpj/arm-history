@@ -30,6 +30,8 @@
  * 8.   read
  * 9.   write
  * 10.  relocate
+ * 14.  create
+ * 15.  delete
  * -    getdir
  * -    chdir
  *
@@ -43,6 +45,9 @@
 
 #include <interrupt.h>
 #include <kern/syscall.h>
+#include <kern/sched/pcb.h>
+#include <kern/sched/sched.h>
+#include <string.h>
 
 static int print_cpu();
 
@@ -53,6 +58,8 @@ int int_ent_ndef()
     asm volatile("mov %0, r1\n" :"=r"(context_ndef->lr) : : );
     asm volatile("mrs %0, spsr\n" :"=r"(context_ndef->spsr) : : );
 
+    pcb_t* n_pcb = sched_get_running();
+    memcpy(&n_pcb->cpu, context_ndef, sizeof(context_cpu_t));
     uart_spin_puts("Undefined instruction exception.\r\n\0");
 //    syscall();
     asm volatile("msr spsr, %0\n" : :"r"(context_ndef->spsr) : );
@@ -84,6 +91,8 @@ int int_ent_svc()
     asm volatile("mov %0, r1\n" :"=r"(context_svc->lr) : : );
     asm volatile("mrs %0, spsr\n" :"=r"(context_svc->spsr) : : );
 
+    pcb_t* n_pcb = sched_get_running();
+    memcpy(&n_pcb->cpu, context_svc, sizeof(context_cpu_t));
     uart_spin_puts("It works!, now in svc\r\n\0");
     print_cpu();
 
@@ -109,6 +118,8 @@ int int_ent_prefetch_abort()
     asm volatile("mov %0, r1\n" :"=r"(context_abort->lr) : : );
     asm volatile("mrs %0, spsr\n" :"=r"(context_abort->spsr) : : );
 
+    pcb_t* n_pcb = sched_get_running();
+    memcpy(&n_pcb->cpu, context_abort, sizeof(context_cpu_t));
     uart_spin_puts("It works!, now in prefetch abort\r\n\0");
 //    prefetch_abort();
 
@@ -127,6 +138,8 @@ int int_ent_data_abort()
     (*context_abort).pc = (*context_abort).pc - 4;
 
 //    prefetch_data_abort();
+    pcb_t* n_pcb = sched_get_running();
+    memcpy(&n_pcb->cpu, context_abort, sizeof(context_cpu_t));
     uart_spin_puts("It works!, now in data abort\r\n\0");
     print_cpu();
     puthex((*context_abort).sp);
@@ -135,7 +148,7 @@ int int_ent_data_abort()
     puthex((*context_abort).cpsr);
     puthex((*context_abort).spsr);
     uart_spin_puts("system down\r\n\0");
-//    todo, for debug
+//    todo, for debug, now should exist no data abort
     while (1);
 
     asm volatile("msr spsr, %0\n" : :"r"(context_abort->spsr) : );
@@ -151,6 +164,8 @@ int int_ent_irq()
     asm volatile("mrs %0, spsr\n" :"=r"(context_irq->spsr) : : );
 
     u32 irq_id = *(u32*)(PERIPHBASE + ICCIAR_OFFSET);
+    pcb_t* n_pcb = sched_get_running();
+    memcpy(&n_pcb->cpu, context_irq, sizeof(context_cpu_t));
     uart_spin_puts("It works!, now in fiq\r\n\0");
     puthex(irq_id);
     print_cpu();
@@ -185,6 +200,8 @@ int int_ent_fiq()
     asm volatile("mov %0, r1\n" :"=r"(context_fiq->lr) : : );
     asm volatile("mrs %0, spsr\n" :"=r"(context_fiq->spsr) : : );
 
+    pcb_t* n_pcb = sched_get_running();
+    memcpy(&n_pcb->cpu, context_fiq, sizeof(context_cpu_t));
     uart_spin_puts("It works!, now in fiq\r\n\0");
 //    fiq();
 
