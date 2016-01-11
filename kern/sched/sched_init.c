@@ -66,7 +66,16 @@ int init_sched()
     {
         uart_spin_printf("fork succeed, cid= %d\r\n\0", cid);
         uart_spin_printf("I am your father.\r\n\0");
-        test_all_interrupt();
+//        test_all_interrupt();
+        u32 user_base = 0x003b9ad4;
+        asm volatile
+        (
+            "mov r0, %0\n"
+            "SVC 2\n"
+            :
+            :"r"(user_base)
+            :"r0"
+        );
     }
     return 0;
 }
