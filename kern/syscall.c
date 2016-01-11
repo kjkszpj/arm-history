@@ -19,6 +19,8 @@
 #include <string.h>
 #include <kern/mm/pte.h>
 
+//  todo, no use pcb_running
+
 // for temp debug
 static void load_elf_debug();
 
@@ -75,12 +77,14 @@ int syscall(int id)
 
 void _fork()
 {
-    //  todo
     //  we will always return the FATHER
     pcb_t* c_pcb = new_pcb();
     u32 cpid = c_pcb->td.pid;
     pcb_t* f_pcb = sched_get_running();
     memcpy(c_pcb, f_pcb, sizeof(pcb_t));
+    c_pcb->page_table = slb_alloc_align(PTE_L1SIZE, PTE_L1ALIGN);
+//  since there is no copy on write, just copy it, the whole image.
+    copy_mem_img((u32*)c_pcb->page_table, (u32*)f_pcb->page_table, 0, 0xFFFFFFFF, 0b0111100001, 0b010000111110);
     c_pcb->td.pid = cpid;
     c_pcb->td.ppid = sched_get_running()->td.pid;
     sched_mature(c_pcb);
@@ -88,9 +92,9 @@ void _fork()
     context_svc->r0 = c_pcb->td.pid;
 }
 
-//  todo, how to pack the user program
 void _exec()
 {
+//    todo, stack for them
     /*
      * procedure
      * 1.   change name?
@@ -104,6 +108,7 @@ void _exec()
     int i;
     u32 start_block = context_svc->r0;
     pcb_t* task = sched_get_running();
+    u32 lpsr = task->cpu.cpsr;
     unmmap((u32*)task->page_table, 0, KERNEL_BASE);
     /*
      * todo, change follow from sd_spin_read to fs read
@@ -114,7 +119,7 @@ void _exec()
     sd_dma_spin_read(V2P((u32)buffer), 3, start_block);
 
     elf32hdr_t e = *(elf32hdr_t*)buffer;
-    void (*program_entry)(void) = (void *)e.e_entry;
+    u32 program_entry = e.e_entry;
     u32 phoff = e.e_phoff;
     u32 phnum = e.e_phnum;
     u32 phentsize = e.e_phentsize;
@@ -132,21 +137,28 @@ void _exec()
         u32 phe_offset = ph.p_offset;
         u32 phe_vaddr = ph.p_vaddr;
         u32 phe_memsz = ph.p_memsz;
-//        no p_flags / p_align implemented
+        //  no p_flags / p_align implemented
         u8 offset = phe_offset % BLOCK_SIZE;
         u32 start_id = phe_offset / BLOCK_SIZE;
         u32 end_id = ((phe_offset + (u32)phe_memsz - 1) / BLOCK_SIZE) + 1;
-//        todo, check the domain, and pattern
-
+        //  check the domain, and pattern
         uart_spin_printf("---cp3?---\r\n\0");
         mmap((u32*)task->page_table, (phe_vaddr >> 12 << 12), phe_vaddr + phe_memsz, 0b0111100001, 0b010000111110);
         uart_spin_printf("offset:  %d\t, to vaddr:  %d\t\r\n\0", phe_offset, phe_vaddr);
         sd_dma_spin_load(phe_vaddr - offset, end_id - start_id, start_id + start_block, (u32*)task->page_table);
-        // todo read
         phoff += phentsize;
     }
     uart_spin_printf("Loading done, ready to execute\r\n\0");
-    program_entry();
+//    memset(task->cpu, 0, sizeof(context_cpu_t));
+//    todo, the program will return to nurser
+//    task->cpu.lr = ;
+//    task->cpu.sp = ;
+//    task->cpu.fp = ;
+    lpsr = ((lpsr & 0x0FFFFFE0) | 0b10000);
+    task->cpu.cpsr = lpsr;
+    task->cpu.spsr = lpsr;
+    task->cpu.pc = program_entry;
+    context_switch(task, task, context_svc);
 }
 
 void _getpid()

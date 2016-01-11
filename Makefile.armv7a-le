@@ -67,7 +67,8 @@ INT_OBJS    =   kern/arch/$(ARCH)/$(MACH)/interrupt.o \
                 kern/arch/$(ARCH)/$(MACH)/interrupt_vector.o \
                 kern/syscall.o
 
-SCHED_OBJS  =   kern/sched/sched_main.o
+SCHED_OBJS  =   kern/sched/sched_main.o \
+				kern/sched/policy_rr.o
 
 MM_OBJS 	=	kern/mm/kmemory_manage.o \
                 kern/mm/mmap.o \

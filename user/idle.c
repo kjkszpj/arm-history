@@ -1,0 +1,21 @@
+//
+// Created by Peijie You on 16/1/11.
+//
+
+int main()
+{
+    int i;
+
+    while (1)
+    {
+        volatile int a = 0;
+        for (i = 0; i < 3000000; i++) i += a;
+        volatile int b = 0;
+        for (i = 0; i < 3000000; i++) i += a;
+        volatile int c = 0;
+        for (i = 0; i < 3000000; i++) i += a;
+
+        i = a + b + c;
+//      todo, can fs check point
+    }
+}

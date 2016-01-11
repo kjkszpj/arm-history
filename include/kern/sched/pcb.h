@@ -77,6 +77,7 @@ pcb_t* new_pcb();
 void delete_pcb(pcb_t task);
 void init_pcb();
 void print_pcb(pcb_t* task);
+void context_switch(pcb_t* task_from, pcb_t* task_to, context_cpu_t* on_return);
 
 //------you are welcome to change this design
 #define MAX_PCB 0x1000
