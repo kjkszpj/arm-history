@@ -18,17 +18,18 @@ void kinit()
 {
     uart_spin_puts("GE\r\n\0");
 //    turn on hardware
-    if (mmu_high_main() == 0) uart_spin_puts("MMU done.\r\n\0");
-    if (l1cache_init() == 0) uart_spin_puts("L1 cache done.\r\n\0");
-    if (scu_init() == 0) uart_spin_puts("SCU done.\r\n\0");
+    if (mmu_high_main() == 0)   uart_spin_puts("MMU done.\r\n\0");
+    if (l1cache_init() == 0)    uart_spin_puts("L1 cache done.\r\n\0");
+    if (scu_init() == 0)        uart_spin_puts("SCU done.\r\n\0");
 //    init mm
-    if (init_pspace() == 0) uart_spin_puts("pages manage done.\r\n\0");
-    if (slb_init() == 0) uart_spin_puts("slb manage done.\r\n\0");
+    if (init_pspace() == 0)     uart_spin_puts("pages manage done.\r\n\0");
+    if (slb_init() == 0)        uart_spin_puts("slb manage done.\r\n\0");
 //    init interrupt
-    if (interrupt_init() == 0) uart_spin_puts("int done.\r\n\0");
+    if (interrupt_init() == 0)  uart_spin_puts("int done.\r\n\0");
+    if (init_sched() == 0)      uart_spin_puts("sched done.\r\n\0");
 
-    if (init_sched() == 0) uart_spin_puts("sched done.\r\n\0");
-    
+//    prepare_INIT();
+
 //    uart_spin_puts("now trying snprintf\r\n\0");
 //    char temp[100];
 //    snprintf(temp, 90, "decimal:\t%d %d\r\n\0", 123, 0xFFFD0FA0);
