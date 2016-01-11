@@ -59,5 +59,7 @@ int syscall(int id);
 
 void _fork();
 void _exec();
+void _getpid();
+void _getppid();
 
 #endif //AIMV6_SYSCALL_H
