@@ -134,7 +134,9 @@ int int_ent_data_abort()
     puthex((*context_abort).pc);
     puthex((*context_abort).cpsr);
     puthex((*context_abort).spsr);
-    uart_spin_puts("bye\r\n\0");
+    uart_spin_puts("system down\r\n\0");
+//    todo, for debug
+    while (1);
 
     asm volatile("msr spsr, %0\n" : :"r"(context_abort->spsr) : );
     asm volatile("mov r1, %0\n" : :"r"(context_abort->lr) : );

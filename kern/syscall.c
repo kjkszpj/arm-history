@@ -16,6 +16,7 @@
 #include <kern/init/init.h>
 #include <kern/mm/kmemory_manage.h>
 #include <string.h>
+#include <kern/mm/pte.h>
 
 // for temp debug
 static void load_elf_debug();
@@ -100,11 +101,11 @@ void _exec()
     unmmap((u32*)task->page_table, 0, KERNEL_BASE);
     /*
      * todo, change follow from sd_spin_read to fs read
-     * I copy this code form bootmain.c, hoping there is no bug.
+     * I copy this code form bootmain.c and elf.h, hoping there is no bug.
      */
 
-    u8* buffer = kmalloc(BLOCK_SIZE * 3);
-    sd_dma_spin_read((u32)buffer, 3, start_block);
+    u8* buffer = kmalloc(BLOCK_SIZE * 5);
+    sd_dma_spin_read(V2P((u32)buffer), 3, start_block);
 
     elf32hdr_t e = *(elf32hdr_t*)buffer;
     void (*program_entry)(void) = (void *)e.e_entry;
@@ -115,7 +116,7 @@ void _exec()
     elf32_phdr_t ph;
     for (i = 0; i < phnum; i++)
     {
-        sd_dma_spin_read((u32)buffer, 2, start_block + phoff / BLOCK_SIZE);
+        sd_dma_spin_read(V2P((u32)buffer), 2, start_block + phoff / BLOCK_SIZE);
         ph = *(elf32_phdr_t*)(buffer + (phoff % BLOCK_SIZE));
         if (ph.p_type != PT_LOAD)
         {
@@ -130,13 +131,16 @@ void _exec()
         u32 start_id = phe_offset / BLOCK_SIZE;
         u32 end_id = ((phe_offset + (u32)phe_memsz - 1) / BLOCK_SIZE) + 1;
 //        todo, check the domain, and pattern
+
+        uart_spin_printf("---cp3?---\r\n\0");
         mmap((u32*)task->page_table, (phe_vaddr >> 12 << 12), phe_vaddr + phe_memsz, 0b0111100001, 0b010000111110);
-        uart_spin_printf("offset:  %d\t, to vaddr:  %d\t\r\0", phe_offset, phe_vaddr);
+        uart_spin_printf("offset:  %d\t, to vaddr:  %d\t\r\n\0", phe_offset, phe_vaddr);
         sd_dma_spin_load(phe_vaddr - offset, end_id - start_id, start_id + start_block, (u32*)task->page_table);
         // todo read
         phoff += phentsize;
     }
-//    program_entry();
+    uart_spin_printf("Loading done, ready to execute\r\n\0");
+    program_entry();
 }
 
 

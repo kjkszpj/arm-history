@@ -19,7 +19,7 @@ void sched_wake(pcb_t* task){}
 void sched_finish(pcb_t* task){}
 void sched_kill(pcb_t* task){}
 
-pcb_t* sched_get_running() {return 0;}
+pcb_t* sched_get_running() {return pcb_running;}
 pcb_t* sched_get_bypid(int pid) {return 0;}
 
 pcb_t* pcb_running;
@@ -59,12 +59,14 @@ int init_sched()
     //todo some fo(a)ck thing here, then exec?
 
     uart_spin_printf("------DEBUG------\r\n\0");
+    u32 user_base = 0x003b9ad4;
     asm volatile
     (
-        "SVC 0"
+        "mov r0, %0\n"
+        "SVC 2\n"
         :
-        :
-        :
+        :"r"(user_base)
+        :"r0"
     );
     return 0;
 }

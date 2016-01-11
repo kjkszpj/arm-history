@@ -135,4 +135,3 @@ clean:
 	rm -rf $(MMU_L_OBJS) mmu_low.elf mmu_low.bin mmu_low.s
 	rm -rf $(KINIT_OBJS) kinit.elf kinit.bin kinit.s
 	rm -rf $(TOTAL_KERNEL_OBJS) kernel.elf kernel.bin kernel.s
-

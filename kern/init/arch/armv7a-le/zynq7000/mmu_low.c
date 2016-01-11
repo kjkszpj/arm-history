@@ -20,7 +20,7 @@ void prepare_page_table()
     u32 i;
     u32 mask;
     u32 *pt_high = (u32*)PT1_BASE;
-    u32 *pt_low = (u32*)PT0_BASE;
+        u32 *pt_low = (u32*)PT0_BASE;
 
 //    page mapping for now:
 //    1.    PA = VA         for (VA < 2G, below kernel base), should be clear after entering kernel space
