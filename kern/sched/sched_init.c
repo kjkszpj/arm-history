@@ -58,15 +58,15 @@ int init_sched()
     pcb_t* pcb_mirror = new_pcb();
     //todo some fo(a)ck thing here, then exec?
 
-    uart_spin_printf("------DEBUG------\r\n\0");
-    u32 user_base = 0x003b9ad4;
-    asm volatile
-    (
-        "mov r0, %0\n"
-        "SVC 2\n"
-        :
-        :"r"(user_base)
-        :"r0"
-    );
+    // uart_spin_printf("------DEBUG------\r\n\0");
+    // u32 user_base = 0x003b9ad4;
+    // asm volatile
+    // (
+    //     "mov r0, %0\n"
+    //     "SVC 2\n"
+    //     :
+    //     :"r"(user_base)
+    //     :"r0"
+    // );
     return 0;
 }

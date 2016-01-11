@@ -2,12 +2,14 @@
 // Created by Peijie You on 15/11/14.
 //
 
+#include <drivers/sd/sd-zynq7000.h>
+// #include <drivers/clock/rtc.h>
 #include <kern/init/init.h>
 #include <kern/mm/pages_manage.h>
 #include <kern/mm/slb.h>
+#include <kern/fs/fs_manage.h>
 #include <interrupt.h>
 #include <stdio.h>
-
 extern int init_sched();
 
 u32 *page_table = (u32*)(KERNEL_BASE + PT_OFFSET);
@@ -16,6 +18,18 @@ u32 *page_table = (u32*)(KERNEL_BASE + PT_OFFSET);
 
 void kinit()
 {
+
+    /* Wait for UART fifo to flush */
+    sleep(1);
+    /* Initialize and enable UART */
+    uart_init();
+    uart_enable();
+
+    sd_init();
+    sd_spin_init_mem_card();
+
+    // rtc_init();
+
     uart_spin_puts("GE\r\n\0");
 //    turn on hardware
     if (mmu_high_main() == 0) uart_spin_puts("MMU done.\r\n\0");
@@ -27,8 +41,24 @@ void kinit()
 //    init interrupt
     if (interrupt_init() == 0) uart_spin_puts("int done.\r\n\0");
 
+    //load_fs();
+    build_fs();
+    uart_spin_puts("build FS done.\r\n\0");
+
+    // checkpoint_fs();
+    // uart_spin_puts("checkpoint FS done.\r\n\0");
+
+    // load_fs();
+    // uart_spin_puts("load FS done.\r\n\0");
+
+    test_fs();
+    uart_spin_puts("test FS done.\r\n\0");
+
+
     if (init_sched() == 0) uart_spin_puts("sched done.\r\n\0");
     
+
+
 //    uart_spin_puts("now trying snprintf\r\n\0");
 //    char temp[100];
 //    snprintf(temp, 90, "decimal:\t%d %d\r\n\0", 123, 0xFFFD0FA0);
