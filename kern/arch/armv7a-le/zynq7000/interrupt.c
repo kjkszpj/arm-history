@@ -59,6 +59,11 @@ int int_ent_ndef()
     pcb_t* n_pcb = sched_get_running();
     memcpy(&n_pcb->cpu, context_ndef, sizeof(context_cpu_t));
     uart_spin_puts("Undefined instruction exception.\r\n\0");
+    puthex((*context_svc).sp);
+    puthex((*context_svc).lr);
+    puthex((*context_svc).pc);
+    puthex((*context_svc).cpsr);
+    puthex((*context_svc).spsr);
 //    syscall();
     asm volatile("msr spsr, %0\n" : :"r"(context_ndef->spsr) : );
     asm volatile("mov r1, %0\n" : :"r"(context_ndef->lr) : );
