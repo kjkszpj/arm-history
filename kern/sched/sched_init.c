@@ -10,20 +10,6 @@
 #include <kern/sched/sched.h>
 #include <interrupt.h>
 
-void sched_new(pcb_t* task){}
-void sched_mature(pcb_t* task){}
-void sched_allow(pcb_t* task){}
-void sched_block(pcb_t* task){}
-void sched_preempt(pcb_t* task){}
-void sched_wake(pcb_t* task){}
-void sched_finish(pcb_t* task){}
-void sched_kill(pcb_t* task){}
-
-pcb_t* sched_get_running() {return pcb_running;}
-pcb_t* sched_get_bypid(int pid) {return 0;}
-
-pcb_t* pcb_running;
-
 int init_sched()
 {
     init_pcb();
@@ -52,8 +38,6 @@ int init_sched()
     pcb_now->page_table = (pgd_t*)(KERNEL_BASE + PT_OFFSET);
     sched_mature(pcb_now);
     sched_allow(pcb_now);
-
-    pcb_running = pcb_now;
 
     pcb_t* pcb_mirror = new_pcb();
     //todo some fo(a)ck thing here, then exec?

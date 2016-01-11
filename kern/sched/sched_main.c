@@ -107,15 +107,15 @@ void print_pcb(pcb_t* task)
     uart_spin_printf("    cpu, cpsr:\t%x\r\n\0", (u32)task->cpu.cpsr);
 }
 
-void cs_debug()
-{
-    memcpy(&(pcb_running->cpu), context_svc, sizeof(context_cpu_t));
-    print_pcb(pcb_running);
-    pcb_t* temp = new_pcb();
-    u32 pid = temp->td.pid;
-    memcpy(temp, pcb_running, sizeof(pcb_t));
-    temp->td.pid = pid;
-    temp->cpu.pc -= 4;
-    context_switch(pcb_running, temp, context_svc);
-    pcb_running = temp;
-}
+//void cs_debug()
+//{
+//    memcpy(&(pcb_running->cpu), context_svc, sizeof(context_cpu_t));
+//    print_pcb(pcb_running);
+//    pcb_t* temp = new_pcb();
+//    u32 pid = temp->td.pid;
+//    memcpy(temp, pcb_running, sizeof(pcb_t));
+//    temp->td.pid = pid;
+//    temp->cpu.pc -= 4;
+//    context_switch(pcb_running, temp, context_svc);
+//    pcb_running = temp;
+//}

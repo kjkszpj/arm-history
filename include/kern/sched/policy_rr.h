@@ -28,7 +28,7 @@
  * fuck! why priority should take all resource
  */
 
-void sched_init();
+void init_rr();
 
 //  interface below
 void sched_new(pcb_t* task);         //  1

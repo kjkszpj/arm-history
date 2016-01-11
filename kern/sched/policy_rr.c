@@ -3,8 +3,8 @@
 */
 
 #include <kern/sched/policy_rr.h>
-#include <kern/mm/slab.h>
-#include <drivers/serial/uart.h>
+#include <kern/mm/slb.h>
+#include <kern/init/init.h>
 
 typedef struct queue_element
 {
@@ -18,9 +18,9 @@ typedef struct queue
 } queue_t;
 
 queue_t queue_new, queue_ready, queue_running, queue_wait, queue_done, queue_abort;
-slab_cache_t queue_pool;
+//slab_cache_t queue_pool;
 
-void sched_init()
+void init_rr()
 {
 	queue_new.head = queue_new.tail = NULL;
 	queue_ready.head = queue_ready.tail = NULL;
@@ -29,7 +29,7 @@ void sched_init()
 	queue_done.head = queue_done.tail = NULL;
 	queue_abort.head = queue_abort.tail = NULL;
 
-	init_slab_cache(&queue_pool, sizeof(queue_element_t), 20, 2, 4);
+//	init_slab_cache(&queue_pool, sizeof(queue_element_t), 20, 2, 4);
 }
 
 void print_queue(queue_t queue)
@@ -44,7 +44,8 @@ void print_queue(queue_t queue)
 
 void queue_push(queue_t *queue, pcb_t *task)
 {
-	queue_element_t *element = (queue_element_t *)alloc_obj(&queue_pool);
+//	queue_element_t *element = (queue_element_t *)alloc_obj(&queue_pool);
+	queue_element_t *element = (queue_element_t *)slb_alloc(sizeof(queue_element_t));
 	element->pcb = task;
 	element->next = NULL;
 	if (queue->head == NULL)
@@ -63,7 +64,8 @@ void queue_pop(queue_t *queue, pcb_t *task)
 			if (queue->head->pcb == task) queue->head = p->next;
 			if (queue->tail->pcb == task) queue->tail = last;
 			if (last != NULL) last->next = p->next;
-			free_obj(&queue_pool, p);
+//			free_obj(&queue_pool, p);
+			slb_free(p, sizeof(queue_element_t));
 			break;
 		}
 		last = p;
@@ -116,6 +118,8 @@ void sched_finish(pcb_t *task)
 	queue_pop(&queue_running, task);
 	queue_push(&queue_done, task);
 	task->status = DONE;
+//	debug
+//	print_queue(queue_done);
 }
 
 void sched_kill(pcb_t *task)
