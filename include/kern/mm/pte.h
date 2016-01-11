@@ -73,7 +73,9 @@ typedef struct
 void invalidate_tlb();
 void move_TTBR0(u32 pt0_paddr);
 void move_TTBR1(u32 pt1_paddr);
+
 void mmap(u32 *pt_vaddr, u32 start, u32 finish, u32 pattern1, u32 pattern2);
 void unmmap(u32 *pt_vaddr, u32 start, u32 finish);
+void copy_mem_img(u32* pt_frm, u32* pt_to, u32 start, u32 finish, u32 pattern1, u32 pattern2);
 
 #endif //AIMV6_PTE_H
