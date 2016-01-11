@@ -27,7 +27,7 @@ void unmmap(u32 *pt_vaddr, u32 start, u32 finish)
         l1pte = (ptel1_page_table_t*)(pt_vaddr + i);
         if (l1pte->type == 0b00) continue;
         l2page = (ptel2_page_t*)P2V(l1pte->base);
-        for (j = 0; j < PTE_L2SIZE; j++)
+        for (j = 0; j < PTE_L2SIZE >> 2; j++)
         {
             temp = i * PAGE_L1SIZE + j * PAGE_L2SIZE;
             if (temp < start || temp >= finish) continue;
@@ -64,7 +64,7 @@ void mmap(u32 *pt_vaddr, u32 start, u32 finish, u32 pattern1, u32 pattern2)
         l1pte = (ptel1_page_table_t*)(pt_vaddr + i);
         l2page = (ptel2_page_t*)P2V(l1pte->base * PTE_L2SIZE);
         uart_spin_printf("---%x\r\n\0", *(u32*)l2page);
-        for (j = 0; j < (int)PTE_L2SIZE; j++)
+        for (j = 0; j < (int)PTE_L2SIZE >> 2; j++)
         {
             temp = i * PAGE_L1SIZE + j * PAGE_L2SIZE;
             if (temp < start || temp >= finish) continue;
@@ -94,26 +94,25 @@ void copy_mem_img(u32* pt_frm, u32* pt_to, u32 start, u32 finish, u32 pattern1, 
 
     for (i = start / PAGE_L1SIZE; i <= (int)((finish - 1) / PAGE_L1SIZE); i++)
     {
-
         l1pte_frm = (ptel1_page_table_t*)(pt_frm + i);
         l1pte_to = (ptel1_page_table_t*)(pt_to + i);
-        if (l1pte_frm->type == 0b00) continue;
+//        uart_spin_printf(">>>%x\r\n\0", *(u32*)l1pte_to);
+        if (l1pte_frm->type == 0b00 || l1pte_frm->type == 0b11) continue;
         if (l1pte_to->type == 0b00)
         {
             uart_spin_printf("new pte for %x\r\n\0", i);
             temp = (u32)slb_alloc_align(PTE_L2SIZE, PTE_L2ALIGN);
-            //  memset for user
             memset((void*)temp, 0, PTE_L2SIZE);
             pt_to[i] = V2P(temp) | pattern1;
-            uart_spin_printf("there %x\r\n\0", temp);
-            uart_spin_printf("here %x\r\n***\r\n\0", pt_to[i]);
+            uart_spin_printf("  there %x\r\n\0", temp);
+            uart_spin_printf("  here %x\r\n***\r\n\0", pt_to[i]);
         }
         l1pte_to = (ptel1_page_table_t*)(pt_to + i);
         l2page_frm = (ptel2_page_t*)P2V(l1pte_frm->base);
         l2page_to = (ptel2_page_t*)P2V(l1pte_to->base * PTE_L2SIZE);
-
+        uart_spin_printf("===%x\r\n\0", *(u32*)l1pte_frm);
         if (l1pte_frm->type == 0b01)
-            for (j = 0; j < (int)PTE_L2SIZE; j++)
+            for (j = 0; j < (int)PTE_L2SIZE >> 2; j++)
             {
                 temp = i * PAGE_L1SIZE + j * PAGE_L2SIZE;
                 if (temp < start || temp >= finish) continue;
@@ -132,18 +131,22 @@ void copy_mem_img(u32* pt_frm, u32* pt_to, u32 start, u32 finish, u32 pattern1, 
         else
         {
             u32 section_base = pt_frm[i] & 0xFFF00000;
-            for (j = 0; j < (int) PTE_L2SIZE; j++)
+            uart_spin_printf("section base: %d\r\n\0", section_base);
+            for (j = 0; j < (int) PTE_L2SIZE >> 2; j++)
             {
                 temp = i * PAGE_L1SIZE + j * PAGE_L2SIZE;
                 if (temp < start || temp >= finish) continue;
+//                uart_spin_printf("---------%x\r\n\0", l2page_to[j].type);
                 if (l2page_to[j].type == 0)
                 {
-                    temp = (u32) pages_alloc(PAGE_L2SIZE);
+//                    uart_spin_printf("new l2 for %x\r\n\0", j);
+                    temp = (u32)pages_alloc(PAGE_L2SIZE);
                     memset((void *) (P2V(temp)), 0, PAGE_L2SIZE);
                     k = (u32 * )(l2page_to + j);
                     *k = temp | pattern2;
                 }
-                memcpy((void*)(l2page_to[j].base * PAGE_L2SIZE), (void*)(section_base + j * PAGE_L2SIZE), PAGE_L2SIZE);
+//                uart_spin_printf("---------%d\r\n\0", *(u32*)(l2page_to + j));
+                memcpy((void*)P2V(l2page_to[j].base * PAGE_L2SIZE), (void*)P2V(section_base + j * PAGE_L2SIZE), PAGE_L2SIZE);
             }
         }
     }

@@ -25,7 +25,7 @@ static void load_elf_debug();
 
 int syscall(int id)
 {
-    uart_spin_printf("SVC id:\t%d.\r\n\0", id);
+    uart_spin_printf("From syscall(), \r\n  SVC id:\t%d.\r\n\0", id);
     switch (id)
     {
         case ID_DEBUG:
@@ -66,29 +66,35 @@ int syscall(int id)
         default:
             break;
     }
+    uart_spin_printf("???");
     return 0;
 }
 
 void _fork()
 {
     //  we will always return the FATHER
+    uart_spin_printf("hello from fork\r\n\0");
     pcb_t* c_pcb = new_pcb();
     u32 cpid = c_pcb->td.pid;
     pcb_t* f_pcb = sched_get_running();
+//    uart_spin_printf("c_pcb: %x,\tf_pcb: %x\r\n\0", (u32)c_pcb, (u32)f_pcb);
     memcpy(c_pcb, f_pcb, sizeof(pcb_t));
     c_pcb->page_table = slb_alloc_align(PTE_L1SIZE, PTE_L1ALIGN);
+    memset(c_pcb->page_table, 0, PTE_L1SIZE);
 //  since there is no copy on write, just copy it, the whole image.
-    copy_mem_img((u32*)c_pcb->page_table, (u32*)f_pcb->page_table, 0, 0xFFFFFFFF, 0b0111100001, 0b010000111110);
+    copy_mem_img((u32*)f_pcb->page_table, (u32*)c_pcb->page_table, 0, KERNEL_BASE, 0b0111100001, 0b010000111110);
+    uart_spin_printf("\tcp.\r\n\0");
     c_pcb->td.pid = cpid;
     c_pcb->td.ppid = sched_get_running()->td.pid;
     sched_mature(c_pcb);
     //  pseudo return value?
     context_svc->r0 = c_pcb->td.pid;
+    uart_spin_printf("\tcp.\r\n\0");
 }
 
 void _exec()
 {
-//    todo, stack for them
+//    todo, care the STACK for them
     /*
      * procedure
      * 1.   change name?
@@ -99,6 +105,7 @@ void _exec()
      * 4.   construct cpu context
      */
 
+    uart_spin_printf("Hello in exec\r\n\0");
     int i;
     u32 start_block = context_svc->r0;
     pcb_t* task = sched_get_running();

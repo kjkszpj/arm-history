@@ -40,7 +40,7 @@ int init_sched()
     //todo some fo(a)ck thing here, then exec idle?
 
     uart_spin_printf("------DEBUG------\r\n\0");
-    u32 cid;
+    u32 cid = 0;
     asm volatile
     (
         "SVC 1\n"
@@ -49,6 +49,7 @@ int init_sched()
         :
         :"r0"
     );
+    uart_spin_printf("------good to go------\r\n\0");
     if (cid == 0)
     {
         u32 user_base = 0x003b9ad4;
