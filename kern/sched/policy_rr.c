@@ -17,7 +17,7 @@ typedef struct queue
 	queue_element_t *head, *tail;
 } queue_t;
 
-queue_t queue_new, queue_ready, queue_running, queue_wait, queue_done, queue_abort;
+queue_t queue_new, queue_ready, queue_running, queue_wait, queue_zombie, queue_abort;
 //slab_cache_t queue_pool;
 
 void init_rr()
@@ -26,7 +26,7 @@ void init_rr()
 	queue_ready.head = queue_ready.tail = NULL;
 	queue_running.head = queue_running.tail = NULL;
 	queue_wait.head = queue_wait.tail = NULL;
-	queue_done.head = queue_done.tail = NULL;
+	queue_zombie.head = queue_zombie.tail = NULL;
 	queue_abort.head = queue_abort.tail = NULL;
 
 //	init_slab_cache(&queue_pool, sizeof(queue_element_t), 20, 2, 4);
@@ -116,10 +116,10 @@ void sched_wake(pcb_t *task)
 void sched_finish(pcb_t *task)
 {
 	queue_pop(&queue_running, task);
-	queue_push(&queue_done, task);
-	task->status = DONE;
+	queue_push(&queue_zombie, task);
+	task->status = ZOMBIE;
 //	debug
-//	print_queue(queue_done);
+//	print_queue(queue_zombie);
 }
 
 void sched_kill(pcb_t *task)
@@ -136,6 +136,11 @@ void sched_kill(pcb_t *task)
 	task->status = ABORT;
 }
 
+void sched_free(pcb_t *task)
+{
+	queue_pop(&queue_zombie, task);
+}
+
 pcb_t* sched_get_bypid_in(queue_t *queue, int pid)
 {
 	for (queue_element_t *p = queue->head; p != NULL; p = p->next)
@@ -150,8 +155,16 @@ pcb_t* sched_get_bypid(int pid)
 	if ((pcb=sched_get_bypid_in(&queue_ready, pid))!=NULL) return pcb;
 	if ((pcb=sched_get_bypid_in(&queue_running, pid))!=NULL) return pcb;
 	if ((pcb=sched_get_bypid_in(&queue_wait, pid))!=NULL) return pcb;
-	if ((pcb=sched_get_bypid_in(&queue_done, pid))!=NULL) return pcb;
+	if ((pcb=sched_get_bypid_in(&queue_zombie, pid))!=NULL) return pcb;
 	if ((pcb=sched_get_bypid_in(&queue_abort, pid))!=NULL) return pcb;
+	return NULL;
+}
+
+pcb_t* sched_get_zombie_child(int ppid)
+{
+	for (queue_element_t *p = queue_zombie.head; p != NULL; p = p->next)
+		if (p->pcb->td.ppid == ppid)
+			return p->pcb;
 	return NULL;
 }
 

@@ -42,12 +42,16 @@ int syscall(int id)
         case ID_KILL:
             break;
         case ID_WAIT:
+			_wait();
             break;
         case ID_GETPID:
 			_getpid();
             break;
 		case ID_GETPPID:
 			_getppid();
+			break;
+		case ID_EXIT:
+			_exit();
 			break;
 
         //  optional?
@@ -184,6 +188,38 @@ void _exec()
 //    uart_spin_printf("------cp-------\r\n\0");
 }
 
+void _wait()
+{
+    pcb_t *pcb = sched_get_running();
+	while (1)
+	{
+		pcb_t *c_pcb = sched_get_zombie_child(pcb->td.pid);
+		if (c_pcb != NULL)
+		{
+			sched_free(c_pcb);
+			// TODO: free the memory of child process
+
+			context_svc->r0 = c_pcb->td.ppid;
+			return;
+		}
+
+		sched_block(pcb);
+		// TODO: context switch
+	}
+}
+
+void _exit()
+{
+    pcb_t *pcb = sched_get_running();
+	sched_finish(pcb);
+	
+	// parent might be sleeping in wait()
+	pcb_t *f_pcb = sched_get_bypid(pcb->td.ppid);
+	if (f_pcb->status == WAIT) sched_wake(f_pcb);
+
+	// TODO: pass orphan children to init
+}
+
 void _getpid()
 {
     pcb_t* pcb = sched_get_running();
@@ -201,3 +237,4 @@ void load_elf_debug()
 {
     uart_spin_printf("Are you ok?");
 }
+
