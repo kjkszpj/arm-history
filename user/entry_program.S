@@ -8,9 +8,11 @@
 
 entry_program:
 /* just for sure*/
+/*
 	MOV	sp, #0x7FFFFFF0
 	MOVS	fp, sp
-    ISB
+    ISB*/
+    mov pc, lr
 /* jump to program, user program should have int main() function */
 /*    BL  main */
 /* on return, handcraft exit(r0) */

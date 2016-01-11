@@ -51,6 +51,7 @@ void mmap(u32 *pt_vaddr, u32 start, u32 finish, u32 pattern1, u32 pattern2)
     ptel1_page_table_t* l1pte;
     ptel2_page_t* l2page;
 
+    uart_spin_printf("start: %x, finish %x\r\n\0", start, finish);
     for (i = start / PAGE_L1SIZE; i <= (int)((finish - 1) / PAGE_L1SIZE); i++)
     {
         l1pte = (ptel1_page_table_t*)(pt_vaddr + i);
@@ -58,11 +59,13 @@ void mmap(u32 *pt_vaddr, u32 start, u32 finish, u32 pattern1, u32 pattern2)
         {
 //            uart_spin_printf("new pte for %x\r\n\0", i);
             temp = (u32)slb_alloc_align(PTE_L2SIZE, PTE_L2ALIGN);
+//            temp = (u32)P2V(pages_alloc(PAGE_L2SIZE));
             //  memset for user
             memset((void*)temp, 0, PTE_L2SIZE);
             pt_vaddr[i] = V2P(temp) | pattern1;
 //            uart_spin_printf("there %x\r\n\0", temp);
 //            uart_spin_printf("here %x\r\n***\r\n\0", pt_vaddr[i]);
+            invalidate_tlb();
         }
         l1pte = (ptel1_page_table_t*)(pt_vaddr + i);
         l2page = (ptel2_page_t*)P2V(l1pte->base * PTE_L2SIZE);
@@ -79,6 +82,11 @@ void mmap(u32 *pt_vaddr, u32 start, u32 finish, u32 pattern1, u32 pattern2)
 //                uart_spin_printf("at %x\r\n\0", temp);
                 k = (u32*)(l2page + j);
                 *k = temp | pattern2;
+                invalidate_tlb();
+            }
+            else
+            {
+//                uart_spin_printf("!!!!!!!!!!!!WRONG\r\n\0");
             }
 //            uart_spin_printf("----\t%x\r\n\0", *(u32*)(l2page +j));
         }

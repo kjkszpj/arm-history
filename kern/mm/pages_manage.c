@@ -13,7 +13,7 @@ static free_area_t* farea_head;
 u32 init_pspace()
 {
     farea_head = NULL;
-    return pages_free(0x300000, 0x1ff00000);
+    return pages_free(0x800000, 0x1ff00000);
 }
 
 u32 pages_alloc(u32 need_size)

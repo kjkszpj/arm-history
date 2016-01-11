@@ -41,28 +41,28 @@ int init_sched()
 
     uart_spin_printf("------DEBUG------\r\n\0");
     u32 cid = 0;
-    asm volatile
-    (
-        "SVC 1\n"
-        "mov %0, r0\n"
-        :"=r"(cid)
-        :
-        :"r0"
-    );
-    uart_spin_printf("------good to go------\r\n\0");
-    if (cid == 0)
-    {
-        u32 user_base = 0x003b9ad4;
-        asm volatile
-        (
-            "mov r0, %0\n"
-            "SVC 2\n"
-            :
-            :"r"(user_base)
-            :"r0"
-        );
-    }
-    else
+//    asm volatile
+//    (
+//        "SVC 1\n"
+//        "mov %0, r0\n"
+//        :"=r"(cid)
+//        :
+//        :"r0"
+//    );
+//    uart_spin_printf("------good to go------\r\n\0");
+//    if (cid == 0)
+//    {
+//        u32 user_base = 0x003b9ad4;
+//        asm volatile
+//        (
+//            "mov r0, %0\n"
+//            "SVC 2\n"
+//            :
+//            :"r"(user_base)
+//            :"r0"
+//        );
+//    }
+//    else
     {
         uart_spin_printf("fork succeed, cid= %d\r\n\0", cid);
         uart_spin_printf("I am your father.\r\n\0");
