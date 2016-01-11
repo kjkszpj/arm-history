@@ -16,6 +16,8 @@
 #define PAGE_L1SIZE 0x00100000
 #define PAGE_L2SIZE 0x00001000
 
+#define FRAME_SIZE  PAGE_L2SIZE
+
 #define BLOCK_SIZE  512
 #define ELF32
 

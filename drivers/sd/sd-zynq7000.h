@@ -27,6 +27,7 @@ void sd_init();
 int sd_spin_init_mem_card();
 int sd_dma_spin_read(u32 pa, u16 count, u32 offset);
 int sd_dma_spin_write(u32 pa, u16 count, u32 offset);
+int sd_dma_spin_load(u32 va, u16 count, u32 offset, u32* page_table);
 int sd_spin_send_cmd(u16 cmd, u16 count, u32 arg, int mode);
 
 /* Register Offset */

@@ -40,6 +40,8 @@ DRIVERS_OBJS	=   drivers/clock/gtc-a9mpcore.o \
                     drivers/misc/division-arm.o \
                     lib/libc/stdio/snprintf.o
 
+EX_DIVE_OBJS    =   drivers/sd/use-sd-zynq7000.o
+
 FIRMWARE_OBJS	=   firmware/arch/$(ARCH)/vector.o \
 		            firmware/arch/$(ARCH)/bootasm.o \
 		            firmware/arch/$(ARCH)/bootmain.o \
@@ -76,9 +78,12 @@ MM_OBJS 	=	kern/mm/kmemory_manage.o \
 LIBC_OBJS   =   lib/libc/string/memcpy.o \
                 lib/libc/string/memset.o
 
-TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(KINIT_OBJS) $(MM_OBJS) $(INT_OBJS) $(SCHED_OBJS) $(LIBC_OBJS)
+USER_OBJS   =   user/el.o
 
-all: firmware.bin mbr.bin kernel.elf
+TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(EX_DIVE_OBJS) $(KINIT_OBJS) $(MM_OBJS) \
+                        $(INT_OBJS) $(SCHED_OBJS) $(LIBC_OBJS)
+
+all: firmware.bin mbr.bin kernel.elf user.elf
 
 $(FIRMWARE_OBJS): EXTRA_CFLAGS = -O2
 
@@ -100,6 +105,9 @@ mmu_low.elf: $(MMU_L_OBJS) kern/init/arch/$(ARCH)/$(MACH)/mmu_low.ld
 
 kernel.elf: $(TOTAL_KERNEL_OBJS) kern/kernel.ld
 	$(LD) $(LDFLAGS) -T kern/kernel.ld -o kernel.elf $(TOTAL_KERNEL_OBJS)
+
+user.elf:   $(USER_OBJS) user/norm.ld
+	$(LD) $(LDFLAGS) -T user/norm.ld -o user.elf $(USER_OBJS)
 
 .S.o:
 	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<

@@ -18,7 +18,7 @@
 #include <string.h>
 
 // for temp debug
-extern void cs_debug();
+static void load_elf_debug();
 
 int syscall(int id)
 {
@@ -26,7 +26,7 @@ int syscall(int id)
     switch (id)
     {
         case ID_DEBUG:
-            cs_debug();
+            load_elf_debug();
             break;
         case ID_FORK:
             _fork();
@@ -99,7 +99,7 @@ void _exec()
     pcb_t* task = sched_get_running();
     unmmap((u32*)task->page_table, 0, KERNEL_BASE);
     /*
-     * todo, change follow from sd_spin_read to fs read / good read
+     * todo, change follow from sd_spin_read to fs read
      * I copy this code form bootmain.c, hoping there is no bug.
      */
 
@@ -130,10 +130,21 @@ void _exec()
         u32 start_id = phe_offset / BLOCK_SIZE;
         u32 end_id = ((phe_offset + (u32)phe_memsz - 1) / BLOCK_SIZE) + 1;
 //        todo, check the domain, and pattern
-        mmap((u32*)task->page_table, (phe_vaddr >> 12 << 12), phe_vaddr + phe_memsz, 0b0XXXX0?001, 0b010000111110);
+        mmap((u32*)task->page_table, (phe_vaddr >> 12 << 12), phe_vaddr + phe_memsz, 0b0111100001, 0b010000111110);
         uart_spin_printf("offset:  %d\t, to vaddr:  %d\t\r\0", phe_offset, phe_vaddr);
-        sd_dma_spin_load(phe_vaddr - offset, end_id - start_id, start_id + elf_addr, (u32*)task->page_table);
+        sd_dma_spin_load(phe_vaddr - offset, end_id - start_id, start_id + start_block, (u32*)task->page_table);
         // todo read
         phoff += phentsize;
     }
+//    program_entry();
+}
+
+
+
+
+
+
+void load_elf_debug()
+{
+    uart_spin_printf("Are you ok?");
 }
