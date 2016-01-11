@@ -1,5 +1,6 @@
 //
 // Created by Peijie You on 16/1/10.
+// Modified by Xiaotao Liang
 //
 
 #ifndef AIMV6_SCHED_RR_H
@@ -27,6 +28,8 @@
  * fuck! why priority should take all resource
  */
 
+void sched_init();
+
 //  interface below
 void sched_new(pcb_t* task);         //  1
 void sched_mature(pcb_t* task);      //  2
@@ -37,6 +40,7 @@ void sched_wake(pcb_t* task);        //  6
 void sched_finish(pcb_t* task);      //  7
 void sched_kill(pcb_t* task);        //  8
 
+pcb_t* sched_pick();
 pcb_t* sched_get_running();
 pcb_t* sched_get_bypid(int pid);
 
