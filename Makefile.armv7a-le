@@ -81,7 +81,8 @@ FS_OBJS		=	kern/fs/fs_manage.o
 LIBC_OBJS   =   lib/libc/string/memcpy.o \
                 lib/libc/string/memset.o
 
-USER_OBJS   =   user/el.o
+USER_OBJS   =   user/el.o \
+                user/entry_program.o
 
 TOTAL_KERNEL_OBJS	=  	mmu_low.elf $(DRIVERS_OBJS) $(EX_DIVE_OBJS) $(KINIT_OBJS) $(MM_OBJS) $(FS_OBJS) \
                         $(INT_OBJS) $(SCHED_OBJS) $(LIBC_OBJS)
@@ -125,7 +126,6 @@ user.elf:   $(USER_OBJS) user/norm.ld
 	$(OBJCOPY) -O binary -S $^ $@
 
 .PHONY: clean
-
 
 
 

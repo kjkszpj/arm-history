@@ -244,7 +244,7 @@ int test_all_interrupt()
     uart_spin_puts("svc\r\n\0");
     asm volatile
     (
-        "SVC #2"
+        "SVC #233"
         :
         :
         :
