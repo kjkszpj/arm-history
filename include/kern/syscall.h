@@ -1,5 +1,6 @@
 //
 // Created by Peijie You on 16/1/1.
+// Modified by Xiaotao Liang
 //
 
 
@@ -44,6 +45,7 @@
 #define ID_WAIT     0x4
 #define ID_GETPID   0x5
 #define ID_GETPPID	0x6
+#define ID_EXIT		0x9
 /*---file related---*/
 #define ID_OPEN     0x10
 #define ID_CLOSE    0x11
@@ -59,7 +61,9 @@ int syscall(int id);
 
 void _fork();
 void _exec();
+void _wait();
 void _getpid();
 void _getppid();
+void _exit();
 
 #endif //AIMV6_SYSCALL_H
