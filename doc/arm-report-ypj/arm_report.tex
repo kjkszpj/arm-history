@@ -220,7 +220,7 @@ This system call removes the memory mapping of user space, and then load the ELF
 If there is any child process of the current process in the zombie queue, the current process deallocates the resources of its child process and return, otherwise it will be put into the waiting queue and wait to be wake up.
 
 \paragraph{exit}
-Change the status of the calling process to \verb|ZOMBIE|. If the current process's parent is waiting for it, then wake up the parent process to deallocated its resources. If the current process's children have exited, then pass the children process to \verb|init|.
+Change the status of the calling process to ZOMBIE. If the current process's parent is waiting for it, then wake up the parent process to deallocated its resources. If the current process's children have exited, then pass the children process to init.
 
 \paragraph{getpid, getppid}
 Pick the calling process in running queue and return the PID or PPID which is stored in the process's PCB.
@@ -234,11 +234,9 @@ This part is provided by ---todo---, and please refer to his report for detail.
 
 Here are status value for our pcb:
 
-\begin{verbatim}
-NEW, READY, RUNNING, WAIT, ZOMBIE, ABORT.
-\end{verbatim}
+\verb|NEW, READY, RUNNING, WAIT, ZOMBIE, ABORT.|
 
-Other than that, our pcb have a pointer to L1 page table, a cpu context, pid, ppid things and other information(see code \cite{?} for detail).
+Other than that, our pcb have a pointer to L1 page table, a cpu context, pid, ppid things and other information(see code for detail).
 
 Here we use kind of Round Robin policy, with no priority. When private timer ticks, we run scheduler to choose next process.
 
@@ -246,17 +244,17 @@ How to context switch? Here we have two functions named \emph{switch\_mm()} and 
 
 \subsection{File System}
 
-This part is provided by Haoming Xing\cite{---todo---}, and please refer to his report for detail.
+This part is provided by Haoming Xing, and please refer to his report for detail.
 
 The file system is implemented using link-based allocation. Each file is described as a linked list of disk blocks. The kernel supports basic operations of the file system, providing following system calls:
 
 \begin{lstlisting}
-int open(char *name, int nbyte);  // open the file, given the name
-int close(int fd);  // close the file
-int read(int fd, char *buf, int nbyte);  // read n bytes from the file into bufffer
-int write(int fd, char *buf, int nbyte);  // append n bytes stored in bufffer to the file
-int create(char *name, int nbyte);  // create a file, given the name
-int delete(int fd);  //  delete the file
+int open(char *name, int nbyte);
+int close(int fd);
+int read(int fd, char *buf, int nbyte);
+int write(int fd, char *buf, int nbyte);
+int create(char *name, int nbyte);
+int delete(int fd);
 \end{lstlisting}
 
 
@@ -289,11 +287,28 @@ We also made some modification to the given device, like:
 
 \subsection{Division on ARM}
 
-ARM architecture alone did not provide integer division, here I implement my division.\cite{---todo---}
+ARM architecture alone did not provide integer division, here I implement my division.
 
 You can click that link and view the source code. The function I implemented are \emph{\_\_aeabi\_idiv()} or \emph{\_\_aeabi\_uidiv()}.
 
 User in our OS can simply use division, and the compiler will care about the rest. For \underline{divided by zero}, we will return 0. You are welcome the raise error for this.
+
+\subsection{How to run it?}
+
+It may take time to initialization. Our OS can run user program, please place it start at 0x003b9ad4 block. (For example, user.elf here)
+
+\begin{enumerate}
+	\item	copy the firmware.bin
+	\item dd to load the mbr.bin to the block 0
+	\item	dd kernel.elf to second partition
+	\item	dd user.elf to 0x003b9ad4 block
+\end{enumerate}
+	
+\begin{lstlisting}
+sudo dd if=mbr.bin of=/dev/disk1 bs=440 count=1 && sync
+sudo dd if=kernel.elf of=/dev/disk1s2 bs=512 && sync
+sudo dd if=user.elf of=/dev/disk1s3 bs=512 && sync
+\end{lstlisting}
 
 \section{Others}
 
@@ -309,10 +324,7 @@ Necessary \emph{user guides and manual} during the development.
 %question here
 
 \section{Summary}
-%experience
-%hard
-%take time
-%interesting
+
 
 \section{Thank You}
 
@@ -322,8 +334,6 @@ View this project on GitHub. You can see code for detail.
 
 Sorry about all comment and debug printf.
 
-\begin{thebibliography}{99}
-\bibitem \url{}
-\end{thebibliography}
+I will show my appreciation to two of my teammate, Xiaotao Liang and Haoming Xing, and our TA.
 
 \end{document}

@@ -18,9 +18,10 @@
 \contentsline {subsection}{\numberline {3.3}Scheduler}{9}{subsection.3.3}
 \contentsline {subsection}{\numberline {3.4}File System}{10}{subsection.3.4}
 \contentsline {subsection}{\numberline {3.5}Exception}{10}{subsection.3.5}
-\contentsline {subsection}{\numberline {3.6}Timer}{11}{subsection.3.6}
+\contentsline {subsection}{\numberline {3.6}Timer}{10}{subsection.3.6}
 \contentsline {subsection}{\numberline {3.7}Device Update}{11}{subsection.3.7}
 \contentsline {subsection}{\numberline {3.8}Division on ARM}{11}{subsection.3.8}
-\contentsline {section}{\numberline {4}Others}{11}{section.4}
+\contentsline {subsection}{\numberline {3.9}How to run it?}{11}{subsection.3.9}
+\contentsline {section}{\numberline {4}Others}{12}{section.4}
 \contentsline {section}{\numberline {5}Summary}{12}{section.5}
 \contentsline {section}{\numberline {6}Thank You}{12}{section.6}

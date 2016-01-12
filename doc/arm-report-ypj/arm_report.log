@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015) (preloaded format=xelatex 2015.12.2)  12 JAN 2016 22:34
+This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015) (preloaded format=xelatex 2015.12.2)  12 JAN 2016 23:22
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -781,10 +781,6 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <8> on input line 3.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 3.
-)
-\tf@toc=\write5
-\openout5 = `arm_report.toc'.
-
 
 (/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/se-ascii-print.def
 File: se-ascii-print.def 2011/12/02 v1.10 stringenc: Printable ASCII characters
@@ -792,7 +788,11 @@ File: se-ascii-print.def 2011/12/02 v1.10 stringenc: Printable ASCII characters
 )
 [1
 
-] [2] [3] [4]
+])
+\tf@toc=\write5
+\openout5 = `arm_report.toc'.
+
+ [2] [3] [4]
 Underfull \hbox (badness 10000) in paragraph at lines 132--135
 
  []
@@ -822,47 +822,27 @@ Underfull \hbox (badness 10000) in paragraph at lines 150--152
 
  []
 
-[6] [7] [8]
-
-LaTeX Warning: Citation `?' on page 9 undefined on input line 241.
-
-[9]
-
-LaTeX Warning: Citation `---todo---' on page 10 undefined on input line 249.
-
-[10]
-
-LaTeX Warning: Citation `---todo---' on page 11 undefined on input line 292.
-
-
-Overfull \hbox (1.59229pt too wide) in paragraph at lines 304--305
+[6] [7] [8] [9] [10] [11]
+Overfull \hbox (1.59229pt too wide) in paragraph at lines 319--320
 []\EU1/TimesNewRoman(0)/m/n/12 CortexTM-A9 MPCore® Revision: r3p0 Technical Ref
 erence Manual, \EU1/TimesNewRoman(0)/m/it/12 man-
  []
 
-[11]
-
-LaTeX Warning: Empty `thebibliography' environment on input line 326.
-
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 328.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 339.
 [12]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 328.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 339.
  (./arm_report.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 328.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 328.
-
-
-LaTeX Warning: There were undefined references.
-
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 328.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 339.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 339.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 339.
  ) 
 Here is how much of TeX's memory you used:
- 21848 strings out of 493706
- 407099 string characters out of 6145769
- 503599 words of memory out of 5000000
- 25040 multiletter control sequences out of 15000+600000
- 7929 words of font info for 62 fonts, out of 8000000 for 9000
+ 21874 strings out of 493706
+ 407281 string characters out of 6145769
+ 485599 words of memory out of 5000000
+ 25067 multiletter control sequences out of 15000+600000
+ 7921 words of font info for 61 fonts, out of 8000000 for 9000
  1328 hyphenation exceptions out of 8191
- 46i,6n,58p,10390b,1045s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 46i,6n,58p,10390b,1008s stack positions out of 5000i,500n,10000p,200000b,80000s
 
 Output written on arm_report.pdf (12 pages).
