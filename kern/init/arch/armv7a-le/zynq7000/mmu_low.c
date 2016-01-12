@@ -49,6 +49,7 @@ void prepare_page_table()
     pt_high[0xF8F] = (0xF8F << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
     pt_high[0xFC0] = (0xFC0 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
 //    stack here
+    pt_high[0xD0F] = (0x1FE << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
     pt_high[0xDFF] = (0x1FF << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
     // interrupt table
     pt_high[0xFFF] = (0x004 << 20) | (0 << 17) | (1 << 16) | (0b10 << 10) | 0b00010;
@@ -61,8 +62,8 @@ void asm_mmu(u32 pt0_paddr, u32 pt1_paddr)
 //        load variable (kernel region)pt_base into TTBR0 and TTBR1
         "mov r0, %0\n"
         "mcr p15, 0, r0, c2, c0, 0\n"
-        "mov r0, %1\n"
-        "mcr p15, 0, r0, c2, c0, 1\n"
+//        "mov r0, %1\n"
+//        "mcr p15, 0, r0, c2, c0, 1\n"
 //        enable TTB1 by TTBCR1
 //        WARNING: here assuming TTBCR.N(T0SZ)=0
 //        "mrc p15, 0, r0, c2, c0, 2\n"

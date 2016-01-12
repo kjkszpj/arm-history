@@ -30,6 +30,7 @@ interrupt_vector:
 	b	int_pre_FIQ
 
 
+//  todo, here we use V_SYS_STACK as constant 0xD0F00000
 
 
 int_pre_no:
@@ -48,6 +49,8 @@ int_pre_ndef:
     msr     cpsr, r0
     mov     r0, sp
     mov     r1, lr
+    ldr     sp, =V_SYS_STACK
+    ldr     sp, [sp]
     bl      int_ent_ndef
     mov     lr, r1
     mov     sp, r0
@@ -85,6 +88,10 @@ int_pre_SVC:
      */
     mov     r0, sp
     mov     r1, lr
+
+    /* new stack for sys */
+    ldr     sp, =V_SYS_STACK
+    ldr     sp, [sp]
     bl      int_ent_svc
     mov     lr, r1
     mov     sp, r0
@@ -117,6 +124,8 @@ int_pre_prefetch_abort:
     msr     cpsr, r0
     mov     r0, sp
     mov     r1, lr
+    ldr     sp, =V_SYS_STACK
+    ldr     sp, [sp]
     bl      int_ent_prefetch_abort
     mov     lr, r1
     mov     sp, r0
@@ -141,6 +150,8 @@ int_pre_data_abort:
     msr     cpsr, r0
     mov     r0, sp
     mov     r1, lr
+    ldr     sp, =V_SYS_STACK
+    ldr     sp, [sp]
     bl      int_ent_data_abort
     mov     lr, r1
     mov     sp, r0
@@ -165,6 +176,8 @@ int_pre_IRQ:
     msr     cpsr, r0
     mov     r0, sp
     mov     r1, lr
+    ldr     sp, =V_SYS_STACK
+    ldr     sp, [sp]
     bl      int_ent_irq
     mov     lr, r1
     mov     sp, r0
@@ -190,7 +203,9 @@ int_pre_FIQ:
     msr     cpsr, r0
     mov     r0, sp
     mov     r1, lr
-    bl      int_ent_prefetch_abort
+    ldr     sp, =V_SYS_STACK
+    ldr     sp, [sp]
+    bl      int_ent_fiq
     mov     r1, lr
     mov     sp, r0
     mrs     r0, cpsr

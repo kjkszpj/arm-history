@@ -15,7 +15,7 @@ entry_program:
 /* jump to program, user program should have int main() function */
     BL      main
 /* on return, handcraft exit(r0) */
-/* todo, check this number */
+/* todo, check this number of ID_EXIT */
     SVC     9
 /* should never continue here */
     B       loop

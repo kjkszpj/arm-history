@@ -38,6 +38,7 @@ void print_queue(queue_t queue)
 	{
 		puthex((u32)p->pcb);
 		uart_spin_puts("\r\n");
+		print_pcb(p->pcb);
 	}
 	uart_spin_puts("\r\n");
 }
@@ -51,7 +52,10 @@ void queue_push(queue_t *queue, pcb_t *task)
 	if (queue->head == NULL)
 		queue->head = queue->tail = element;
 	else
+	{
 		queue->tail->next = element;
+		queue->tail = element;
+	}
 }
 
 void queue_pop(queue_t *queue, pcb_t *task)
@@ -178,3 +182,12 @@ pcb_t* sched_pick()
 	return queue_ready.head->pcb;
 }
 
+
+void sched_debug()
+{
+	uart_spin_printf("............running queue.....\r\n\0");
+	print_queue(queue_running);
+	uart_spin_printf("............ready queue.....\r\n\0");
+	print_queue(queue_ready);
+	uart_spin_printf(".....\r\n\0");
+}

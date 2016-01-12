@@ -21,6 +21,7 @@
 #include <drivers/serial/uart-zynq7000.h>
 #endif
 
+void uart_spin_gets(char *str);
 void uart_spin_puts(const char *str);
 //  for debug.
 void puthex(u32 num);

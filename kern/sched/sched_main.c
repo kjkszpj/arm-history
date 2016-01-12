@@ -32,7 +32,7 @@ static u32 cnt_pcb = 0;
 static pcb_t* pcb_list[MAX_PCB];
 
 //  implement context switch
-void switch_mm(pgd_t* pt_from, pgd_t* pd_to)
+void switch_mm(u32 pt_from, u32 pd_to)
 {
     /*
      * I think here previous pgd location is fixed and thus should not be save again.
@@ -40,7 +40,14 @@ void switch_mm(pgd_t* pt_from, pgd_t* pd_to)
      * args are pointer to the pt_base in KERNEL VIRTUAL SPACE
      * should convert to physical address
      */
+//    uart_spin_printf("aaaaaaaa%x\r\n\0", V2P(pd_to));
+//    uart_spin_printf("bbbbbbbb%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 0));
+//    uart_spin_printf("cccccccc%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 4 * 0x800));
+
     move_TTBR0(V2P(pd_to));
+//    uart_spin_printf("aaaaaaaa%x\r\n\0", V2P(pd_to));
+//    uart_spin_printf("bbbbbbbb%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 0));
+//    uart_spin_printf("cccccccc%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 4 * 0x800));
 }
 
 void switch_to(context_cpu_t* cpu_from, context_cpu_t* cpu_to, context_cpu_t* on_return)
@@ -64,8 +71,11 @@ void context_switch(pcb_t* task_from, pcb_t* task_to, context_cpu_t* on_return)
 //    uart_spin_printf("It works! Now going to context switch.\r\n\0");
 //    sched_preempt(task_from);
 //    sched_allow(task_to);
-    switch_mm(task_from->page_table, task_to->page_table);
+    uart_spin_printf("@@@@@@@\r\n\0");
+    switch_mm((u32)task_from->page_table, (u32)task_to->page_table);
+    uart_spin_printf("@@@@@@@\r\n\0");
     switch_to(&(task_from->cpu), &(task_to->cpu), on_return);
+    uart_spin_printf("@@@@@@@\r\n\0");
 }
 
 //  new/delete
@@ -105,6 +115,30 @@ void print_pcb(pcb_t* task)
     uart_spin_printf("    cpu, pc:\t%x\r\n\0", (u32)task->cpu.pc);
     uart_spin_printf("    cpu, r0:\t%x\r\n\0", (u32)task->cpu.r0);
     uart_spin_printf("    cpu, cpsr:\t%x\r\n\0", (u32)task->cpu.cpsr);
+    uart_spin_printf("  status:\t%d\r\n\0", (u32)task->status);
+}
+
+void sched_main()
+{
+//  rr implement here.
+
+    sched_debug();
+    uart_spin_printf("---sched main() start------\r\n\0");
+    pcb_t* now_pcb = sched_get_running();
+    sched_preempt(now_pcb);
+    print_pcb(now_pcb);
+//    memcpy(&now_pcb->cpu, context_irq, sizeof(context_cpu_t));
+
+    uart_spin_printf("---sched main() 1------\r\n\0");
+    // chances are that new_pcb == now_pcb
+    pcb_t* new_pcb = sched_pick();
+    sched_allow(new_pcb);
+    print_pcb(new_pcb);
+
+    uart_spin_printf("---sched main() 2------\r\n\0");
+    context_switch(now_pcb, new_pcb, context_irq);
+    uart_spin_printf("---sched main() byre------\r\n\0");
+    sched_debug();
 }
 
 //void cs_debug()
