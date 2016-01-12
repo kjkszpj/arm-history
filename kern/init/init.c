@@ -44,9 +44,10 @@ void kinit()
 
 //    prepare_INIT();
 
+//    fs test heregi
     //load_fs();
-    build_fs();
-    uart_spin_puts("build FS done.\r\n\0");
+//    build_fs();
+//    uart_spin_puts("build FS done.\r\n\0");
 
     // checkpoint_fs();
     // uart_spin_puts("checkpoint FS done.\r\n\0");
@@ -54,12 +55,15 @@ void kinit()
     // load_fs();
     // uart_spin_puts("load FS done.\r\n\0");
 
-    test_fs();
-    uart_spin_puts("test FS done.\r\n\0");
+//    test_fs();
+//    uart_spin_puts("test FS done.\r\n\0");
 
 
-    //if (init_sched() == 0) uart_spin_puts("sched done.\r\n\0");
-    
+
+//    uart_spin_puts("now trying snprintf\r\n\0");
+//    char temp[100];
+//    snprintf(temp, 90, "decimal:\t%d %d\r\n\0", 123, 0xFFFD0FA0);
+//    uart_spin_puts(temp);
 
     volatile u32 i;
     volatile u32 a;

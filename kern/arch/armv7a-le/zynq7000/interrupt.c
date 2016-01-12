@@ -61,6 +61,12 @@ int int_ent_ndef()
     pcb_t* n_pcb = sched_get_running();
     memcpy(&n_pcb->cpu, context_ndef, sizeof(context_cpu_t));
     uart_spin_puts("Undefined instruction exception.\r\n\0");
+    puthex((*context_ndef).sp);
+    puthex((*context_ndef).lr);
+    puthex((*context_ndef).pc);
+    puthex((*context_ndef).cpsr);
+    puthex((*context_ndef).spsr);
+    while (1);
 //    syscall();
     asm volatile("msr spsr, %0\n" : :"r"(context_ndef->spsr) : );
     asm volatile("mov r1, %0\n" : :"r"(context_ndef->lr) : );
@@ -121,6 +127,12 @@ int int_ent_prefetch_abort()
     pcb_t* n_pcb = sched_get_running();
     memcpy(&n_pcb->cpu, context_abort, sizeof(context_cpu_t));
     uart_spin_puts("It works!, now in prefetch abort\r\n\0");
+    puthex((*context_abort).sp);
+    puthex((*context_abort).lr);
+    puthex((*context_abort).pc);
+    puthex((*context_abort).cpsr);
+    puthex((*context_abort).spsr);
+    while (1);
 //    prefetch_abort();
 
     asm volatile("msr spsr, %0\n" : :"r"(context_abort->spsr) : );
@@ -163,29 +175,35 @@ int int_ent_irq()
     asm volatile("mov %0, r1\n" :"=r"(context_irq->lr) : : );
     asm volatile("mrs %0, spsr\n" :"=r"(context_irq->spsr) : : );
 
+//    a ack
     u32 irq_id = *(u32*)(PERIPHBASE + ICCIAR_OFFSET);
     pcb_t* n_pcb = sched_get_running();
     memcpy(&n_pcb->cpu, context_irq, sizeof(context_cpu_t));
-    uart_spin_puts("It works!, now in fiq\r\n\0");
+    uart_spin_puts("It works!, now in irq\r\n\0");
     puthex(irq_id);
     print_cpu();
+    (*context_irq).pc -= 4;
     puthex((*context_irq).sp);
     puthex((*context_irq).lr);
     puthex((*context_irq).pc);
     puthex((*context_irq).cpsr);
     puthex((*context_irq).spsr);
-    uart_spin_puts("bye\r\n\0");
-    (*context_irq).pc -= 4;
+//    TODO, add other irq_id branch here
+    if (irq_id == 29)
+    {
+        sched_main();
+    }
+    puthex((*context_irq).sp);
+    puthex((*context_irq).lr);
+    puthex((*context_irq).pc);
+    puthex((*context_irq).cpsr);
+    puthex((*context_irq).spsr);
+    uart_spin_puts("bye irq\r\n\0");
 
+
+//    another ack
     u32* temp = (u32*)(PERIPHBASE + ICCEOIR_OFFSET);
-    puthex(temp[0]);
     temp[0] = irq_id;
-//    u32* pcr = (u32*)(PERIPHBASE+0x0600);
-//    pcr[3] = 0;
-//    puthex(pcr[0]);
-//    puthex(pcr[1]);
-//    puthex(pcr[2]);
-//    puthex(pcr[3]);
 
     asm volatile("msr spsr, %0\n" : :"r"(context_irq->spsr) : );
     asm volatile("mov r1, %0\n" : :"r"(context_irq->lr) : );
@@ -246,7 +264,7 @@ int test_all_interrupt()
     uart_spin_puts("svc\r\n\0");
     asm volatile
     (
-        "SVC #2"
+        "SVC #233"
         :
         :
         :

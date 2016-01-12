@@ -1,5 +1,6 @@
 //
 // Created by Peijie You on 15/12/10.
+// Modified by Xiaotao Liang
 //
 
 //  todo, page table domain
@@ -22,7 +23,7 @@ typedef struct
 //  process status
 typedef enum
 {
-    NEW=0, READY, RUNNING, WAIT, DONE, ABORT
+    NEW=0, READY, RUNNING, WAIT, ZOMBIE, ABORT
 } proc_status_t;
 
 //  page global directory?
@@ -78,9 +79,11 @@ void delete_pcb(pcb_t task);
 void init_pcb();
 void print_pcb(pcb_t* task);
 void context_switch(pcb_t* task_from, pcb_t* task_to, context_cpu_t* on_return);
+void sched_main();
 
 //------you are welcome to change this design
 #define MAX_PCB 0x1000
+#define PID_INIT 0
 
 extern pcb_t* pcb_running;
 

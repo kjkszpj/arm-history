@@ -14,12 +14,15 @@ SECTIONS
 	    *enter_kernel_space.o(.text)
 		*(.text)
 	}
+
 	.rodata . :{
 		*(.rodata)
 	}
+
 	.data . :{
 		*(.data)
 	}
+
 	.bss . :{
 		*(.bss)
 		*(COMMON)

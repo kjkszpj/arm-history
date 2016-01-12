@@ -19,8 +19,9 @@
  * 4.   from RUNNING to WAIT
  * 5.   from RUNNING to READY
  * 6.   from WAIT to READY
- * 7.   from RUNNING to DONE
+ * 7.   from RUNNING to ZOMBIE
  * 8.   from ?? to ABORT
+ * 9.	free from ZOMBIE
  */
 
 /*
@@ -39,10 +40,16 @@ void sched_preempt(pcb_t* task);     //  5
 void sched_wake(pcb_t* task);        //  6
 void sched_finish(pcb_t* task);      //  7
 void sched_kill(pcb_t* task);        //  8
+void sched_free(pcb_t* task);        //  9
 
 pcb_t* sched_pick();
 pcb_t* sched_get_running();
 pcb_t* sched_get_bypid(int pid);
+pcb_t* sched_get_zombie_child(int ppid);
+
+void sched_policy_main();
+
+void sched_debug();
 
 //  todo, data structure, just for sched_RR
 
