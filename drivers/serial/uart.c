@@ -13,6 +13,15 @@
 #include <stdarg.h>
 #include <stddef.h>
 
+void uart_spin_gets(char *str) {
+	char *p = str;
+	while (1) {
+		*p = uart_spin_getbyte();
+		if (*p == 0) return ;
+		++p;
+	}
+}
+
 void uart_spin_puts(const char *str)
 {
 	for (; *str != '\0'; ++str)

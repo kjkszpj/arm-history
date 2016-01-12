@@ -52,10 +52,15 @@
 #define ID_READ     0x12
 #define ID_WRITE    0x13
 #define ID_SEEK     0x14
+#define ID_CREATE 	0x15
+#define ID_DELETE	0x16
 /*---time related---*/
 #define ID_SLEEP    0x20
 #define ID_TIME     0x21
 #define ID_CLOCK    0x22
+/*---standardIO related---*/
+#define ID_GETS		0x30
+#define ID_PUTS		0x31
 
 int syscall(int id);
 
@@ -64,6 +69,14 @@ void _exec();
 void _wait();
 void _getpid();
 void _getppid();
+void _open();
+void _close();
+void _read();
+void _write();
+void _create();
+void _delete();
+void _gets();
+void _puts();
 void _exit();
 
 #endif //AIMV6_SYSCALL_H

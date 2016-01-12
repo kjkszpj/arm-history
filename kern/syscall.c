@@ -18,6 +18,8 @@
 #include <kern/sched/pcb.h>
 #include <kern/sched/sched.h>
 #include <string.h>
+#include <kern/mm/pte.h>
+#include <kern/fs/fs_manage.h>
 
 //  todo, no use pcb_running
 
@@ -56,14 +58,24 @@ int syscall(int id)
 
         //  optional?
         case ID_OPEN:
+            _open();
             break;
         case ID_CLOSE:
+            _close();
             break;
         case ID_READ:
+            _read();
             break;
         case ID_WRITE:
+            _write();
             break;
         case ID_SEEK:
+            break;
+        case ID_CREATE:
+            _create();
+            break;
+        case ID_DELETE:
+            _delete();
             break;
         case ID_SLEEP:
             break;
@@ -71,12 +83,92 @@ int syscall(int id)
             break;
         case ID_CLOCK:
             break;
-
+        case ID_GETS:
+            _gets();
+            break;
+        case ID_PUTS:
+            _puts();
+            break;
         //  should never happen
         default:
             break;
     }
     return 0;
+}
+
+void _gets() {
+    char *buf = (char *)(context_svc->r0);
+    uart_spin_gets(buf);
+    context_svc->r0 = 0;
+}
+
+void _puts() {
+    char *buf = (char *)(context_svc->r0);
+    uart_spin_puts(buf);
+    context_svc->r0 = 0;
+}
+
+void _open() {
+    // void open(char *name, int n) // OPEN BY FILE NAME
+    //uart_spin_printf("now opening file\r\n\0");
+    pcb_t *cur_pcb = sched_get_running();
+    int pid = cur_pcb->td.pid;
+    char *name = (char *)(context_svc->r0);
+    int n = (int)(context_svc->r1);
+    int fd = fname_to_fd(name, n);
+    if (fd == -1) {
+        context_svc->r0 = -1;
+        return ;
+    }
+    context_svc->r0 = open_file(pid, fd);;
+}
+
+void _close() {
+    // void close(int fd);
+    pcb_t *cur_pcb = sched_get_running();
+    int fd = context_svc->r0;
+    int pid = cur_pcb->td.pid;
+    context_svc->r0 = close_file(pid, fd);
+}
+
+void _read() {
+    // void read(int fd, char *buf, int nbyte);
+    pcb_t *cur_pcb = sched_get_running();
+    int pid = cur_pcb->td.pid;
+    int fd = context_svc->r0, n = context_svc->r2; char *p = (char *)(context_svc->r1);
+    //
+    int nblocks = (n + 511) >> 9;
+    char *res = read_datablock(pid, fd, 0, nblocks);
+    int i;
+    for (i = 0; i < n; ++i) p[i] = res[i];
+    context_svc->r0 = 0;
+}
+
+//currently only support nbyte that is a multiplier of 512
+void _write() {
+    // void write(int fd, char *buf, int nbyte);
+    pcb_t *cur_pcb = sched_get_running();
+    int pid = cur_pcb->td.pid;
+    int fd = context_svc->r0, n = context_svc->r2; char *p = (char *)(context_svc->r1);
+    int nblocks = (n + 511) >> 9;
+    context_svc->r0 = append_file(pid, fd, (u32)p, nblocks);
+}
+
+void _create() {
+    // void create(char *buf, int nbytes);
+    pcb_t *cur_pcb = sched_get_running();
+    int pid = cur_pcb->td.pid;
+    char *name = (char *)(context_svc->r0); int n = context_svc->r1;
+    int fd = create_file_from_name(name, n);
+    context_svc->r0 = fd;
+}
+
+void _delete() {
+    // void delete(int fd);
+    pcb_t *cur_pcb = sched_get_running();
+    int pid = cur_pcb->td.pid;
+    int fd = context_svc->r0;
+    context_svc->r0 = recycle_file(pid, fd);
 }
 
 void _fork()

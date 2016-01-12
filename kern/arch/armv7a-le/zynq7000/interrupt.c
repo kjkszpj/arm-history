@@ -30,6 +30,8 @@
  * 8.   read
  * 9.   write
  * 10.  relocate
+ * 14.  create
+ * 15.  delete
  * -    getdir
  * -    chdir
  *

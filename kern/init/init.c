@@ -40,7 +40,7 @@ void kinit()
     if (slb_init() == 0)        uart_spin_puts("slb manage done.\r\n\0");
 //    init interrupt
     if (interrupt_init() == 0)  uart_spin_puts("int done.\r\n\0");
-    if (init_sched() == 0)      uart_spin_puts("sched done.\r\n\0");
+    //if (init_sched() == 0)      uart_spin_puts("sched done.\r\n\0");
 
 //    prepare_INIT();
 
@@ -57,6 +57,7 @@ void kinit()
 
 //    test_fs();
 //    uart_spin_puts("test FS done.\r\n\0");
+
 
 
 //    uart_spin_puts("now trying snprintf\r\n\0");
