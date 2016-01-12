@@ -18,7 +18,7 @@ void uart_spin_gets(char *str) {
 	while (1) {
 		*p = uart_spin_getbyte();
 		if (*p == 0) return ;
-		++*p;
+		++p;
 	}
 }
 

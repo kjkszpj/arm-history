@@ -58,7 +58,11 @@ void load_fs() {
 	// uart_spin_puts("dbtable_finish\r\n");
 	
 	int cnt = *((int*)va);
+<<<<<<< HEAD
 	//puthex(cnt);
+=======
+	puthex(cnt);
+>>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 	va += sizeof(int);
 	
 	fentry_head = fe_table;
@@ -68,6 +72,7 @@ void load_fs() {
 		if (i + 1 < cnt) fe_table[i].next_entry = fe_table + i + 1;
 		else fe_table[i].next_entry = NULL;
 		fe_table[i].first_block = db_table + (arr2[i].addr >> 9);
+<<<<<<< HEAD
 		uart_spin_puts("arr2[i].addr: "); puthex(arr2[i].addr);
 		uart_spin_puts("first block: "); puthex((u32)(fe_table[i].first_block));
 		fe_table[i].occupied = -1;
@@ -75,6 +80,10 @@ void load_fs() {
 	}
 
 	uart_spin_puts("file systemed loaded.\r\n\0");
+=======
+		fe_table[i].occupied = -1;
+	}
+>>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 	kmfree(addr);
 }
 
@@ -82,7 +91,11 @@ int checkpoint_fs() {
 	int i;
 	int blocks = FS_DATA_SIZE >> 9;
 	u32 va = (u32)kmalloc(FS_DATA_SIZE), pa = V2P(va);
+<<<<<<< HEAD
 	//uart_spin_puts("alloc#2");
+=======
+	uart_spin_puts("alloc#2");
+>>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 
 	void *addr = (void *)va;
 	int where = (free_head == NULL) ? -1 : (free_head - db_table);
@@ -92,11 +105,15 @@ int checkpoint_fs() {
 		if (db_table[i].next_block == NULL) arr1[i + 1] = -1;
 		else arr1[i + 1] = db_table[i].next_block - db_table;
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 	va += (((STORAGE_SIZE) >> 9) + 1) * sizeof(int);
 
 	int num_files = 0; fentry_t *x;
 	for (x = fentry_head; x; x = x->next_entry) ++num_files;
+<<<<<<< HEAD
 	int *tx = (int *)va;
 	((int*)va)[0] = num_files;
 	va += sizeof (int);
@@ -113,6 +130,14 @@ int checkpoint_fs() {
 		puthex(tx[i]);
 	}
 
+=======
+	((int*)va)[0] = num_files;
+	fentry_stored_t *arr2 = (fentry_stored_t *)va;
+	for (x = fentry_head, i = 0; x; ++i, x = x->next_entry) {
+		arr2[i].index_number = x->index_number;
+		arr2[i].addr = (x->first_block->ondisk_addr - STORAGE_BASE) >> 9;
+	}
+>>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 	for (i = 0; i < (blocks >> 15); ++i) {
 		if (sd_dma_spin_write(pa + (1 << 9) * (i << 15), 1 << 15, (FS_BASE >> 9) + (i << 15)) < 0) {
 			uart_spin_puts("dma error checkpointing file systems to disk!");
@@ -133,7 +158,10 @@ int checkpoint_fs() {
 			return -1;
 		}
 	}
+<<<<<<< HEAD
 	uart_spin_puts("file systemed saved.\r\n\0");
+=======
+>>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 	kmfree(addr);
 	return 0;
 }
@@ -209,13 +237,21 @@ datablock_t* data_alloc(int num_blocks) {
 	return px;
 }
 
+<<<<<<< HEAD
 int create_file(u32 index_number) {
+=======
+int create_file(u32 pid, u32 index_number) {
+>>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 	fentry_t *p = (fentry_t *)slb_alloc_align(sizeof (fentry_t), 0);
 	p->next_entry = fentry_head;
 	p->first_block = NULL;
 	p->index_number = index_number;
 	fentry_head = p;
+<<<<<<< HEAD
 	p->occupied = -1;
+=======
+	p->occupied = pid;
+>>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 	return 0;
 }
 
@@ -311,9 +347,12 @@ int recycle_file(u32 pid, u32 index_number) {
 datablock_t *seek_datablock(u32 pid, u32 index_number, u32 pos) { // id=0 for normal sequential read
 	fentry_t *x;
 	for (x = fentry_head; x != NULL; x = x -> next_entry) {
+<<<<<<< HEAD
 
 		puthex(x->index_number);
 		
+=======
+>>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 		if (x->index_number == index_number) break;
 	}
 	if (x == NULL) {
@@ -331,8 +370,14 @@ datablock_t *seek_datablock(u32 pid, u32 index_number, u32 pos) { // id=0 for no
 void* read_datablock(u32 pid, u32 index_number, u32 pos, u32 size) {
 	datablock_t *p = seek_datablock(pid, index_number, pos);
 	
+<<<<<<< HEAD
 	uart_spin_puts("address of block: "); puthex((u32)p);
 	uart_spin_puts("ondisk addr:"); puthex(p->ondisk_addr);
+=======
+	// puthex((u32)p);
+
+	// puthex(p->ondisk_addr);
+>>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 
 	void *ret = (void *)kmalloc(STORAGE_BLOCK_SIZE * size);
 	for (int i = 0; i < size; ++i) {
@@ -346,6 +391,7 @@ void* read_datablock(u32 pid, u32 index_number, u32 pos, u32 size) {
 	return ret;
 } 
 
+<<<<<<< HEAD
 int fname_to_fd(char *name, int n) {
 	if (n >= 10) return -1;
 	fentry_t *x;
@@ -390,6 +436,12 @@ void test_fs() {
 	u32 pid = 1; // I am the kernel!
 	create_file(1);
 	create_file(2);
+=======
+void test_fs() {
+	u32 pid = 1; // I am the kernel!
+	create_file(pid, 1);
+	create_file(pid, 2);
+>>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 	
 	// uart_spin_puts("files created completely!\r\n\0");
 	
