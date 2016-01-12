@@ -12,3 +12,5 @@ firmware.ld
 .*.swp
 tags
 *~
+*.aux
+*.log
