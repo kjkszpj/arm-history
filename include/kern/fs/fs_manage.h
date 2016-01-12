@@ -14,7 +14,7 @@ typedef struct datablock_t {
 typedef struct fentry_t {
 	//TODO LOCKED
 	u32 index_number;
-	char file_name[12];
+	char file_name[10];
 	struct datablock_t *first_block;
 	struct fentry_t *next_entry;
 	int occupied;
@@ -23,7 +23,7 @@ typedef struct fentry_t {
 typedef struct fentry_stored_t {
 	u32 index_number;
 	u32 addr;
-	char file_name[12];
+	char file_name[10];
 }fentry_stored_t;
 //void *kmalloc(u32 size)
 #define FS_DATA_SIZE 			0x00100000

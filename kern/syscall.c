@@ -78,7 +78,12 @@ int syscall(int id)
             break;
         case ID_CLOCK:
             break;
-
+        case ID_GETS:
+            _gets();
+            break;
+        case ID_PUTS:
+            _puts();
+            break;
         //  should never happen
         default:
             break;
@@ -87,36 +92,25 @@ int syscall(int id)
     return 0;
 }
 
-// int fetchint(u32 addr, int *ip) {
-//     // add some invalid check
-//     *ip = *((*u32)addr);
-//     return 0;
-// }
+void _gets() {
+    char *buf = (char *)(context_svc->r0);
+    uart_spin_gets(buf);
+    context_svc->r0 = 0;
+}
 
-// #define STR_MAX_LENGTH 100000
-// int fetchstr(uint addr, char **pp) {
-//     char *s, *ep;
-//     *pp = (char*)addr;
-//     int c = 0;
-//     for(s = *pp, c = 0; cnt < STR_MAX_LENGTH; s++, c++) if(*s == 0) return s − *pp;
-//     return −1;
-// }
-
-// int argint(pcb_t *cur_pcb, int n, int *ip) {
-//     return fetchint(cur_pcb->cpu->sp + 4 + 4 * n, ip);
-// }
-
-// int argstr(pcb_t *cur_pcb, char **pp) {
-
-// }
+void _puts() {
+    char *buf = (char *)(context_svc->r0);
+    uart_spin_puts(buf);
+    context_svc->r0 = 0;
+}
 
 void _open() {
     // void open(char *name, int n) // OPEN BY FILE NAME
     //uart_spin_printf("now opening file\r\n\0");
     pcb_t *cur_pcb = sched_get_running();
     int pid = cur_pcb->td.pid;
-    char *name = (char *)context_svc->r0;
-    int n = (int)context_svc->r1;
+    char *name = (char *)(context_svc->r0);
+    int n = (int)(context_svc->r1);
     int fd = fname_to_fd(name, n);
     if (fd == -1) {
         context_svc->r0 = -1;

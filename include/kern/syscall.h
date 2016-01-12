@@ -56,6 +56,9 @@
 #define ID_SLEEP    0x20
 #define ID_TIME     0x21
 #define ID_CLOCK    0x22
+/*---standardIO related---*/
+#define ID_GETS		0x30
+#define ID_PUTS		0x31
 
 int syscall(int id);
 
@@ -69,5 +72,7 @@ void _read();
 void _write();
 void _create();
 void _delete();
+void _gets();
+void _puts();
 
 #endif //AIMV6_SYSCALL_H
