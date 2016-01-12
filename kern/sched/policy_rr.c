@@ -175,7 +175,6 @@ pcb_t* sched_get_running()
 
 pcb_t* sched_pick()
 {
-	//TODO
-	return NULL;
+	return queue_ready.head->pcb;
 }
 
