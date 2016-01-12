@@ -47,6 +47,8 @@ pcb_t* sched_get_running();
 pcb_t* sched_get_bypid(int pid);
 pcb_t* sched_get_zombie_child(int ppid);
 
+void sched_policy_main();
+
 //  todo, data structure, just for sched_RR
 
 #endif //AIMV6_SCHED_RR_H

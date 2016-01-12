@@ -107,6 +107,12 @@ void copy_mem_img(u32* pt_frm, u32* pt_to, u32 start, u32 finish, u32 pattern1, 
 
     for (i = start / PAGE_L1SIZE; i <= (int)((finish - 1) / PAGE_L1SIZE); i++)
     {
+        if (i >= (int)(KERNEL_BASE / PAGE_L1SIZE))
+        {
+            pt_to[i] = pt_frm[i];
+//            uart_spin_printf("___copy sys pt at %x\t%x\r\n\0", i, pt_to[i]);
+            continue;
+        }
         l1pte_frm = (ptel1_page_table_t*)(pt_frm + i);
         l1pte_to = (ptel1_page_table_t*)(pt_to + i);
 //        uart_spin_printf(">>>%x\r\n\0", *(u32*)l1pte_to);

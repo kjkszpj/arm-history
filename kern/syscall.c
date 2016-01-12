@@ -90,15 +90,21 @@ void _fork()
     memcpy(c_pcb, f_pcb, sizeof(pcb_t));
     c_pcb->page_table = slb_alloc_align(PTE_L1SIZE, PTE_L1ALIGN);
     memset(c_pcb->page_table, 0, PTE_L1SIZE);
-//  since there is no copy on write, just copy it, the whole image.
-    copy_mem_img((u32*)f_pcb->page_table, (u32*)c_pcb->page_table, 0, KERNEL_BASE, 0b0111100001, 0b010000111110);
+    //  since there is no copy on write, just copy it, the whole image.
+    copy_mem_img((u32*)f_pcb->page_table, (u32*)c_pcb->page_table, 0, 0xFFFFFFFF, 0b0111100001, 0b010000111110);
     uart_spin_printf("\tcp.\r\n\0");
     c_pcb->td.pid = cpid;
     c_pcb->td.ppid = sched_get_running()->td.pid;
     sched_mature(c_pcb);
     //  pseudo return value?
     context_svc->r0 = c_pcb->td.pid;
+    f_pcb->cpu.r0 = c_pcb->td.pid;
+    c_pcb->cpu.r0 = 0;
     uart_spin_printf("\tcp.\r\n\0");
+    uart_spin_printf("\tfather\r\n\0");
+    print_pcb(f_pcb);
+    uart_spin_printf("\tchild\r\n\0");
+    print_pcb(c_pcb);
 }
 
 void _exec()

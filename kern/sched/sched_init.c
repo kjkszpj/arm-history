@@ -41,17 +41,17 @@ int init_sched()
 
     uart_spin_printf("------DEBUG------\r\n\0");
     u32 cid = 0;
-//    asm volatile
-//    (
-//        "SVC 1\n"
-//        "mov %0, r0\n"
-//        :"=r"(cid)
-//        :
-//        :"r0"
-//    );
-//    uart_spin_printf("------good to go------\r\n\0");
-//    if (cid == 0)
-//    {
+    asm volatile
+    (
+        "SVC 1\n"
+        "mov %0, r0\n"
+        :"=r"(cid)
+        :
+        :"r0"
+    );
+    uart_spin_printf("<><><><><>cp<><><><><><>\r\n\0");
+    if (cid == 0)
+    {
 //        u32 user_base = 0x003b9ad4;
 //        asm volatile
 //        (
@@ -60,13 +60,33 @@ int init_sched()
 //            :
 //            :"r"(user_base)
 //            :"r0"
-//        );
-//    }
-//    else
+//         );
+        puthex(*(u32*)0xFFFF0000);
+        asm volatile("SVC 0");
+        uart_spin_printf("~~~~~~\r\n\0");
+        u32* pcr = (u32*)(PERIPHBASE+0x0600);
+        puthex(pcr[0]);
+        puthex(pcr[1]);
+        puthex(pcr[2]);
+        puthex(pcr[3]);
+    }
+    else
     {
+
+        puthex(*(u32*)0xFFFF0000);
         uart_spin_printf("fork succeed, cid= %d\r\n\0", cid);
         uart_spin_printf("I am your father.\r\n\0");
 //        test_all_interrupt();
+//        prototype for enable private timer
+        u32* pcr = (u32*)(PERIPHBASE+0x0600);
+        puthex(pcr[0]);
+        puthex(pcr[1]);
+        puthex(pcr[2]);
+        puthex(pcr[3]);
+        pcr[0] = 0x123400;
+        pcr[1] = 0x123400;
+        pcr[2] = (pcr[2] & 0xFFFFFFF8) | 0b111;
+
         u32 user_base = 0x003b9ad4;
         asm volatile
         (

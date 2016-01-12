@@ -32,7 +32,7 @@ u32 pages_alloc(u32 need_size)
 //        TODO why return 0?
         return 0;
     }
-    uart_spin_puts("need_size:"); puthex(need_size);
+//    uart_spin_puts("need_size:"); puthex(need_size);
     for (next = farea_head; next != NULL && need_size > next->size; last = next, next = next->next) {
         puthex(next->size);
     }

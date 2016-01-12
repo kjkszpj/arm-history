@@ -55,11 +55,8 @@ void kinit()
     // load_fs();
     // uart_spin_puts("load FS done.\r\n\0");
 
-    test_fs();
+//    test_fs();
     uart_spin_puts("test FS done.\r\n\0");
-
-
-    if (init_sched() == 0) uart_spin_puts("sched done.\r\n\0");
 
 
 //    uart_spin_puts("now trying snprintf\r\n\0");

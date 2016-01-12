@@ -173,10 +173,11 @@ int int_ent_irq()
     asm volatile("mov %0, r1\n" :"=r"(context_irq->lr) : : );
     asm volatile("mrs %0, spsr\n" :"=r"(context_irq->spsr) : : );
 
+//    a ack
     u32 irq_id = *(u32*)(PERIPHBASE + ICCIAR_OFFSET);
     pcb_t* n_pcb = sched_get_running();
     memcpy(&n_pcb->cpu, context_irq, sizeof(context_cpu_t));
-    uart_spin_puts("It works!, now in fiq\r\n\0");
+    uart_spin_puts("It works!, now in irq\r\n\0");
     puthex(irq_id);
     print_cpu();
     puthex((*context_irq).sp);
@@ -184,9 +185,21 @@ int int_ent_irq()
     puthex((*context_irq).pc);
     puthex((*context_irq).cpsr);
     puthex((*context_irq).spsr);
-    uart_spin_puts("bye\r\n\0");
-//    (*context_irq).pc -= 4;
+    (*context_irq).pc -= 4;
+//    TODO, add other irq_id branch here
+    if (irq_id == 29)
+    {
+        sched_main();
+    }
+    puthex((*context_irq).sp);
+    puthex((*context_irq).lr);
+    puthex((*context_irq).pc);
+    puthex((*context_irq).cpsr);
+    puthex((*context_irq).spsr);
+    uart_spin_puts("bye irq\r\n\0");
 
+
+//    another ack
     u32* temp = (u32*)(PERIPHBASE + ICCEOIR_OFFSET);
     puthex(temp[0]);
     temp[0] = irq_id;

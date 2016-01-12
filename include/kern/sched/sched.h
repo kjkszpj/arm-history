@@ -6,5 +6,4 @@
 #define AIMV6_SCHED_ALGORITHM_H
 
 #include <kern/sched/policy_rr.h>
-
 #endif //AIMV6_SCHED_ALGORITHM_H
