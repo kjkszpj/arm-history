@@ -11,10 +11,10 @@
 \contentsline {subsection}{\numberline {3.2}System Call}{6}{subsection.3.2}
 \contentsline {subsection}{\numberline {3.3}Scheduler}{6}{subsection.3.3}
 \contentsline {subsection}{\numberline {3.4}File System}{6}{subsection.3.4}
-\contentsline {subsection}{\numberline {3.5}Exception}{6}{subsection.3.5}
+\contentsline {subsection}{\numberline {3.5}Exception}{7}{subsection.3.5}
 \contentsline {subsection}{\numberline {3.6}Timer}{7}{subsection.3.6}
 \contentsline {subsection}{\numberline {3.7}Device Update}{7}{subsection.3.7}
 \contentsline {subsection}{\numberline {3.8}Division on ARM}{7}{subsection.3.8}
-\contentsline {section}{\numberline {4}Others}{7}{section.4}
-\contentsline {section}{\numberline {5}Summary}{7}{section.5}
-\contentsline {section}{\numberline {6}Thank You}{7}{section.6}
+\contentsline {section}{\numberline {4}Others}{8}{section.4}
+\contentsline {section}{\numberline {5}Summary}{8}{section.5}
+\contentsline {section}{\numberline {6}Thank You}{8}{section.6}

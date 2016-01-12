@@ -166,7 +166,10 @@ For IRQ, and SGI (software generated irq), we also have to care about the interr
 	\item	ICDIPR, priority for the interrupt
 	\item	ICDISER, set enable for every irq.
 	\item	ICCPMR, set interrupt mask
+	\item	ICCICR.
 \end{enumerate}
+
+Plus, in exception handle, we have to signal the acknowledge of signal in ICCIAR and signal the finish of exception handling in ICCEOIR.
 
 \section{Recently on OS}
 
@@ -213,9 +216,19 @@ This part is provided by ---todo---, and please refer to his report for detail.
 
 \subsection{Exception}
 
-Here is what we do during exception happen.
+Here is the road map of our OS exception handling.
+
+\begin{enumerate}
+	\item	exception arise, switch to other mode like svc, irq.
+	\item	save some not bank register value(in assembly language), we change our cpsr manually, then jump to c program
+	\item	save the rest cpu context, noted that we have no stack for other mode, only a \textbf{structue} (rather than all kind of stack here) to store the context
+	\item	execute the svc / irq handler in c language, system will go down for other exception.
+	\item	on return, load the context, and the assembly language will change the cpsr automatically while we update pc
+\end{enumerate}
 
 \subsection{Timer}
+
+Here we use private timer as our timer for scheduler. It will count down periodically from certain value then send irq. It is memory mapped and therefore easy to set and control.
 
 \subsection{Device Update}
 
