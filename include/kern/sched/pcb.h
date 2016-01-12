@@ -48,7 +48,7 @@ typedef struct
     u32 info;
 } sched_info_t;
 
-//---feel free to add other information here?
+//---feel free to add other information `here?
 typedef struct
 {
     u32 usr_time;

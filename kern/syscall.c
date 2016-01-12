@@ -145,7 +145,7 @@ void _read() {
     }
     int i;
     for (i = 0; i < n; ++i) p[i] = res[i];
-    context_svc->r0 = 0; context_svc->r1 = res;
+    context_svc->r0 = 0; context_svc->r1 = res; 
 }
 
 //currently only support nbyte that is a multiplier of 512
