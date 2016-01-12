@@ -94,13 +94,13 @@ ELF is a file format, for Executable and Linkable Format, according to the manua
 
 \emph{Noted that the validation of elf header is not implemented here.}
 
-\subsection{STEP 3 --- memory management}
+\subsection{STEP 3 --- MMU}
 
 An important things that we have not brought up yet is the \textbf{MMU}, so no virtual address - physical address translation yet. Our job here is to enable MMU and clean things that we no longer need.
 
 In ARM32, we have 2 level of page table structure, and 4 kinds of page(4KB, 64KB, 1MB, 16MB), in this project we will only use page of 4KB(for user) and 1MB(for kernel).
 
-We divide the virtual space into \emph{2G:2G}, the lower 2G is user space is higher 2G is kernel space.
+We divide the virtual space into \emph{2G:2G}, the lower 2G is user space, and the higher 2G is kernel space.
 
 \textbf{VIRTUAL memory} for now:
 \begin{itemize}
@@ -121,12 +121,56 @@ We divide the virtual space into \emph{2G:2G}, the lower 2G is user space is hig
 	\item	4M, interrupt table
 \end{itemize}
 
-\subsection{STEP 4 --- exception handler}
-%todo
+See the code (like pte.h) for the page table entry detail.
+
+\subsection{STEP 3 --- Memory Management}
+The following 3 component are mm provided to the kernel developer:
+
+\textbf{Page Management}
+As we have agreed during the discussion, page management is implemented as a \emph{list of free extent}. And allocation is done by \emph{first fit} algorithm. The link list information is kept inside the free page(unit in 4KB).
+\\~\\
+
+\textbf{Slab Management}
+My slab offer a easy way for kernel developers to get memory, the interface is as follows:
+\begin{itemize}
+	\item	\emph{slb\_alloc(osize)}, kernel wants memory for their object(size of osize), will return the start address for that.
+	\item \emph{slb\_alloc\_align(osize, align)}, kernel wants memory, \underline{along with align option} (mainly used for page table here.)
+	\item	use \emph{slb\_free(p, osize)} or \emph{slb\_free\_align(p, osize, align)} to free the memory, noted you should know the object size and align option for that pointer(as my slab is mainly design for \emph{object} allocation.)
+\end{itemize}
+
+My ``slab'' is a strange concept here, as I have different size mixed up together. But in detail, \underline{they use different pool}.
+\\~\\
+
+\textbf{Kernel Memory}
+My \emph{kmalloc()} is implemented base on the slab allocator. In \emph{kfree()}, we have no idea of the \emph{memory length}, so it should be a meta data and keep by the allocator. So I just \underline{pack the metadata(len) and the raw} data into some kind of ``object'' and use slb\_alloc() to allocate memory. 
+\\~\\
+
+\textbf{mmap?} This function is to map the corresponding virtual page to some physical memory. Our implementation is naive, which traverse the page table and build a L2 PAGE for every of them.
+
+\subsection{STEP 4 --- exception handle}
+As far as my knowledge, when an exception comes, the following things will happen:
+
+\begin{itemize}
+	\item	Change pc to the corresponding interrupt vector address.
+	\item	Previous cpsr goes to spsr, and we have new cpsr.
+	\item	Bank register is different now.
+	\item	The prefer return address, which indicate the return route of exception handling, is save in lr(which is ``prefer'' is defined in arm-v7a manual).
+\end{itemize}
+
+And then we are in the exception handler, and feel free to do anything, as we are in \emph{privileged mode} inside the exception handler. Other routine we used are included in the following section.
+
+For IRQ, and SGI (software generated irq), we also have to care about the interrupt controller, which decide how to send irq to our processors. Some control register that I have set according to the zynq-7000 manual are:
+\begin{enumerate}
+	\item	ICDDCR, set to enable distributor
+	\item	ICDIPTR, define which processor should this interrupt go
+	\item	ICDIPR, priority for the interrupt
+	\item	ICDISER, set enable for every irq.
+	\item	ICCPMR, set interrupt mask
+\end{enumerate}
 
 \section{Recently on OS}
 
-Here we will first conclude the overall project and then high light some parts. The following part is a teamwork output, with ---todo--- implement sched related thing, ---todo--- code the file system, and three of us design the system call together. 
+Here we will first conclude the overall project and then high light some parts. The following part is a teamwork output and we (mainly) share the code, with ---todo--- implement sched related thing, ---todo--- code the file system, and three of us design the system call together. 
 
 \subsection{How the program is run}
 \begin{enumerate}
@@ -155,12 +199,23 @@ Here we support all kind of system call, \emph{some of which is not debugged}, s
 A system call is actually a ``SVC ID'' instruction here, with register R0 (and probably R1 R2) to pass parameter, and R0 serves as the return value.
 
 \subsection{Scheduler}
+This part is provided by ---todo---, and please refer to his report for detail.
+
 Here we use kind of Round Robin policy, with no priority. When private timer ticks, we run scheduler to choose next process.
 
+How to context switch? Here we have two functions named \emph{switch\_mm()} and \emph{switch\_to()}, the first is used to change the TTBR0, and the second to switch cpu register context.
+
 \subsection{File System}
+
+This part is provided by ---todo---, and please refer to his report for detail.
+
 %todo
 
 \subsection{Exception}
+
+Here is what we do during exception happen.
+
+\subsection{Timer}
 
 \subsection{Device Update}
 
