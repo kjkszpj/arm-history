@@ -22,7 +22,7 @@
 //  todo, no use pcb_running
 
 // for temp debug
-static void load_elf_debug();
+static void svc_print();
 
 // store the return value at r0
 int syscall(int id)
@@ -31,7 +31,7 @@ int syscall(int id)
     switch (id)
     {
         case ID_DEBUG:
-            load_elf_debug();
+            svc_print();
             break;
         case ID_FORK:
             _fork();
@@ -114,12 +114,12 @@ void _exec()
      * 4.   construct cpu context
      */
 
-    uart_spin_printf("Hello in exec\r\n\0");
+//    uart_spin_printf("Hello in exec\r\n\0");
 //    asm volatile ("SVC 0");
     int i;
     u32 start_block = context_svc->r0;
 
-    uart_spin_printf("%x..\r\n\0", start_block);
+//    uart_spin_printf("%x..\r\n\0", start_block);
     pcb_t* task = sched_get_running();
     u32 lpsr = task->cpu.cpsr;
     unmmap((u32*)task->page_table, 0, KERNEL_BASE);
@@ -138,19 +138,15 @@ void _exec()
 
 
 
-//    asm volatile ("SVC 0");
     u32 entry = *(u32 *)(buffer + 0x18);
     u32 phoff = *((u32 *)(buffer + 0x1C));
     u32 phentsize = *((u16 *)(buffer + 0x2A));
     u32 phnum = *((u16 *)(buffer + 0x2C));
-    uart_spin_printf("%x..\r\n\0", phoff);
 
     u32 *p_header;
-//    asm volatile ("SVC 0");
     for (i = 0; i < phnum; i++)
     {
         sd_dma_spin_read(V2P((u32)buffer), 2, start_block + (phoff / BLOCK_SIZE));
-        uart_spin_printf("%x\t%x\r\n\0", phoff, buffer + (phoff % BLOCK_SIZE));
         p_header = (u32 *)(buffer + (phoff % BLOCK_SIZE));
         if (p_header[0] != PT_LOAD)
         {
@@ -166,26 +162,21 @@ void _exec()
         u32 end_id = ((phe_offset + (u32)phe_memsz - 1) / BLOCK_SIZE) + 1;
         //  check the domain, and pattern
         mmap((u32*)task->page_table, (phe_vaddr >> 12 << 12), phe_vaddr + (end_id - start_id) * BLOCK_SIZE, 0b0111100001, 0b010000100010);
-        uart_spin_printf("offset:  %x\t, to vaddr:  %x\t\r\n\0", phe_offset, phe_vaddr);
         sd_dma_spin_load(phe_vaddr - offset, end_id - start_id, start_id + start_block, (u32*)task->page_table);
         phoff += phentsize;
     }
     slb_free_align(buffer, BLOCK_SIZE * 5, BLOCK_SIZE);
-    uart_spin_printf("Loading done, ready to execute\r\n\0");
 
-    asm volatile ("SVC 0");
-//    mmap((u32*)slb_alloc_align(PTE_L1SIZE, PTE_L1ALIGN), KERNEL_BASE - USER_STACK, KERNEL_BASE, 0b0111100001, 0b010000100010);
     mmap((u32*)task->page_table, KERNEL_BASE - USER_STACK, KERNEL_BASE, 0b0111100001, 0b010000100010);
-    uart_spin_printf("----cp----\r\n\0");
-//    asm volatile ("SVC 0");
     memset(&task->cpu, 0, sizeof(context_cpu_t));
     task->cpu.r0 = entry;
     lpsr = ((lpsr & 0x0FFFFFE0) | 0b10000);
     task->cpu.cpsr = lpsr;
     task->cpu.spsr = lpsr;
     task->cpu.pc = USER_ENTRY;
-//    memcpy(context_svc, &task->cpu, sizeof(context_cpu_t));
-//    context_switch(task, task, context_svc);
+    task->cpu.lr = USER_ENTRY;
+    memcpy(context_svc, &task->cpu, sizeof(context_cpu_t));
+    context_switch(task, task, context_svc);
     print_pcb(task);
 
     void (*go)(void) = (void *)entry;
@@ -193,9 +184,9 @@ void _exec()
     uart_spin_printf("%x\r\n\0", *(u32*)(entry + 4));
     uart_spin_printf("%x\r\n\0", *(u32*)(entry + 8));
     uart_spin_printf("------cp final------\r\n\0");
-    uart_spin_printf("%d %d\r\n\0", go, entry);
-    go();
-    uart_spin_printf("------cp-------\r\n\0");
+//    uart_spin_printf("%d %d\r\n\0", go, entry);
+//    go();
+//    uart_spin_printf("------cp-------\r\n\0");
 }
 
 void _wait()
@@ -243,7 +234,9 @@ void _getppid()
 }
 
 
-void load_elf_debug()
+
+
+void svc_print()
 {
     uart_spin_printf("Are you ok?");
 }

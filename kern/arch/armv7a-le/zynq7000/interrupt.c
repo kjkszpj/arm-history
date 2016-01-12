@@ -59,11 +59,12 @@ int int_ent_ndef()
     pcb_t* n_pcb = sched_get_running();
     memcpy(&n_pcb->cpu, context_ndef, sizeof(context_cpu_t));
     uart_spin_puts("Undefined instruction exception.\r\n\0");
-    puthex((*context_svc).sp);
-    puthex((*context_svc).lr);
-    puthex((*context_svc).pc);
-    puthex((*context_svc).cpsr);
-    puthex((*context_svc).spsr);
+    puthex((*context_ndef).sp);
+    puthex((*context_ndef).lr);
+    puthex((*context_ndef).pc);
+    puthex((*context_ndef).cpsr);
+    puthex((*context_ndef).spsr);
+    while (1);
 //    syscall();
     asm volatile("msr spsr, %0\n" : :"r"(context_ndef->spsr) : );
     asm volatile("mov r1, %0\n" : :"r"(context_ndef->lr) : );
@@ -124,6 +125,12 @@ int int_ent_prefetch_abort()
     pcb_t* n_pcb = sched_get_running();
     memcpy(&n_pcb->cpu, context_abort, sizeof(context_cpu_t));
     uart_spin_puts("It works!, now in prefetch abort\r\n\0");
+    puthex((*context_abort).sp);
+    puthex((*context_abort).lr);
+    puthex((*context_abort).pc);
+    puthex((*context_abort).cpsr);
+    puthex((*context_abort).spsr);
+    while (1);
 //    prefetch_abort();
 
     asm volatile("msr spsr, %0\n" : :"r"(context_abort->spsr) : );
@@ -178,7 +185,7 @@ int int_ent_irq()
     puthex((*context_irq).cpsr);
     puthex((*context_irq).spsr);
     uart_spin_puts("bye\r\n\0");
-    (*context_irq).pc -= 4;
+//    (*context_irq).pc -= 4;
 
     u32* temp = (u32*)(PERIPHBASE + ICCEOIR_OFFSET);
     puthex(temp[0]);

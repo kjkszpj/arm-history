@@ -7,19 +7,18 @@
 /* how to refer to kernel base? */
 
 entry_program:
-/* just for sure*/
-/*
-	MOV	sp, #0x7FFFFFF0
-	MOVS	fp, sp
-    ISB*/
-    mov pc, lr
+	MOV	    sp, #0x7FFFFFF0
+	ISB
+	MOVS 	fp, sp
+    ISB
+    SVC     0
 /* jump to program, user program should have int main() function */
-/*    BL  main */
+    BL      main
 /* on return, handcraft exit(r0) */
 /* todo, check this number */
-    SVC 0
+    SVC     9
 /* should never continue here */
-    B loop
+    B       loop
 
 loop:
     B loop
