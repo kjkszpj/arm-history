@@ -1,0 +1,97 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\setsansfont{Tahoma}
+\setmonofont{Courier New}
+
+\usepackage{indentfirst}
+\setlength{\parindent}{2em}
+
+\usepackage{listings}
+\lstset{
+	language=c,
+	basicstyle=\ttfamily\footnotesize,
+	numbers=left,
+	numberstyle=\tiny,
+	breaklines=true,
+	tabsize=4,
+	xleftmargin=2em,
+	xrightmargin=1em,
+	aboveskip=1em
+}
+
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{verbatim}{Verbatim}{xleftmargin=.5in}
+
+\title{A Simple Kernel for ARM}
+\author{Xiaotao Liang \\ \small 13307130319}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+This is a simple kernel on the architecture ARM.
+
+\subsection{Overview}
+
+\subsection{Components of the Kernel}
+
+\subsubsection{Bootloader}
+Create 4 primary partitions on the SD card. The first partition stores the firmware, the 2nd partition stores the kernel, and the 3rd partition serves as a file system for the kernel.
+
+A binary program will run as MBR to load and boot the kernel. The program first reads the partition table to find out the start address of the 2nd partition, then loads the kernel program which is in ELF format to memory, and finally calls the entry of the kernel to boot it. Loading the kernel needs to read the ELF header, the program header table and all segments of contents successively.
+
+\subsubsection{Memory Manager}
+Divide the virtual address space into two parts, 2GB/2GB.
+
+Build a basic first-level page table: high address has mapping \verb|VA = PA + KERN_BASE|, and low address has mapping \verb|VA = PA|. Set the TTB register, enable MMU, invalidate TLB, jump to high memory, and remove all low memory mappings. With all these finished, finally the MMU has been started.
+
+I use a first-fit algorithm for page allocation. The physical memory allocator has following interfaces:
+\begin{lstlisting}
+char *alloc_pages(int num);  // allocate num pages
+void free_pages(char *addr, int num);  // free num pages starting from addr
+\end{lstlisting}
+
+I use a slab-allocation algorithm to allocate memory to kernel objects. Each kind of fixed-size kernel objects has a corresponding cache. Each cache consists of one or more slabs, and each slab consists of several physically contiguous pages. When creating a cache for a new kind of kernel objects, the size of objects, the size of slabs and the boundary for objects to align must be specified. The object allocator has following interfaces:
+\begin{lstlisting}
+void init_slab_cache(slab_cache_t *cache, int obj_size, int obj_num, int align_shift, int pages_of_slab);  // initialize a cache
+char *alloc_obj(slab_cache_t *cache);  // allocate a object from the corresponding cache
+void free_obj(slab_cache_t *cache, void *addr)  // free the object at addr
+\end{lstlisting}
+
+\subsubsection{CPU Scheduler}
+To support different scheduling algorithms, policy is separated from mechanism. I implement the round-robin (RR) algorithm in the kernel, but other scheduling algorithms can be added easily.
+
+The status of each process is one of following:
+\begin{verbatim}
+NEW, READY, RUNNING, WAIT, ZOMBIE, ABORT.
+\end{verbatim}
+And RR scheduling maintains 6 FIFO queues of corresponding processes. Each queue contains all processes with the same status. When the status of a process is changed, the process is moved from the current queue to the tail of another queue.
+
+The CPU scheduler picks the first process from the ready queue, sets a timer to interrupt after 1 time quantum, and dispatches the process. The process continues this cycle until it terminates, at which time it is moved to the zombie queue. Then its parent process deallocates the process's PCB and resources. Finally the process will be removed from all queues.
+
+\subsubsection{System Calls}
+
+\paragraph{fork}
+
+\paragraph{exec}
+
+\paragraph{wait}
+If there is any child process of the current process in the zombie queue, the current process deallocates the resources of its child process and return, otherwise it will be put into the waiting queue and wait to be wake up.
+
+\paragraph{exit}
+Change the status of the calling process to \verb|ZOMBIE|. If the current process's parent is waiting for it, then wake up the parent process to deallocated its resources. If the current process's children have exited, then pass the children process to \verb|init|.
+
+\paragraph{getpid, getppid}
+Pick the calling process in running queue and return the PID or PPID which is stored in the process's PCB.
+
+\section{Contribution}
+The development of the kernel consists of two phases. During the first phase, I developed the bootloader and memory manager of the kernel  by myself. During the second phase, I developed the kernel with Peijie You and Haoming Xing. Because our previous design of the kernel were quite different, the latter development was based on the work of Peijie You, and I didn't merge others' code into my code. The major work I did in second phase was development of the RR scheduler and some system calls. I submit two versions of code. One is for the first phase, and the other is for the second phase.
+
+\end{document}
+

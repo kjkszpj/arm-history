@@ -89,7 +89,7 @@ int slb_free_align(void* p, u32 size, u32 align)
             new_obj->next_obj = iter_pool->obj_head;
             iter_pool->obj_head = new_obj;
             iter_pool->cnt_inuse--;
-            return 0;
+               return 0;
         }
     return 1;
 }
@@ -131,7 +131,7 @@ static slb_pool_t* pool_alloc(u32 osize, u32 align)
 
 static void pool_free(slb_pool_t* p)
 {
-    pages_free(V2P(p), p->pool_size);
+    pages_free(V2P(p), V2P(p) + (p->pool_size));
 }
 
 static slb_pool_t* pool_segm(slb_pool_t* pool, u32 psize, u32 osize, u32 align)
