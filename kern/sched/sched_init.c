@@ -53,15 +53,15 @@ int init_sched()
     uart_spin_printf("<><><><><>cp<><><><><><>\r\n\0");
     if (cid == 0)
     {
-        u32 user_base = 0x003b9ad4;
-        asm volatile
-        (
-            "mov r0, %0\n"
-            "SVC 2\n"
-            :
-            :"r"(user_base)
-            :"r0"
-         );
+//        u32 user_base = 0x003b9ad4;
+//        asm volatile
+//        (
+//            "mov r0, %0\n"
+//            "SVC 2\n"
+//            :
+//            :"r"(user_base)
+//            :"r0"
+//         );
         puthex(*(u32*)0xFFFF0000);
 //        asm volatile("SVC 0");
         uart_spin_printf("~~~~~~\r\n\0");

@@ -24,4 +24,7 @@
 #define USER_STACK  0x00800000
 #define USER_ENTRY  0x00300000
 
+#define SYS_STACK   0xD0FFFFF0
+extern u32 V_SYS_STACK;
+
 #endif //AIMV6_SETTINGS_H

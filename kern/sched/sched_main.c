@@ -125,22 +125,16 @@ void sched_main()
     sched_debug();
     uart_spin_printf("---sched main() start------\r\n\0");
     pcb_t* now_pcb = sched_get_running();
-    uart_spin_printf("---sched main() a------\r\n\0");
     sched_preempt(now_pcb);
-    uart_spin_printf("---sched main() b------\r\n\0");
     print_pcb(now_pcb);
-    uart_spin_printf("---sched main() c------\r\n\0");
-    memcpy(&now_pcb->cpu, context_irq, sizeof(context_cpu_t));
+//    memcpy(&now_pcb->cpu, context_irq, sizeof(context_cpu_t));
 
     uart_spin_printf("---sched main() 1------\r\n\0");
     // chances are that new_pcb == now_pcb
     pcb_t* new_pcb = sched_pick();
-    uart_spin_printf("---sched main() 1.1------\r\n\0");
     sched_allow(new_pcb);
-    uart_spin_printf("---sched main() 1.2------\r\n\0");
     print_pcb(new_pcb);
 
-    uart_spin_printf("---sched main() 1--3----\r\n\0");
     uart_spin_printf("---sched main() 2------\r\n\0");
     context_switch(now_pcb, new_pcb, context_irq);
     uart_spin_printf("---sched main() byre------\r\n\0");

@@ -48,6 +48,9 @@
 #include <kern/sched/pcb.h>
 #include <kern/sched/sched.h>
 #include <string.h>
+#include <settings.h>
+
+u32 V_SYS_STACK = SYS_STACK;
 
 static int print_cpu();
 
@@ -96,6 +99,11 @@ int int_ent_svc()
 //    i think we should not concern lr, it will push in stack?
     asm volatile("mov %0, r1\n" :"=r"(context_svc->lr) : : );
     asm volatile("mrs %0, spsr\n" :"=r"(context_svc->spsr) : : );
+
+
+    u32 temp;
+    asm volatile("mov %0, sp\n" :"=r"(temp) : : );
+    uart_spin_printf("%x\r\n\0", temp);
 
     pcb_t* n_pcb = sched_get_running();
     memcpy(&n_pcb->cpu, context_svc, sizeof(context_cpu_t));
@@ -160,7 +168,7 @@ int int_ent_data_abort()
     puthex((*context_abort).cpsr);
     puthex((*context_abort).spsr);
     uart_spin_puts("system down\r\n\0");
-//    todo, for debug, now should exist no data abort
+//    todo, (for debug) now should exist no data abort
     while (1);
 
     asm volatile("msr spsr, %0\n" : :"r"(context_abort->spsr) : );
