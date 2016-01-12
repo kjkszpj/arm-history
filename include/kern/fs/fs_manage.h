@@ -14,10 +14,7 @@ typedef struct datablock_t {
 typedef struct fentry_t {
 	//TODO LOCKED
 	u32 index_number;
-<<<<<<< HEAD
 	char file_name[10];
-=======
->>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 	struct datablock_t *first_block;
 	struct fentry_t *next_entry;
 	int occupied;
@@ -26,10 +23,7 @@ typedef struct fentry_t {
 typedef struct fentry_stored_t {
 	u32 index_number;
 	u32 addr;
-<<<<<<< HEAD
 	char file_name[10];
-=======
->>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 }fentry_stored_t;
 //void *kmalloc(u32 size)
 #define FS_DATA_SIZE 			0x00100000
@@ -50,11 +44,7 @@ int close_file(u32 pid, u32 index_number);
 
 datablock_t* data_alloc(int num_blocks);
 
-<<<<<<< HEAD
 int create_file(u32 index_number);
-=======
-int create_file(u32 pid, u32 index_number);
->>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 
 // WARN: size: number of BLOCKs
 int append_file(u32 pid, u32 index_number, u32 vaddr, int size);
@@ -69,11 +59,8 @@ void *read_datablock(u32 pid, u32 index_number, u32 block_id, u32 size);
 
 void test_fs();
 
-<<<<<<< HEAD
 int fname_to_fd(char *name, int n);
 
 int create_file_from_name(char *name, int n);
 
-=======
->>>>>>> a03b83f424410650b0dec7fa82a3a84ba95a7d11
 #endif
