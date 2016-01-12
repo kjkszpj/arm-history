@@ -1,30 +1,33 @@
 %more code?
-\documentclass{article}
+\documentclass[12pt]{article}
 \usepackage{hyperref}
 %\usepackage{xeCJK}
 \usepackage{listings}
 \usepackage{multirow}
 \usepackage{color}
+
+
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\setsansfont{Tahoma}
+\setmonofont{Courier New}
+
 \lstset{
-	basicstyle = \small\ttfamily,
-	breaklines = true,
-	frame = single,
-	language = [ANSI]C,
-	tabsize = 2,
-	showspaces = false,
-	showstringspaces = false,
-	breakindent =1.1em,
+	language=c,
+	basicstyle=\ttfamily\footnotesize,
+	numbers=left,
+	numberstyle=\tiny,
+	breaklines=true,
+	tabsize=4,
+	xleftmargin=2em,
+	xrightmargin=1em,
+	aboveskip=1em
 }
-\lstset{
-	basicstyle = \small\ttfamily,
-	breaklines = true,
-	frame = ss,
-	language = bash,
-	tabsize = 2,
-	showspaces = false,
-	showstringspaces = false,
-	breakindent =1.1em,
-}
+
+
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{verbatim}{Verbatim}{xleftmargin=.5in}
+
 %\setCJKmainfont[BoldFont={Microsoft YaHei}, ItalicFont={KaiTi}]{SimSun}
 %\setCJKsansfont{BoldFont=Microsoft YaHei}
 %\setCJKmonofont{KaiTi}
@@ -143,6 +146,8 @@ My ``slab'' is a strange concept here, as I have different size mixed up togethe
 
 \textbf{Kernel Memory}
 My \emph{kmalloc()} is implemented base on the slab allocator. In \emph{kfree()}, we have no idea of the \emph{memory length}, so it should be a meta data and keep by the allocator. So I just \underline{pack the metadata(len) and the raw} data into some kind of ``object'' and use slb\_alloc() to allocate memory. 
+
+\emph{Here I think that no information on SIZE is need when kfree(), is a favorable feature.}
 \\~\\
 
 \textbf{mmap?} This function is to map the corresponding virtual page to some physical memory. Our implementation is naive, which traverse the page table and build a L2 PAGE for every of them.
@@ -173,7 +178,7 @@ Plus, in exception handle, we have to signal the acknowledge of signal in ICCIAR
 
 \section{Recently on OS}
 
-Here we will first conclude the overall project and then high light some parts. The following part is a teamwork output and we (mainly) share the code, with ---todo--- implement sched related thing, ---todo--- code the file system, and three of us design the system call together. 
+Here we will first conclude the overall project and then high light some parts. The following part is a teamwork output and we (mainly) share the code, with Xiaotao Liang implement sched related thing, Haoming Xing code the file system, and three of us design the system call together. 
 
 \subsection{How the program is run}
 \begin{enumerate}
@@ -199,10 +204,41 @@ Here we support all kind of system call, \emph{some of which is not debugged}, s
 	\item I/O and file system related, \emph{gets(), puts(), open(), close(), write(), create(), delete()...}
 \end{enumerate}
 
+
+\subsubsection{System Call}
+I describe the system calls which relate to process here, and the the system calls which relate to file system will be discussed in the next section.
+
+\paragraph{fork}
+To create a new child process, we request a unused PID, create a new PCB and a new page table, copy the whole user image of the parent process(as we have no copy on write), and put the child process into the ready queue. For the parent process, the system call returns PID of the child process; for the child process, the system call returns 0.
+
+\emph{We will always return the father process first.}
+
+\paragraph{exec}
+This system call removes the memory mapping of user space, and then load the ELF program to be executed into memory just like how bootloader does, excepte that we need to allocate memory for each segment and take care of the memory mapping here. After that, we set up the context of CPU.
+
+\paragraph{wait}
+If there is any child process of the current process in the zombie queue, the current process deallocates the resources of its child process and return, otherwise it will be put into the waiting queue and wait to be wake up.
+
+\paragraph{exit}
+Change the status of the calling process to \verb|ZOMBIE|. If the current process's parent is waiting for it, then wake up the parent process to deallocated its resources. If the current process's children have exited, then pass the children process to \verb|init|.
+
+\paragraph{getpid, getppid}
+Pick the calling process in running queue and return the PID or PPID which is stored in the process's PCB.
+
+
+
 A system call is actually a ``SVC ID'' instruction here, with register R0 (and probably R1 R2) to pass parameter, and R0 serves as the return value.
 
 \subsection{Scheduler}
 This part is provided by ---todo---, and please refer to his report for detail.
+
+Here are status value for our pcb:
+
+\begin{verbatim}
+NEW, READY, RUNNING, WAIT, ZOMBIE, ABORT.
+\end{verbatim}
+
+Other than that, our pcb have a pointer to L1 page table, a cpu context, pid, ppid things and other information(see code \cite{?} for detail).
 
 Here we use kind of Round Robin policy, with no priority. When private timer ticks, we run scheduler to choose next process.
 
@@ -210,9 +246,19 @@ How to context switch? Here we have two functions named \emph{switch\_mm()} and 
 
 \subsection{File System}
 
-This part is provided by ---todo---, and please refer to his report for detail.
+This part is provided by Haoming Xing\cite{---todo---}, and please refer to his report for detail.
 
-%todo
+The file system is implemented using link-based allocation. Each file is described as a linked list of disk blocks. The kernel supports basic operations of the file system, providing following system calls:
+
+\begin{lstlisting}
+int open(char *name, int nbyte);  // open the file, given the name
+int close(int fd);  // close the file
+int read(int fd, char *buf, int nbyte);  // read n bytes from the file into bufffer
+int write(int fd, char *buf, int nbyte);  // append n bytes stored in bufffer to the file
+int create(char *name, int nbyte);  // create a file, given the name
+int delete(int fd);  //  delete the file
+\end{lstlisting}
+
 
 \subsection{Exception}
 
@@ -235,10 +281,10 @@ Here we use private timer as our timer for scheduler. It will count down periodi
 We also made some modification to the given device, like:
 
 \begin{enumerate}
-	\item	Manage the cross frame interrupt, in sd\_dma\_spin\_read(), we have discuss it in class, and the final solution is provided by ---todo---.
+	\item	Manage the cross frame interrupt, in sd\_dma\_spin\_read(), we have discuss it in class, and the final solution is provided by Haoming Xing.
 	\item	For easy to use and debug, we have \emph{printf()} thing implemented.
 	\item a function called \emph{puthex()} failed on my OS, because the string that puts \emph{is not end with $\backslash 0$}.
-	\item \emph{gets()}, provided by ---todo---.
+	\item \emph{gets()}, provided by Haoming Xing.
 \end{enumerate}
 
 \subsection{Division on ARM}
@@ -272,9 +318,12 @@ Necessary \emph{user guides and manual} during the development.
 
 \indent \indent Report generated in \LaTeX
 
-View this project on GitHub.
+View this project on GitHub. You can see code for detail.
+
+Sorry about all comment and debug printf.
 
 \begin{thebibliography}{99}
+\bibitem \url{}
 \end{thebibliography}
 
 \end{document}

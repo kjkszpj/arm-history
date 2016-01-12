@@ -1,20 +1,26 @@
-\contentsline {section}{\numberline {1}Opening}{2}{section.1}
-\contentsline {section}{\numberline {2}Previously on OS}{2}{section.2}
-\contentsline {subsection}{\numberline {2.1}STEP 0 --- Some Introduction on ARM or the Zedboard}{2}{subsection.2.1}
-\contentsline {subsection}{\numberline {2.2}STEP 1 --- run the program}{2}{subsection.2.2}
-\contentsline {subsection}{\numberline {2.3}STEP 2 --- build bootloader}{3}{subsection.2.3}
-\contentsline {subsection}{\numberline {2.4}STEP 3 --- MMU}{3}{subsection.2.4}
-\contentsline {subsection}{\numberline {2.5}STEP 3 --- Memory Management}{4}{subsection.2.5}
-\contentsline {subsection}{\numberline {2.6}STEP 4 --- exception handle}{5}{subsection.2.6}
-\contentsline {section}{\numberline {3}Recently on OS}{5}{section.3}
-\contentsline {subsection}{\numberline {3.1}How the program is run}{5}{subsection.3.1}
-\contentsline {subsection}{\numberline {3.2}System Call}{6}{subsection.3.2}
-\contentsline {subsection}{\numberline {3.3}Scheduler}{6}{subsection.3.3}
-\contentsline {subsection}{\numberline {3.4}File System}{6}{subsection.3.4}
-\contentsline {subsection}{\numberline {3.5}Exception}{7}{subsection.3.5}
-\contentsline {subsection}{\numberline {3.6}Timer}{7}{subsection.3.6}
-\contentsline {subsection}{\numberline {3.7}Device Update}{7}{subsection.3.7}
-\contentsline {subsection}{\numberline {3.8}Division on ARM}{7}{subsection.3.8}
-\contentsline {section}{\numberline {4}Others}{8}{section.4}
-\contentsline {section}{\numberline {5}Summary}{8}{section.5}
-\contentsline {section}{\numberline {6}Thank You}{8}{section.6}
+\contentsline {section}{\numberline {1}Opening}{3}{section.1}
+\contentsline {section}{\numberline {2}Previously on OS}{3}{section.2}
+\contentsline {subsection}{\numberline {2.1}STEP 0 --- Some Introduction on ARM or the Zedboard}{3}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}STEP 1 --- run the program}{3}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}STEP 2 --- build bootloader}{4}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}STEP 3 --- MMU}{5}{subsection.2.4}
+\contentsline {subsection}{\numberline {2.5}STEP 3 --- Memory Management}{6}{subsection.2.5}
+\contentsline {subsection}{\numberline {2.6}STEP 4 --- exception handle}{7}{subsection.2.6}
+\contentsline {section}{\numberline {3}Recently on OS}{7}{section.3}
+\contentsline {subsection}{\numberline {3.1}How the program is run}{8}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}System Call}{8}{subsection.3.2}
+\contentsline {subsubsection}{\numberline {3.2.1}System Call}{8}{subsubsection.3.2.1}
+\contentsline {paragraph}{fork}{9}{section*.2}
+\contentsline {paragraph}{exec}{9}{section*.3}
+\contentsline {paragraph}{wait}{9}{section*.4}
+\contentsline {paragraph}{exit}{9}{section*.5}
+\contentsline {paragraph}{getpid, getppid}{9}{section*.6}
+\contentsline {subsection}{\numberline {3.3}Scheduler}{9}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}File System}{10}{subsection.3.4}
+\contentsline {subsection}{\numberline {3.5}Exception}{10}{subsection.3.5}
+\contentsline {subsection}{\numberline {3.6}Timer}{11}{subsection.3.6}
+\contentsline {subsection}{\numberline {3.7}Device Update}{11}{subsection.3.7}
+\contentsline {subsection}{\numberline {3.8}Division on ARM}{11}{subsection.3.8}
+\contentsline {section}{\numberline {4}Others}{11}{section.4}
+\contentsline {section}{\numberline {5}Summary}{12}{section.5}
+\contentsline {section}{\numberline {6}Thank You}{12}{section.6}
