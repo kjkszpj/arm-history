@@ -10,3 +10,4 @@ temp
 firmware.ld
 *.elf.*
 .*.swp
+tags
