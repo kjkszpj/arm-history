@@ -77,7 +77,7 @@ int init_sched()
         uart_spin_printf("fork succeed, cid= %d\r\n\0", cid);
         uart_spin_printf("I am your father.\r\n\0");
 //        test_all_interrupt();
-//        prototype for enable private timer
+//        prototype for private timer
         u32* pcr = (u32*)(PERIPHBASE+0x0600);
         puthex(pcr[0]);
         puthex(pcr[1]);

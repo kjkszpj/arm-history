@@ -40,13 +40,13 @@ void switch_mm(u32 pt_from, u32 pd_to)
      * args are pointer to the pt_base in KERNEL VIRTUAL SPACE
      * should convert to physical address
      */
-    uart_spin_printf("aaaaaaaa%x\r\n\0", V2P(pd_to));
-    uart_spin_printf("bbbbbbbb%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 0));
-    uart_spin_printf("cccccccc%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 0x800));
+//    uart_spin_printf("aaaaaaaa%x\r\n\0", V2P(pd_to));
+//    uart_spin_printf("bbbbbbbb%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 0));
+//    uart_spin_printf("cccccccc%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 4 * 0x800));
     move_TTBR0(V2P(pd_to));
-    uart_spin_printf("aaaaaaaa%x\r\n\0", V2P(pd_to));
-    uart_spin_printf("bbbbbbbb%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 0));
-    uart_spin_printf("cccccccc%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 0x800));
+//    uart_spin_printf("aaaaaaaa%x\r\n\0", V2P(pd_to));
+//    uart_spin_printf("bbbbbbbb%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 0));
+//    uart_spin_printf("cccccccc%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 4 * 0x800));
 }
 
 void switch_to(context_cpu_t* cpu_from, context_cpu_t* cpu_to, context_cpu_t* on_return)
@@ -111,27 +111,37 @@ void print_pcb(pcb_t* task)
     uart_spin_printf("    cpu, pc:\t%x\r\n\0", (u32)task->cpu.pc);
     uart_spin_printf("    cpu, r0:\t%x\r\n\0", (u32)task->cpu.r0);
     uart_spin_printf("    cpu, cpsr:\t%x\r\n\0", (u32)task->cpu.cpsr);
+    uart_spin_printf("  status:\t%d\r\n\0", (u32)task->status);
 }
 
 void sched_main()
 {
 //  rr implement here.
 
+    sched_debug();
     uart_spin_printf("---sched main() start------\r\n\0");
     pcb_t* now_pcb = sched_get_running();
-    sched_block(now_pcb);
+    uart_spin_printf("---sched main() start------\r\n\0");
+    sched_preempt(now_pcb);
+    uart_spin_printf("---sched main() start------\r\n\0");
     print_pcb(now_pcb);
+    uart_spin_printf("---sched main() start------\r\n\0");
+//    memcpy(&now_pcb->cpu, context_irq, sizeof(context_cpu_t));
 
     uart_spin_printf("---sched main() 1------\r\n\0");
     // chances are that new_pcb == now_pcb
-//    pcb_t* new_pcb = sched_pick();
-    pcb_t* new_pcb = sched_get_bypid(2 - now_pcb->td.pid);
-    sched_mature(new_pcb);
+    pcb_t* new_pcb = sched_pick();
+    uart_spin_printf("---sched main() 1.1------\r\n\0");
+//    pcb_t* new_pcb = sched_get_bypid(2 - now_pcb->td.pid);
+    sched_allow(new_pcb);
+    uart_spin_printf("---sched main() 1.2------\r\n\0");
     print_pcb(new_pcb);
 
+    uart_spin_printf("---sched main() 1--3----\r\n\0");
     uart_spin_printf("---sched main() 2------\r\n\0");
     context_switch(now_pcb, new_pcb, context_irq);
     uart_spin_printf("---sched main() byre------\r\n\0");
+    sched_debug();
 }
 
 //void cs_debug()

@@ -91,7 +91,7 @@ void _fork()
     c_pcb->page_table = slb_alloc_align(PTE_L1SIZE, PTE_L1ALIGN);
     memset(c_pcb->page_table, 0, PTE_L1SIZE);
     //  since there is no copy on write, just copy it, the whole image.
-    copy_mem_img((u32*)f_pcb->page_table, (u32*)c_pcb->page_table, 0, 0xFFFFFFFF, 0b0111100001, 0b010000111110);
+    copy_mem_img((u32*)f_pcb->page_table, (u32*)c_pcb->page_table, 0, 0xFFFFFFFF, 0b0111100001, 0b010000100010);
     uart_spin_printf("\tcp.\r\n\0");
     c_pcb->td.pid = cpid;
     c_pcb->td.ppid = sched_get_running()->td.pid;
