@@ -40,12 +40,12 @@ void kinit()
     if (slb_init() == 0)        uart_spin_puts("slb manage done.\r\n\0");
 //    init interrupt
     if (interrupt_init() == 0)  uart_spin_puts("int done.\r\n\0");
+    load_fs();
     if (init_sched() == 0)      uart_spin_puts("sched done.\r\n\0");
 
 //    prepare_INIT();
 
 //    fs test heregi
-    //load_fs();
 //    build_fs();
 //    uart_spin_puts("build FS done.\r\n\0");
 

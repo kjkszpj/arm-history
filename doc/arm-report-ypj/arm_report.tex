@@ -1,0 +1,212 @@
+%more code?
+\documentclass{article}
+\usepackage{hyperref}
+%\usepackage{xeCJK}
+\usepackage{listings}
+\usepackage{multirow}
+\usepackage{color}
+\lstset{
+	basicstyle = \small\ttfamily,
+	breaklines = true,
+	frame = single,
+	language = [ANSI]C,
+	tabsize = 2,
+	showspaces = false,
+	showstringspaces = false,
+	breakindent =1.1em,
+}
+\lstset{
+	basicstyle = \small\ttfamily,
+	breaklines = true,
+	frame = ss,
+	language = bash,
+	tabsize = 2,
+	showspaces = false,
+	showstringspaces = false,
+	breakindent =1.1em,
+}
+%\setCJKmainfont[BoldFont={Microsoft YaHei}, ItalicFont={KaiTi}]{SimSun}
+%\setCJKsansfont{BoldFont=Microsoft YaHei}
+%\setCJKmonofont{KaiTi}
+
+\title{LAKSMI\\Some OS Implementation on ARM}
+\author{Peijie You 13307130325}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Opening}
+
+In this project for Operating System course, we are told to \emph{implement our own operating system on ARM}. However, we have not finish all features of it by now. In this report, we are going to take a review of what we have done during the semester, and then describe our version of AIM operating system (I called it LAKSMI) here.
+
+\section{Previously on OS}
+
+During the course, we are guided by our TA to build program we need for our final OS. We will review these thing quickly here.
+
+\subsection{STEP 0 --- Some Introduction on ARM or the Zedboard}
+
+Before that, I have nearly \textbf{no} experience on ARM or other architecture.
+
+Notable things on ARM and the zedboard.
+\begin{itemize}
+	\item	Core register, r0-r12, sp, lr, pc, some of them are \textbf{banked}.
+	\item CPSR, and SPSR, program status register, it will remember all kind of flag, and the mode.
+	\item	CP15(co-processor?) thing, like SCTLR, TTBR0 .... And the special instruction MCR MRC to load/storage the register value. \emph{They are bank for the processor}.
+	\item	Mode, USR, IRQ, FIQ, Supervisor, Monitor, Abort, Hyp, Undefined, System, we mainly need SYS and USR here.
+	\item	Routine while exception arose, we should talk about it latter.
+	\item	Complicated number is not supported, like 0x12345678, you should separate them into two operation instruction if needed. (Since the ARM instruction is \textbf{fixed size})
+\end{itemize}
+
+\subsection{STEP 1 --- run the program}
+
+To run program on the board, you may want to \underline{compile and link} the program on your own computer and load to some specific location. (No compiler on the board).
+
+The procedure are as follows:
+
+\begin{enumerate}
+	\item	compile with arm-gcc
+	\item	link with arm-ld
+	\item	load to somewhere on the SD card by ``dd'' instruction on linux.
+\end{enumerate}
+
+When the firmware program finish its work, it will load the first block in SD card to the (physical) address 0x100000. So our program should satisfy the following requirement:
+
+\begin{itemize}
+	\item	saved on the first block on sd card (can be done by proper dd instruction)
+	\item	know that it will execute at address 0x100000 (done by ldscript)
+	\item have length less than the MBR size(like 446B)
+\end{itemize}
+
+After this experiment, I come to know about the MBR thing.
+
+\subsection{STEP 2 --- build bootloader}
+
+Since the length is MBR is limited and our kernel may not fit in it, we have to \underline{load our own kernel into memory}. Here in our OS, a kernel is a ELF file stored from the first block of the \textbf{second} partition.
+
+ELF is a file format, for Executable and Linkable Format, according to the manual, we have to:
+\begin{enumerate}
+	\item	read the elf header, know some information about the program header
+	\item	load program header entry(a segment?), it will specified where to load this segment thing, just load as it says, I will load to the \emph{paddr} for kernel and \emph{vaddr} for user program
+	\item	jump to the program entry specified in the elf header
+\end{enumerate}
+
+\emph{Noted that the validation of elf header is not implemented here.}
+
+\subsection{STEP 3 --- memory management}
+
+An important things that we have not brought up yet is the \textbf{MMU}, so no virtual address - physical address translation yet. Our job here is to enable MMU and clean things that we no longer need.
+
+In ARM32, we have 2 level of page table structure, and 4 kinds of page(4KB, 64KB, 1MB, 16MB), in this project we will only use page of 4KB(for user) and 1MB(for kernel).
+
+We divide the virtual space into \emph{2G:2G}, the lower 2G is user space is higher 2G is kernel space.
+
+\textbf{VIRTUAL memory} for now:
+\begin{itemize}
+	\item 3M, code for kernel before MMU(will be clear after MMU is enabled).
+	\item	2G to 2G+512M, image for RAM
+	\item	2G+2M, where the rest of kernel is load.
+	\item	0xE0000000 to 0xFFFFFFFF, mapping to the corresponding place, care for the device and other things.
+	\item	0xDFF00000, kernel stack during initialization, mapping physical RAM 511-512M
+	\item	0xFFFF0000, interrupt table.
+\end{itemize}
+
+\textbf{PHYSICAL memory} for now:
+\begin{itemize}
+	\item 3M, code for kernel before MMU
+	\item	2M, rest of the kernel
+	\item	0xE0000000 to 0xFFFFFFFF, care for the device and other things.
+	\item	511-512M, first the firmware, then the stack for sys
+	\item	4M, interrupt table
+\end{itemize}
+
+\subsection{STEP 4 --- exception handler}
+%todo
+
+\section{Recently on OS}
+
+Here we will first conclude the overall project and then high light some parts. The following part is a teamwork output, with ---todo--- implement sched related thing, ---todo--- code the file system, and three of us design the system call together. 
+
+\subsection{How the program is run}
+\begin{enumerate}
+	\item	Go from firmware.bin
+	\item	Fall in the MBR code, it automatically load 2 parts(before and after MMU) to the RAM.
+	\item Init for all kind of device again.
+	\item Enable MMU.
+	\item	Enable l1cache.
+	\item	Enable SCU.
+	\item	Enable page manage, for page alloc
+	\item	Init for slab allocator.
+	\item	Init for interrupt
+	\item	Init for file system
+	\item Init for sheduler
+	\item	Fork and exec a user program.
+\end{enumerate}
+
+\subsection{System Call}
+Here we support all kind of system call, \emph{some of which is not debugged}, see the file \emph{syscall.h} for detail.
+
+\begin{enumerate}
+	\item	process related, \emph{fork(), exec(), exit(), wait(), getpid(), getppid()...}
+	\item I/O and file system related, \emph{gets(), puts(), open(), close(), write(), create(), delete()...}
+\end{enumerate}
+
+A system call is actually a ``SVC ID'' instruction here, with register R0 (and probably R1 R2) to pass parameter, and R0 serves as the return value.
+
+\subsection{Scheduler}
+Here we use kind of Round Robin policy, with no priority. When private timer ticks, we run scheduler to choose next process.
+
+\subsection{File System}
+%todo
+
+\subsection{Exception}
+
+\subsection{Device Update}
+
+We also made some modification to the given device, like:
+
+\begin{enumerate}
+	\item	Manage the cross frame interrupt, in sd\_dma\_spin\_read(), we have discuss it in class, and the final solution is provided by ---todo---.
+	\item	For easy to use and debug, we have \emph{printf()} thing implemented.
+	\item a function called \emph{puthex()} failed on my OS, because the string that puts \emph{is not end with $\backslash 0$}.
+	\item \emph{gets()}, provided by ---todo---.
+\end{enumerate}
+
+\subsection{Division on ARM}
+
+ARM architecture alone did not provide integer division, here I implement my division.\cite{---todo---}
+
+You can click that link and view the source code. The function I implemented are \emph{\_\_aeabi\_idiv()} or \emph{\_\_aeabi\_uidiv()}.
+
+User in our OS can simply use division, and the compiler will care about the rest. For \underline{divided by zero}, we will return 0. You are welcome the raise error for this.
+
+\section{Others}
+
+Necessary \emph{user guides and manual} during the development.
+
+\begin{enumerate}
+	\item	ARM® Architecture Reference Manual(ARMv7-A and ARMv7-R edition), \emph{manual for the architecture}.
+	\item CortexTM-A9 MPCore® Revision: r3p0 Technical Reference Manual, \emph{manual for the specific mpcore things, such as timer, snoop control unit...}
+	\item	Zynq-7000 All Programmable SoC Technical Reference Manual, \emph{about the board.}
+	\item	Executable and Linkable Format.PDF, \emph{to help the load elf thing.}
+	\item ARM Generic Interrupt Controller v1.0, \emph{may be good for the interrupt handling.}
+\end{enumerate}
+%question here
+
+\section{Summary}
+%experience
+%hard
+%take time
+%interesting
+
+\section{Thank You}
+
+\indent \indent Report generated in \LaTeX
+
+View this project on GitHub.
+
+\begin{thebibliography}{99}
+\end{thebibliography}
+
+\end{document}
