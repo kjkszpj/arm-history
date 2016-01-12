@@ -4,10 +4,14 @@
 
 #include <kern/mm/pte.h>
 
+#include <kern/init/init.h>
+
 void invalidate_tlb()
 {
     asm volatile
     (
+        "dsb\n"
+        "isb\n"
         "mov r0, #0\n"
         "mcr p15, 0, r0, c8, c7, 0\n"
 //      just in case, i think here dsb & isb is not needed
@@ -39,7 +43,7 @@ void move_TTBR1(u32 pt1_paddr)
     asm volatile
     (
         "mov r0, %0\n"
-        "mcr p15, 0, r0, c2, c0, 0\n"
+        "mcr p15, 0, r0, c2, c0, 1\n"
         "dsb\n"
         "isb\n"
         :

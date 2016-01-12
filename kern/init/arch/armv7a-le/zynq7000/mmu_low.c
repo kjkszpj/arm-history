@@ -61,8 +61,8 @@ void asm_mmu(u32 pt0_paddr, u32 pt1_paddr)
 //        load variable (kernel region)pt_base into TTBR0 and TTBR1
         "mov r0, %0\n"
         "mcr p15, 0, r0, c2, c0, 0\n"
-        "mov r0, %1\n"
-        "mcr p15, 0, r0, c2, c0, 1\n"
+//        "mov r0, %1\n"
+//        "mcr p15, 0, r0, c2, c0, 1\n"
 //        enable TTB1 by TTBCR1
 //        WARNING: here assuming TTBCR.N(T0SZ)=0
 //        "mrc p15, 0, r0, c2, c0, 2\n"

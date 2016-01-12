@@ -43,6 +43,7 @@ void switch_mm(u32 pt_from, u32 pd_to)
 //    uart_spin_printf("aaaaaaaa%x\r\n\0", V2P(pd_to));
 //    uart_spin_printf("bbbbbbbb%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 0));
 //    uart_spin_printf("cccccccc%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 4 * 0x800));
+
     move_TTBR0(V2P(pd_to));
 //    uart_spin_printf("aaaaaaaa%x\r\n\0", V2P(pd_to));
 //    uart_spin_printf("bbbbbbbb%x\r\n\0", *(u32*)P2V(V2P(pd_to) + 0));
@@ -70,8 +71,11 @@ void context_switch(pcb_t* task_from, pcb_t* task_to, context_cpu_t* on_return)
 //    uart_spin_printf("It works! Now going to context switch.\r\n\0");
 //    sched_preempt(task_from);
 //    sched_allow(task_to);
+    uart_spin_printf("@@@@@@@\r\n\0");
     switch_mm((u32)task_from->page_table, (u32)task_to->page_table);
+    uart_spin_printf("@@@@@@@\r\n\0");
     switch_to(&(task_from->cpu), &(task_to->cpu), on_return);
+    uart_spin_printf("@@@@@@@\r\n\0");
 }
 
 //  new/delete
@@ -121,18 +125,17 @@ void sched_main()
     sched_debug();
     uart_spin_printf("---sched main() start------\r\n\0");
     pcb_t* now_pcb = sched_get_running();
-    uart_spin_printf("---sched main() start------\r\n\0");
+    uart_spin_printf("---sched main() a------\r\n\0");
     sched_preempt(now_pcb);
-    uart_spin_printf("---sched main() start------\r\n\0");
+    uart_spin_printf("---sched main() b------\r\n\0");
     print_pcb(now_pcb);
-    uart_spin_printf("---sched main() start------\r\n\0");
-//    memcpy(&now_pcb->cpu, context_irq, sizeof(context_cpu_t));
+    uart_spin_printf("---sched main() c------\r\n\0");
+    memcpy(&now_pcb->cpu, context_irq, sizeof(context_cpu_t));
 
     uart_spin_printf("---sched main() 1------\r\n\0");
     // chances are that new_pcb == now_pcb
     pcb_t* new_pcb = sched_pick();
     uart_spin_printf("---sched main() 1.1------\r\n\0");
-//    pcb_t* new_pcb = sched_get_bypid(2 - now_pcb->td.pid);
     sched_allow(new_pcb);
     uart_spin_printf("---sched main() 1.2------\r\n\0");
     print_pcb(new_pcb);
